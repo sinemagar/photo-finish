@@ -17,7 +17,7 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 | 1     | Domain core                 | Done        |
 | 2     | State management            | Done        |
 | 3     | Functional interface        | Done        |
-| 4     | Race engine and animation   | Not started |
+| 4     | Race engine and animation   | Done        |
 | 5     | Visual design and polish    | Not started |
 | 6     | End-to-end and visual tests | Not started |
 | 7     | Delivery                    | Not started |
@@ -89,11 +89,15 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 
 **Outcome:** rounds play out visibly on the track in real time. This completes every requirement of the brief.
 
-- [ ] `RaceTrack` renderer: ten lanes, lane numbers, finish line, round label (FR-15)
-- [ ] `TrackLane` and `HorseSprite`: position from progress using `transform` only, coloured per horse (FR-16, FR-17, NFR-01)
-- [ ] Pause and resume hold and continue positions exactly (FR-12)
-- [ ] Intermission between rounds and the meeting-finished state (FR-14)
-- [ ] Component tests for the track renderer
+- [x] `RaceTrack` renderer: ten lanes, lane numbers and the finish line; takes runners and progress as props and knows nothing about stores (FR-15)
+- [x] `TrackLane` and `HorseSprite`: position from progress using `transform` only, coloured per horse (FR-16, FR-17, NFR-01)
+- [x] Gallop cycle that plays only while a horse is actually running, and not at all with `prefers-reduced-motion` (FR-18, FR-19)
+- [x] The upcoming round is lined up on the starting line as soon as a programme exists
+- [x] Finishing position shown next to each horse as it crosses the line
+- [x] Pause and resume hold and continue positions exactly (FR-12)
+- [x] Intermission between rounds and the meeting-finished state (FR-14)
+- [x] Surges tuned to last longer, so that horses visibly gain and lose ground during a round
+- [x] Component tests for the sprite, the lane, the renderer and the panel
 
 **Exit criteria:** a full meeting can be watched from start to finish; pausing freezes every horse; the same seed yields the same race.
 
@@ -107,7 +111,6 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 - [ ] Empty, ready, intermission and finished states with clear messaging
 - [ ] Podium highlight in results; currently running round highlighted in the programme
 - [ ] Live standings during a round (FR-24, if time allows)
-- [ ] `prefers-reduced-motion` support (FR-19)
 - [ ] Accessibility pass: focus order, contrast, labels (NFR-04)
 - [ ] Responsive pass at 360, 768 and 1280 px
 
