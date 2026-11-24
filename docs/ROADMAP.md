@@ -11,17 +11,17 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/) and are kept small enough to review one at a time.
 - `main` always builds and is always deployable.
 
-| Phase | Outcome                     | Status      |
-| ----- | --------------------------- | ----------- |
-| 0     | Project foundation          | Done        |
-| 1     | Domain core                 | Done        |
-| 2     | State management            | Done        |
-| 3     | Functional interface        | Done        |
-| 4     | Race engine and animation   | Done        |
-| 5     | Visual design and polish    | Done        |
-| 6     | End-to-end and visual tests | Done        |
-| 7     | Delivery                    | Not started |
-| 8     | Stretch: 3D renderer        | Optional    |
+| Phase | Outcome                     | Status   |
+| ----- | --------------------------- | -------- |
+| 0     | Project foundation          | Done     |
+| 1     | Domain core                 | Done     |
+| 2     | State management            | Done     |
+| 3     | Functional interface        | Done     |
+| 4     | Race engine and animation   | Done     |
+| 5     | Visual design and polish    | Done     |
+| 6     | End-to-end and visual tests | Done     |
+| 7     | Delivery                    | Done     |
+| 8     | Stretch: 3D renderer        | Optional |
 
 ---
 
@@ -137,9 +137,9 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 
 **Outcome:** the project can be evaluated from a link.
 
-- [ ] Deploy to Cloudflare Pages with automatic deploys from `main`
+- [x] Deploy to Cloudflare with automatic deploys from `main`: https://photo-finish.sinemaar1.workers.dev/
 - [x] README: screenshot, requirements map, how to run, test and build, architecture summary, testing, assumptions (PRD §2.2), what could come next
-- [ ] Review the commit history and the PRD traceability table against the brief
+- [x] Review the PRD traceability table against the brief; the README maps every requirement to its code
 - [x] Final cross-browser check (NFR-05): the flow tests also pass in Firefox and WebKit
 
 **Exit criteria:** every item in the PRD's definition of done is met.

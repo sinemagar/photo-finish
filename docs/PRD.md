@@ -178,7 +178,7 @@ All random choices go through one seeded pseudo-random generator that is passed 
 | E2E and visual tests     | Playwright                                                                | One tool for both; screenshot comparison built in              |
 | Quality                  | ESLint, Prettier, `vue-tsc`                                               | Enforced in CI                                                 |
 | CI                       | GitHub Actions                                                            | Lint, type-check, unit, E2E on every push                      |
-| Hosting                  | Cloudflare Pages                                                          | Free static hosting with automatic deploys                     |
+| Hosting                  | Cloudflare                                                                | Free static hosting with automatic deploys                     |
 
 ### 6.2 Architecture
 

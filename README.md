@@ -2,6 +2,8 @@
 
 An interactive horse racing game built with Vue 3, Pinia and TypeScript.
 
+**[Play it live](https://photo-finish.sinemaar1.workers.dev/)**
+
 Generate a six-round programme from a stable of twenty horses, start the meeting and watch each round play out on the track, with results appearing as every round finishes.
 
 ![Photo Finish after the first round: ten horses on the finish line with their positions, the programme and the first result](./docs/images/screenshot.png)
