@@ -19,13 +19,14 @@ import {
 import { useSessionStore } from './session'
 import { useStableStore } from './stable'
 
-/** A runner as the track needs it: who it is, where it is and whether it has finished. */
+/** A runner as the track needs it: who it is, where it is and how it finished. */
 export interface TrackRunner {
   lane: number
   horse: Horse
   /** Share of the distance covered, from 0 to 1. */
   progress: number
-  finished: boolean
+  /** Finishing position, or null while the runner is still on its way. */
+  position: number | null
 }
 
 export type ToggleLabel = 'Start' | 'Pause' | 'Resume'
@@ -75,20 +76,32 @@ export const useMeetingStore = defineStore('meeting', () => {
     () => status.value === 'running' || status.value === 'intermission',
   )
 
+  /**
+   * The field as the track should draw it. Before the start it is the upcoming round lined
+   * up on the starting line; afterwards it follows the live round state.
+   */
   const trackRunners = computed<TrackRunner[]>(() => {
     const state = roundState.value
-    if (!state) return []
+    const entries = state?.runners ?? currentRound.value?.runners ?? []
 
-    return state.runners.flatMap((runner) => {
-      const horse = stable.getHorse(runner.horseId)
+    const finishOrder = (state?.runners ?? [])
+      .filter((runner) => runner.finishTime !== null)
+      .sort((a, b) => (a.finishTime ?? 0) - (b.finishTime ?? 0) || a.lane - b.lane)
+      .map((runner) => runner.lane)
+
+    return entries.flatMap((entry) => {
+      const horse = stable.getHorse(entry.horseId)
       if (!horse) return []
+
+      const live = state?.runners.find((runner) => runner.lane === entry.lane)
+      const finishIndex = finishOrder.indexOf(entry.lane)
 
       return [
         {
-          lane: runner.lane,
+          lane: entry.lane,
           horse,
-          progress: runnerProgress(state, runner),
-          finished: runner.finishTime !== null,
+          progress: state && live ? runnerProgress(state, live) : 0,
+          position: finishIndex === -1 ? null : finishIndex + 1,
         },
       ]
     })

@@ -113,6 +113,16 @@ describe('meeting store', () => {
       expect(meeting.status).toBe('ready')
       expect(meeting.roundState).toBeNull()
     })
+
+    it('lines the first round up on the starting line', () => {
+      meeting.generateProgramme()
+
+      expect(meeting.trackRunners.map((runner) => runner.lane)).toEqual(
+        meeting.currentRound?.runners.map((runner) => runner.lane),
+      )
+      expect(meeting.trackRunners.every((runner) => runner.progress === 0)).toBe(true)
+      expect(meeting.trackRunners.every((runner) => runner.position === null)).toBe(true)
+    })
   })
 
   describe('running a round', () => {
@@ -146,7 +156,7 @@ describe('meeting store', () => {
       for (const runner of meeting.trackRunners) {
         expect(runner.progress).toBeGreaterThan(0)
         expect(runner.progress).toBeLessThan(1)
-        expect(runner.finished).toBe(false)
+        expect(runner.position).toBeNull()
       }
     })
 
@@ -162,6 +172,20 @@ describe('meeting store', () => {
 
       expect(fast).toBeGreaterThan(0)
       expect(slow.roundState?.elapsed).toBeCloseTo(fast)
+    })
+
+    it('hands out positions in the order the runners cross the line', () => {
+      while (meeting.trackRunners.every((runner) => runner.position === null)) {
+        meeting.tick(1)
+      }
+
+      const finished = meeting.trackRunners.filter((runner) => runner.position !== null)
+
+      expect(meeting.status).toBe('running')
+      expect(finished.map((runner) => runner.position).sort()).toEqual(
+        finished.map((_, index) => index + 1),
+      )
+      expect(finished.every((runner) => runner.progress === 1)).toBe(true)
     })
 
     it('blocks generating a new programme', () => {
@@ -279,8 +303,17 @@ describe('meeting store', () => {
 
     it('leaves the runners on the finish line during the intermission', () => {
       expect(meeting.currentRound?.number).toBe(1)
-      expect(meeting.trackRunners.every((runner) => runner.finished)).toBe(true)
       expect(meeting.trackRunners.every((runner) => runner.progress === 1)).toBe(true)
+    })
+
+    it('gives every runner the position it has in the result', () => {
+      const placings = meeting.results[0]?.placings ?? []
+
+      for (const runner of meeting.trackRunners) {
+        const placing = placings.find((candidate) => candidate.lane === runner.lane)
+
+        expect(runner.position).toBe(placing?.position)
+      }
     })
 
     it('cannot be paused, started or regenerated during the intermission', () => {
@@ -377,7 +410,7 @@ describe('meeting store', () => {
       expect(meeting.status).toBe('ready')
       expect(meeting.results).toEqual([])
       expect(meeting.programme).not.toEqual(previous)
-      expect(meeting.trackRunners).toEqual([])
+      expect(meeting.trackRunners.every((runner) => runner.progress === 0)).toBe(true)
     })
 
     it('is reproducible from the seed', () => {
