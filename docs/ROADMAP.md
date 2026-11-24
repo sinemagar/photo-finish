@@ -15,7 +15,7 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 | ----- | --------------------------- | ----------- |
 | 0     | Project foundation          | Done        |
 | 1     | Domain core                 | Done        |
-| 2     | State management            | Not started |
+| 2     | State management            | Done        |
 | 3     | Functional interface        | Not started |
 | 4     | Race engine and animation   | Not started |
 | 5     | Visual design and polish    | Not started |
@@ -57,12 +57,13 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 
 **Outcome:** Pinia stores expose the game to the interface through a strict state machine.
 
-- [ ] `useStableStore`: holds the horses, creates them on initialisation
-- [ ] `useMeetingStore`: status, programme, current round, live round state, results
-- [ ] Actions: `generateProgramme`, `start`, `pause`, `resume`, `tick(elapsed)`, plus the internal round transitions
-- [ ] Getters: current round, runners with progress, `canGenerate`, `canStart`, label for the start control
-- [ ] Guard illegal transitions (PRD §5.1, decision A4)
-- [ ] Unit tests for every transition, result recording and reset on regenerate (FR-09)
+- [x] `useSessionStore`: seed, playback speed and the shared random source
+- [x] `useStableStore`: holds the horses and creates them on request
+- [x] `useMeetingStore`: status, programme, current round, live round state, results
+- [x] Actions: `generateProgramme`, `start`, `pause`, `resume`, `toggle`, `tick(elapsed)`, plus the internal round transitions
+- [x] Getters: current round, runners with progress, `canGenerate`, `canToggle`, label for the start control
+- [x] Guard illegal transitions (PRD §5.1, decision A4)
+- [x] Unit tests for every transition, result recording and reset on regenerate (FR-09)
 
 **Exit criteria:** driving the store with `tick` alone completes a meeting and yields six results, in a test with no components mounted.
 
