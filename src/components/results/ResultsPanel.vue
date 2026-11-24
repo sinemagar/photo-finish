@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, useTemplateRef } from 'vue'
 
-import RoundTable, { type RoundTableRow } from '@/components/shared/RoundTable.vue'
+import RoundCard, { type RoundCardRow } from '@/components/shared/RoundCard.vue'
 import BasePanel from '@/components/ui/BasePanel.vue'
+import { useAutoExpand } from '@/composables/useAutoExpand'
 import { useRevealInScroller } from '@/composables/useRevealInScroller'
 import { useMeetingStore } from '@/stores/meeting'
 import { useStableStore } from '@/stores/stable'
@@ -12,32 +13,41 @@ const meeting = useMeetingStore()
 const stable = useStableStore()
 
 const rounds = computed(() =>
-  meeting.results.map((result) => ({
-    number: result.roundNumber,
-    heading: `Round ${result.roundNumber} · ${formatDistance(result.distance)}`,
-    rows: result.placings.flatMap((placing): RoundTableRow[] => {
+  meeting.results.map((result) => {
+    const rows = result.placings.flatMap((placing): RoundCardRow[] => {
       const horse = stable.getHorse(placing.horseId)
       return horse ? [{ rank: placing.position, horse, detail: formatRaceTime(placing.time) }] : []
-    }),
-  })),
+    })
+    const winner = rows[0]
+
+    return {
+      number: result.roundNumber,
+      heading: `Round ${result.roundNumber} · ${formatDistance(result.distance)}`,
+      winner,
+      // Readable while collapsed, so earlier rounds stay useful at a glance.
+      summary: winner ? `Won by ${winner.horse.name}` : undefined,
+      rows,
+    }
+  }),
 )
 
 const latest = computed(() => rounds.value[rounds.value.length - 1])
+const latestNumber = computed(() => latest.value?.number ?? null)
 
 /** Spoken summary of the most recent result, for screen-reader users. */
 const announcement = computed(() => {
-  const winner = latest.value?.rows[0]
+  const winner = latest.value?.winner
   if (!latest.value || !winner) return ''
 
   return `Round ${latest.value.number} finished. Winner: ${winner.horse.name}.`
 })
 
-// Bring each new result into view as it arrives.
+// Each new result opens and comes into view; the previous one folds to its winner.
+const { isExpanded, toggle } = useAutoExpand(latestNumber)
+
 const list = useTemplateRef<HTMLElement>('list')
-useRevealInScroller(
-  list,
-  () => rounds.value.length,
-  () => (latest.value ? `[data-round="${latest.value.number}"]` : null),
+useRevealInScroller(list, latestNumber, () =>
+  latestNumber.value === null ? null : `[data-round="${latestNumber.value}"]`,
 )
 </script>
 
@@ -50,7 +60,7 @@ useRevealInScroller(
       Results appear here as each round finishes.
     </p>
     <div ref="list">
-      <RoundTable
+      <RoundCard
         v-for="round in rounds"
         :key="round.number"
         data-testid="result-round"
@@ -59,7 +69,11 @@ useRevealInScroller(
         rank-label="Pos"
         detail-label="Time"
         :rows="round.rows"
+        :summary="round.summary"
+        state="done"
         podium
+        :expanded="isExpanded(round.number)"
+        @toggle="toggle(round.number)"
       />
     </div>
   </BasePanel>

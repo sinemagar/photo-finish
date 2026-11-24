@@ -1,37 +1,57 @@
 <script setup lang="ts">
 import { computed, useTemplateRef } from 'vue'
 
-import RoundTable, { type RoundTableRow } from '@/components/shared/RoundTable.vue'
+import RoundCard, {
+  type RoundCardRow,
+  type RoundCardState,
+} from '@/components/shared/RoundCard.vue'
 import BasePanel from '@/components/ui/BasePanel.vue'
+import { useAutoExpand } from '@/composables/useAutoExpand'
 import { useRevealInScroller } from '@/composables/useRevealInScroller'
 import { useMeetingStore } from '@/stores/meeting'
 import { useStableStore } from '@/stores/stable'
 import { formatDistance } from '@/utils/format'
 
+const SUMMARIES: Record<RoundCardState, string | undefined> = {
+  upcoming: undefined,
+  active: 'On track',
+  done: 'Done',
+}
+
 const meeting = useMeetingStore()
 const stable = useStableStore()
 
-const activeRoundNumber = computed(() =>
-  meeting.status === 'ready' ? null : (meeting.currentRound?.number ?? null),
-)
+/** The round the track is showing: the first one before the start, then the live one. */
+const currentRoundNumber = computed(() => meeting.currentRound?.number ?? null)
 
 const rounds = computed(() =>
-  meeting.programme.map((round) => ({
-    number: round.number,
-    heading: `Round ${round.number} · ${formatDistance(round.distance)}`,
-    active: round.number === activeRoundNumber.value && meeting.status !== 'finished',
-    done: meeting.results.some((result) => result.roundNumber === round.number),
-    rows: round.runners.flatMap((runner): RoundTableRow[] => {
-      const horse = stable.getHorse(runner.horseId)
-      return horse ? [{ rank: runner.lane, horse }] : []
-    }),
-  })),
+  meeting.programme.map((round) => {
+    const isDone = meeting.results.some((result) => result.roundNumber === round.number)
+    const isOnTrack =
+      round.number === currentRoundNumber.value &&
+      meeting.status !== 'ready' &&
+      meeting.status !== 'finished'
+    const state: RoundCardState = isOnTrack ? 'active' : isDone ? 'done' : 'upcoming'
+
+    return {
+      number: round.number,
+      heading: `Round ${round.number} · ${formatDistance(round.distance)}`,
+      state,
+      summary: SUMMARIES[state],
+      rows: round.runners.flatMap((runner): RoundCardRow[] => {
+        const horse = stable.getHorse(runner.horseId)
+        return horse ? [{ rank: runner.lane, horse }] : []
+      }),
+    }
+  }),
 )
 
-// Keep the round that is on the track in view while the meeting moves through the list.
+// The list follows the meeting: the current round opens and comes into view by itself.
+const { isExpanded, toggle } = useAutoExpand(currentRoundNumber)
+
 const list = useTemplateRef<HTMLElement>('list')
-useRevealInScroller(list, activeRoundNumber, () =>
-  activeRoundNumber.value === null ? null : `[data-round="${activeRoundNumber.value}"]`,
+useRevealInScroller(list, currentRoundNumber, () =>
+  currentRoundNumber.value === null ? null : `[data-round="${currentRoundNumber.value}"]`,
 )
 </script>
 
@@ -41,7 +61,7 @@ useRevealInScroller(list, activeRoundNumber, () =>
       No programme yet. Generate one to see the six rounds and their runners.
     </p>
     <div ref="list">
-      <RoundTable
+      <RoundCard
         v-for="round in rounds"
         :key="round.number"
         data-testid="programme-round"
@@ -49,8 +69,10 @@ useRevealInScroller(list, activeRoundNumber, () =>
         :heading="round.heading"
         rank-label="Lane"
         :rows="round.rows"
-        :active="round.active"
-        :muted="round.done && !round.active"
+        :state="round.state"
+        :summary="round.summary"
+        :expanded="isExpanded(round.number)"
+        @toggle="toggle(round.number)"
       />
     </div>
   </BasePanel>

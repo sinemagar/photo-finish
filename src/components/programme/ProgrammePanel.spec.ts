@@ -6,6 +6,8 @@ import { mountWithStores, tickUntilStatusChanges } from '@/test/mountWithStores'
 import ProgrammePanel from './ProgrammePanel.vue'
 
 const round = '[data-testid="programme-round"]'
+const heading = '[data-testid="round-heading"]'
+const summary = '[data-testid="round-summary"]'
 
 describe('ProgrammePanel', () => {
   it('shows a hint before a programme exists', () => {
@@ -23,7 +25,7 @@ describe('ProgrammePanel', () => {
 
     const rounds = wrapper.findAll(round)
 
-    expect(rounds.map((table) => table.get('caption').text())).toEqual([
+    expect(rounds.map((card) => card.get(heading).text())).toEqual([
       'Round 1 · 1200 m',
       'Round 2 · 1400 m',
       'Round 3 · 1600 m',
@@ -32,50 +34,68 @@ describe('ProgrammePanel', () => {
       'Round 6 · 2200 m',
     ])
 
-    rounds.forEach((table, index) => {
+    rounds.forEach((card, index) => {
       const names = meeting.programme[index]?.runners.map(
         (runner) => stable.getHorse(runner.horseId)?.name,
       )
 
-      expect(table.findAll('tbody tr').map((row) => row.get('.horse-badge').text())).toEqual(names)
+      expect(card.findAll('tbody tr').map((row) => row.get('.horse-badge').text())).toEqual(names)
     })
   })
 
-  it('plays down the rounds that have been run', async () => {
+  it('marks each round as to come, on the track or done, in words', async () => {
     const { wrapper, meeting } = mountWithStores(ProgrammePanel)
-    const mutedRounds = () =>
-      wrapper.findAll('.round-table--muted').map((table) => table.attributes('data-round'))
+    const summaries = () =>
+      wrapper
+        .findAll(round)
+        .map((card) => (card.find(summary).exists() ? card.get(summary).text() : null))
 
     meeting.generateProgramme()
+    await nextTick()
+    expect(summaries()).toEqual([null, null, null, null, null, null])
+
     meeting.start()
     await nextTick()
-    expect(mutedRounds()).toEqual([])
+    expect(summaries()).toEqual(['On track', null, null, null, null, null])
 
-    tickUntilStatusChanges(meeting) // round 1 finishes; it stays highlighted for the break
+    tickUntilStatusChanges(meeting) // round 1 finishes; it stays on the track for the break
     await nextTick()
-    expect(mutedRounds()).toEqual([])
+    expect(summaries()).toEqual(['On track', null, null, null, null, null])
 
     tickUntilStatusChanges(meeting) // round 2 starts
     await nextTick()
-    expect(mutedRounds()).toEqual(['1'])
+    expect(summaries()).toEqual(['Done', 'On track', null, null, null, null])
+    expect(wrapper.findAll('.round-card--active')).toHaveLength(1)
   })
 
-  it('highlights only the round that is on the track', async () => {
+  it('opens the current round and folds the others, following the meeting', async () => {
     const { wrapper, meeting } = mountWithStores(ProgrammePanel)
-    const activeRounds = () =>
-      wrapper.findAll('.round-table--active').map((table) => table.get('caption').text())
+    const openRounds = () =>
+      wrapper
+        .findAll(round)
+        .filter((card) => card.get('button').attributes('aria-expanded') === 'true')
+        .map((card) => card.attributes('data-round'))
 
     meeting.generateProgramme()
     await nextTick()
-    expect(activeRounds()).toEqual([])
+    expect(openRounds()).toEqual(['1'])
 
     meeting.start()
+    tickUntilStatusChanges(meeting)
+    tickUntilStatusChanges(meeting)
     await nextTick()
-    expect(activeRounds()).toEqual(['Round 1 · 1200 m (current round)'])
+    expect(openRounds()).toEqual(['2'])
+  })
 
-    tickUntilStatusChanges(meeting) // round 1 finishes
-    tickUntilStatusChanges(meeting) // intermission ends
+  it('lets the reader open another round by hand', async () => {
+    const { wrapper, meeting } = mountWithStores(ProgrammePanel)
+
+    meeting.generateProgramme()
     await nextTick()
-    expect(activeRounds()).toEqual(['Round 2 · 1400 m (current round)'])
+    const fourth = wrapper.findAll(round)[3]
+
+    await fourth?.get('button').trigger('click')
+
+    expect(fourth?.get('button').attributes('aria-expanded')).toBe('true')
   })
 })
