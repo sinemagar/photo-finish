@@ -32,19 +32,22 @@ test('is the default view and loads the course and horses', async ({ page }) => 
   await expect(page.locator(`${track3d} canvas`)).toHaveAttribute('aria-label', /racecourse/)
 })
 
-test('runs a whole meeting with the same results as ever', async ({ page }) => {
-  // Every frame is drawn in software on machines without a GPU, so give it time.
-  test.setTimeout(180_000)
+test('runs rounds one after another and records each result', async ({ page }) => {
+  // Every frame is drawn in software on machines without a GPU, so this test covers two
+  // rounds; the whole meeting is covered on the 2D track, with the same simulation.
+  test.setTimeout(240_000)
   await meeting.open(7, { renderer: '3d', speed: 4 })
   await expect(page.locator(track3d)).toHaveAttribute('data-ready', 'true', { timeout: 20_000 })
 
   await meeting.generate()
   await meeting.start()
-  await meeting.advanceUntilResults(6)
+  await meeting.advanceUntilResults(2)
 
-  await expect(meeting.resultRounds).toHaveCount(6)
-  await expect(meeting.statusBadge).toHaveText('Finished')
-  await expect(page.getByTestId('meeting-summary')).toBeVisible()
+  await expect(meeting.resultRounds.getByTestId('round-heading')).toHaveText([
+    'Round 1 · 1200 m',
+    'Round 2 · 1400 m',
+  ])
+  await expect(page.locator(track3d)).toBeVisible()
 })
 
 test('switches between the TV, chase and aerial cameras', async ({ page }) => {
