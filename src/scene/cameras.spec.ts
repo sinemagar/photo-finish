@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   PHOTO_FINISH_METRES,
   cameraPose,
+  describeField,
   finishPose,
   overheadPose,
   pulledUpPose,
@@ -10,7 +11,7 @@ import {
   startPose,
   type FieldView,
 } from './cameras'
-import { COURSE, pointOnCourse } from './course'
+import { COURSE, pointOnCourse, raceArc } from './course'
 
 const field = (overrides: Partial<FieldView> = {}): FieldView => ({
   leaderArc: 700,
@@ -106,5 +107,54 @@ describe('finishPose', () => {
 
     expect(pose.position.z).toBeGreaterThan(finish.z)
     expect(Math.abs(pose.target.x - finish.x)).toBeLessThan(2)
+  })
+})
+
+describe('describeField', () => {
+  const entry = (covered: number, distance = 2200) => ({
+    arc: raceArc(distance, covered),
+    metresToGo: distance - covered,
+    finished: covered >= distance,
+    progress: covered / distance,
+  })
+
+  it('has nothing to describe without horses', () => {
+    expect(describeField([])).toEqual({
+      leaderArc: null,
+      centreArc: null,
+      leaderMetresToGo: null,
+      started: false,
+      finished: false,
+    })
+  })
+
+  it('finds the leader and the middle of the field', () => {
+    const field = describeField([entry(500), entry(520), entry(480)])
+
+    expect(field.leaderArc).toBeCloseTo(raceArc(2200, 520))
+    expect(field.centreArc).toBeCloseTo(raceArc(2200, 500))
+    expect(field.leaderMetresToGo).toBe(1680)
+    expect(field.started).toBe(true)
+  })
+
+  it('keeps the middle of the field among the horses while they pass the lap start', () => {
+    // The covered distance at which the field crosses arc 0, where a lap begins.
+    const lapStart = 2200 - COURSE.finishAt / COURSE.unitsPerMetre
+    const covered = [lapStart - 6, lapStart - 2, lapStart + 2, lapStart + 6]
+    expect(raceArc(2200, covered[0]!)).toBeLessThan(0)
+    expect(raceArc(2200, covered[3]!)).toBeGreaterThan(0)
+    const field = describeField(covered.map((value) => entry(value)))
+    const middle = pointOnCourse(field.centreArc!)
+    const anyHorse = pointOnCourse(raceArc(2200, covered[1]!))
+
+    expect(Math.hypot(middle.x - anyHorse.x, middle.z - anyHorse.z)).toBeLessThan(5)
+  })
+
+  it('points at the finish once every horse is home', () => {
+    const field = describeField([entry(2200), entry(2200)])
+
+    expect(field.finished).toBe(true)
+    expect(field.leaderArc).toBe(COURSE.finishAt)
+    expect(field.leaderMetresToGo).toBe(0)
   })
 })

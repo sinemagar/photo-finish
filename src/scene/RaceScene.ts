@@ -2,8 +2,15 @@ import { PerspectiveCamera, Scene, SRGBColorSpace, Timer, Vector3, WebGLRenderer
 
 import type { TrackRunner } from '@/stores/meeting'
 
-import { cameraPose, type CameraMode, type CameraPose, type FieldView } from './cameras'
-import { COURSE, arcForRunner, laneOffset, pointOnCourse } from './course'
+import {
+  cameraPose,
+  describeField,
+  type CameraMode,
+  type CameraPose,
+  type FieldEntry,
+  type FieldView,
+} from './cameras'
+import { laneOffset, pointOnCourse, raceArc } from './course'
 import { buildEnvironment, createShadowTexture } from './environment'
 import {
   createHorseRunner,
@@ -152,7 +159,8 @@ export class RaceScene {
     const previous = this.motion.get(runner.lane)
 
     if (runner.position === null || !previous) {
-      const arc = arcForRunner(distance, runner.progress * distance)
+      // Unwrapped, so that the field's average stays meaningful across the lap start.
+      const arc = raceArc(distance, runner.progress * distance)
       if (!previous || delta === 0) return { arc, speed: previous?.speed ?? 0, braking: null }
 
       // Smooth the measured speed: it only drives the legs, and should not flicker.
@@ -192,9 +200,7 @@ export class RaceScene {
     const { runners, distance, paused } = this.field
     const delta = paused ? 0 : Math.min(this.timer.getDelta(), 0.1)
 
-    let leaderArc: number | null = null
-    let leaderToGo: number | null = null
-    let arcSum = 0
+    const entries: FieldEntry[] = []
 
     for (const runner of runners) {
       const horse = this.runners.get(runner.lane)
@@ -212,24 +218,15 @@ export class RaceScene {
       this.seat(horse)
       horse.marker.visible = this.mode === 'aerial'
 
-      const toGo = distance * (1 - runner.progress)
-      if (runner.position === null && (leaderToGo === null || toGo < leaderToGo)) {
-        leaderToGo = toGo
-        leaderArc = motion.arc
-      }
-      arcSum += motion.arc
+      entries.push({
+        arc: motion.arc,
+        metresToGo: distance * (1 - runner.progress),
+        finished: runner.position !== null,
+        progress: runner.progress,
+      })
     }
 
-    const finished = runners.length > 0 && runners.every((runner) => runner.position !== null)
-    const view: FieldView = {
-      leaderArc: finished ? COURSE.finishAt : leaderArc,
-      centreArc: runners.length > 0 ? (finished ? COURSE.finishAt : arcSum / runners.length) : null,
-      leaderMetresToGo: finished ? 0 : leaderToGo,
-      started: runners.some((runner) => runner.progress > 0),
-      finished,
-      aspect: this.camera.aspect,
-      fov: FOV,
-    }
+    const view: FieldView = { ...describeField(entries), aspect: this.camera.aspect, fov: FOV }
     this.moveCamera(cameraPose(this.mode, view), delta)
 
     this.renderer.render(this.scene, this.camera)

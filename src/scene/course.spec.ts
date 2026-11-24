@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest'
 
 import { ROUND_DISTANCES } from '@/domain'
 
-import { COURSE, arcForRunner, courseLength, laneOffset, pointOnCourse, wrapArc } from './course'
+import {
+  COURSE,
+  arcForRunner,
+  courseLength,
+  laneOffset,
+  pointOnCourse,
+  raceArc,
+  wrapArc,
+} from './course'
 
 const distanceBetween = (a: { x: number; z: number }, b: { x: number; z: number }) =>
   Math.hypot(a.x - b.x, a.z - b.z)
@@ -94,5 +102,38 @@ describe('arcForRunner', () => {
     const later = arcForRunner(1200, 700)
 
     expect(wrapArc(later - early)).toBeCloseTo(600 * COURSE.unitsPerMetre)
+  })
+})
+
+describe('raceArc', () => {
+  it('grows steadily through the whole round, without jumping back where a lap begins', () => {
+    for (const distance of ROUND_DISTANCES) {
+      let previous = raceArc(distance, 0)
+
+      for (let covered = 10; covered <= distance; covered += 10) {
+        const arc = raceArc(distance, covered)
+
+        expect(arc - previous).toBeCloseTo(10 * COURSE.unitsPerMetre)
+        previous = arc
+      }
+    }
+  })
+
+  it('points at the same place on the course as the wrapped position', () => {
+    const wrapped = pointOnCourse(arcForRunner(2200, 300))
+    const unwrapped = pointOnCourse(raceArc(2200, 300))
+
+    expect(unwrapped.x).toBeCloseTo(wrapped.x)
+    expect(unwrapped.z).toBeCloseTo(wrapped.z)
+  })
+
+  it('keeps two horses either side of the lap start close together', () => {
+    // Pick two points 4 m apart that straddle the start of a lap.
+    const lapStartCovered = 2200 - COURSE.finishAt / COURSE.unitsPerMetre
+    const behind = raceArc(2200, lapStartCovered - 2)
+    const ahead = raceArc(2200, lapStartCovered + 2)
+
+    expect(ahead - behind).toBeCloseTo(4 * COURSE.unitsPerMetre)
+    expect(Math.abs((ahead + behind) / 2 - behind)).toBeLessThan(1)
   })
 })

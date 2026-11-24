@@ -117,11 +117,21 @@ export function pointOnCourse(arc: number, offset = 0, shape: CourseShape = COUR
 /**
  * Arc length at which a horse stands, given the round distance and the metres it has
  * covered. Every round finishes at the same line, so longer rounds start further back.
+ *
+ * The value is not wrapped into a single lap: it grows steadily from the start to the
+ * finish of the round, so positions of different horses can be averaged and compared
+ * even while the field passes the point where a lap begins. `pointOnCourse` accepts it
+ * as it is.
  */
+export function raceArc(distance: number, covered: number, shape: CourseShape = COURSE): number {
+  return shape.finishAt - (distance - covered) * shape.unitsPerMetre
+}
+
+/** The same position as `raceArc`, wrapped into a single lap. */
 export function arcForRunner(
   distance: number,
   covered: number,
   shape: CourseShape = COURSE,
 ): number {
-  return wrapArc(shape.finishAt - (distance - covered) * shape.unitsPerMetre, shape)
+  return wrapArc(raceArc(distance, covered, shape), shape)
 }

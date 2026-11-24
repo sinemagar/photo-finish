@@ -34,6 +34,64 @@ export interface FieldView {
   fov: number
 }
 
+/** One horse as the cameras see it. */
+export interface FieldEntry {
+  /** Unwrapped arc length, as given by `raceArc`. */
+  arc: number
+  /** Metres still to run; 0 once finished. */
+  metresToGo: number
+  finished: boolean
+  /** Share of the distance covered, from 0 to 1. */
+  progress: number
+}
+
+/**
+ * Sums the field up for the cameras: where the leader and the middle of the field are,
+ * how far the leader still has to go, and whether the round has begun or ended.
+ * Arcs must be unwrapped, otherwise a field passing the lap start would average out to a
+ * point on the far side of the course.
+ */
+export function describeField(
+  entries: readonly FieldEntry[],
+  shape: CourseShape = COURSE,
+): Omit<FieldView, 'aspect' | 'fov'> {
+  if (entries.length === 0) {
+    return {
+      leaderArc: null,
+      centreArc: null,
+      leaderMetresToGo: null,
+      started: false,
+      finished: false,
+    }
+  }
+
+  const finished = entries.every((entry) => entry.finished)
+  const started = entries.some((entry) => entry.progress > 0)
+  if (finished) {
+    return {
+      leaderArc: shape.finishAt,
+      centreArc: shape.finishAt,
+      leaderMetresToGo: 0,
+      started,
+      finished,
+    }
+  }
+
+  const running = entries.filter((entry) => !entry.finished)
+  const leader = running.reduce((best, entry) =>
+    entry.metresToGo < best.metresToGo ? entry : best,
+  )
+  const centreArc = entries.reduce((total, entry) => total + entry.arc, 0) / entries.length
+
+  return {
+    leaderArc: leader.arc,
+    centreArc,
+    leaderMetresToGo: leader.metresToGo,
+    started,
+    finished,
+  }
+}
+
 /** In the TV view, the camera cuts to the finish line for the last metres of a round. */
 export const PHOTO_FINISH_METRES = 90
 
