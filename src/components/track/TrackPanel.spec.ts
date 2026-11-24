@@ -56,6 +56,39 @@ describe('TrackPanel', () => {
     expect(wrapper.get(status).text()).toContain('next round starts shortly')
   })
 
+  it('shows the status in words next to the title', async () => {
+    const { wrapper, meeting } = mountWithStores(TrackPanel)
+    const badge = () => wrapper.get('[data-testid="status-badge"]').text()
+
+    expect(badge()).toBe('No programme')
+
+    meeting.generateProgramme()
+    meeting.start()
+    await nextTick()
+    expect(badge()).toBe('Racing')
+  })
+
+  it('puts the message over the track only while nothing is on it or it is paused', async () => {
+    const { wrapper, meeting } = mountWithStores(TrackPanel)
+    const isSpotlit = () => wrapper.get(status).classes('track-panel__status--spotlight')
+
+    expect(isSpotlit()).toBe(true)
+
+    meeting.generateProgramme()
+    meeting.start()
+    await nextTick()
+    expect(isSpotlit()).toBe(false)
+
+    meeting.pause()
+    await nextTick()
+    expect(isSpotlit()).toBe(true)
+
+    meeting.resume()
+    tickUntilStatusChanges(meeting)
+    await nextTick()
+    expect(isSpotlit()).toBe(false)
+  })
+
   it('gallops while running and stands still while paused', async () => {
     const { wrapper, meeting } = mountWithStores(TrackPanel)
     const galloping = () =>
