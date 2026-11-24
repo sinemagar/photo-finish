@@ -11,19 +11,21 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/) and are kept small enough to review one at a time.
 - `main` always builds and is always deployable.
 
-| Phase | Outcome                                  | Status |
-| ----- | ---------------------------------------- | ------ |
-| 0     | Project foundation                       | Done   |
-| 1     | Domain core                              | Done   |
-| 2     | State management                         | Done   |
-| 3     | Functional interface                     | Done   |
-| 4     | Race engine and animation                | Done   |
-| 5     | Visual design and polish                 | Done   |
-| 6     | End-to-end and visual tests              | Done   |
-| 7     | Delivery                                 | Done   |
-| 8     | Experience foundation                    | Done   |
-| 9     | Race experience                          | Done   |
-| 10    | Onboarding, performance and final review | Done   |
+| Phase | Outcome                                  | Status      |
+| ----- | ---------------------------------------- | ----------- |
+| 0     | Project foundation                       | Done        |
+| 1     | Domain core                              | Done        |
+| 2     | State management                         | Done        |
+| 3     | Functional interface                     | Done        |
+| 4     | Race engine and animation                | Done        |
+| 5     | Visual design and polish                 | Done        |
+| 6     | End-to-end and visual tests              | Done        |
+| 7     | Delivery                                 | Done        |
+| 8     | Experience foundation                    | Done        |
+| 9     | Race experience                          | Done        |
+| 10    | Onboarding, performance and final review | Done        |
+| 11    | 3D racecourse                            | Done        |
+| 12    | Simpler, mobile-first interface          | Not started |
 
 ---
 
@@ -199,13 +201,33 @@ Phases 0 to 7 deliver everything the brief asks for. Phases 8 to 10 raise the qu
 
 **Measured:** Lighthouse 100 for performance, accessibility and best practices; 16.7 ms per frame on average and at the 95th percentile with no long frames; 40.5 kB of JavaScript and 6.0 kB of CSS after gzip.
 
-## Later — 3D renderer
+## Phase 11 — 3D racecourse
 
-Not planned for this delivery.
+The 2D version is tagged `v1.0-2d`.
 
-- [ ] Extract the renderer contract from `RaceTrack` (runners in, pixels out)
-- [ ] Add a lazily loaded 3D track that implements the same contract
-- [ ] Runtime switch between 2D and 3D; 2D remains the default and the one under visual test
-- [ ] Verify that no file in `domain/` or `stores/` changed
+**Outcome:** the race is shown on an oval racecourse in 3D, with the 2D track kept as a fallback.
 
-**Exit criteria:** switching the renderer mid-race continues the same race from the same positions.
+- [x] CC0 horse model (Quaternius, Ultimate Animated Animal Pack), trimmed to its Gallop, Walk and Idle animations; credits in `public/models/CREDITS.md`
+- [x] Oval course geometry as pure, unit-tested functions: every round finishes at the same line, so longer rounds start further back
+- [x] Natural coats (bay, chestnut, black, grey, white, palomino and more); the unique colour of each horse moves to the jockey's silks and saddle cloth, which carry its number
+- [x] Jockey built from simple shapes and seated on the horse's back bone, so it moves with the gallop
+- [x] TV, chase and overhead cameras; the TV camera frames the field at the start, cuts to the finish line for the last metres and watches the field pull up
+- [x] three.js and the model load only when the 3D track is shown; 2D is used without WebGL, under `prefers-reduced-motion`, with `?renderer=2d`, or from a 2D/3D switch
+- [x] Separate bundle budgets for the first screen and the 3D track
+- [x] Tests: course and camera maths, renderer choice, the view control, and browser tests that load the 3D track, run a meeting on it, switch cameras and renderers, and check accessibility
+
+**Exit criteria:** a full meeting can be watched in 3D; the flow and its results are identical in 2D and 3D.
+
+## Phase 12 — Simpler, mobile-first interface
+
+**Outcome:** the race fills the screen and everything else is one tap away.
+
+- [ ] The track as a full-width stage with a small overlay: round, leaders, camera and speed
+- [ ] One main action button; the status sentences removed
+- [ ] Results, programme and stable in a bottom sheet on phones and a side rail on larger screens
+- [ ] Touch targets of at least 44 px; tests and baselines updated
+
+## Later
+
+- A 3D starting gate and photo-finish replay
+- Piebald coats, which need a patterned texture on the model

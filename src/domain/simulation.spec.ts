@@ -149,6 +149,43 @@ describe('advanceRound', () => {
   })
 })
 
+describe('runnerProgress', () => {
+  it('places a running horse between two steps, using the time not yet simulated', () => {
+    const rng = createRng(3)
+    const initial = createRoundState(firstRound, horses, rng)
+    const waiting = advanceRound(initial, SIMULATION.step * 0.5, rng)
+    const [runner] = waiting.runners
+
+    expect(waiting.elapsed).toBe(0)
+    expect(runnerProgress(waiting, runner!)).toBeGreaterThan(0)
+    expect(runnerProgress(waiting, runner!)).toBeCloseTo(
+      (runner!.cruisingSpeed * SIMULATION.step * 0.5) / firstRound.distance,
+    )
+  })
+
+  it('moves smoothly: progress never jumps back when the next step is taken', () => {
+    const rng = createRng(9)
+    let state = createRoundState(firstRound, horses, rng)
+    let previous = state.runners.map((runner) => runnerProgress(state, runner))
+
+    for (let frame = 0; frame < 300; frame++) {
+      state = advanceRound(state, SIMULATION.step * 0.37, rng)
+      const current = state.runners.map((runner) => runnerProgress(state, runner))
+
+      current.forEach((progress, index) => {
+        expect(progress).toBeGreaterThanOrEqual((previous[index] ?? 0) - 1e-3)
+      })
+      previous = current
+    }
+  })
+
+  it('never goes past the finish line', () => {
+    const state = runInSlices(firstRound, 7, 1)
+
+    for (const runner of state.runners) expect(runnerProgress(state, runner)).toBe(1)
+  })
+})
+
 describe('getRoundResult', () => {
   it('refuses to rank a round that is still running', () => {
     const state = createRoundState(firstRound, horses, createRng(3))

@@ -41,8 +41,19 @@ export function isRoundFinished(state: RoundState): boolean {
 }
 
 /** Share of the round distance a runner has covered, from 0 to 1. */
+/**
+ * Share of the round distance a runner has covered, from 0 to 1.
+ *
+ * The simulation moves in fixed steps, so a screen frame can fall between two of them.
+ * The time still waiting in `pending` is used to place a running horse where it would be
+ * by now, which keeps its movement smooth. This only affects display: the result of the
+ * round is decided by the steps alone.
+ */
 export function runnerProgress(state: RoundState, runner: RunnerState): number {
-  return runner.covered / state.distance
+  if (runner.finishTime !== null) return 1
+
+  const ahead = runner.cruisingSpeed * (1 + runner.surge) * state.pending
+  return Math.min(runner.covered + ahead, state.distance) / state.distance
 }
 
 function stepRunner(runner: RunnerState, state: RoundState, rng: Rng): RunnerState {
