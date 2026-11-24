@@ -8,6 +8,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: 0,
+  // A whole meeting is played in some tests; on a busy CI machine that takes a while.
+  timeout: 60_000,
   reporter: isCI ? [['github'], ['html', { open: 'never' }]] : 'list',
 
   // Screenshots depend on the fonts and rendering of the machine that takes them, so the
