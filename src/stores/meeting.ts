@@ -9,6 +9,8 @@ import {
   getRoundResult,
   isRoundFinished,
   runnerProgress,
+  summariseMeeting,
+  type HorseRecord,
   type Horse,
   type MeetingStatus,
   type Round,
@@ -27,6 +29,8 @@ export interface TrackRunner {
   progress: number
   /** Finishing position, or null while the runner is still on its way. */
   position: number | null
+  /** Current place in the field once the round is under way: live, then final. */
+  rank: number | null
 }
 
 export type ToggleLabel = 'Start' | 'Pause' | 'Resume'
@@ -89,6 +93,18 @@ export const useMeetingStore = defineStore('meeting', () => {
       .sort((a, b) => (a.finishTime ?? 0) - (b.finishTime ?? 0) || a.lane - b.lane)
       .map((runner) => runner.lane)
 
+    // Finished runners keep their place; the others follow in order of distance covered.
+    const liveOrder = state
+      ? [
+          ...finishOrder,
+          ...state.runners
+            .filter((runner) => runner.finishTime === null)
+            .sort((a, b) => b.covered - a.covered || a.lane - b.lane)
+            .map((runner) => runner.lane),
+        ]
+      : []
+    const hasStarted = (state?.elapsed ?? 0) > 0
+
     return entries.flatMap((entry) => {
       const horse = stable.getHorse(entry.horseId)
       if (!horse) return []
@@ -102,10 +118,28 @@ export const useMeetingStore = defineStore('meeting', () => {
           horse,
           progress: state && live ? runnerProgress(state, live) : 0,
           position: finishIndex === -1 ? null : finishIndex + 1,
+          rank: hasStarted ? liveOrder.indexOf(entry.lane) + 1 : null,
         },
       ]
     })
   })
+
+  const latestResult = computed<RoundResult | null>(
+    () => results.value[results.value.length - 1] ?? null,
+  )
+
+  /** The round that follows the one on the track, if there is one. */
+  const nextRound = computed<Round | null>(() =>
+    status.value === 'idle' ? null : (programme.value[currentRoundIndex.value + 1] ?? null),
+  )
+
+  /** Whole seconds left of the break between two rounds, or null outside a break. */
+  const nextRoundCountdown = computed(() =>
+    status.value === 'intermission' ? Math.ceil(intermissionRemaining.value / 1000) : null,
+  )
+
+  /** Every horse that has run so far, best first. */
+  const standings = computed<HorseRecord[]>(() => summariseMeeting(results.value))
 
   function beginRound(index: number) {
     const round = programme.value[index]
@@ -196,6 +230,10 @@ export const useMeetingStore = defineStore('meeting', () => {
     toggleLabel,
     isClockRunning,
     trackRunners,
+    latestResult,
+    nextRound,
+    nextRoundCountdown,
+    standings,
     generateProgramme,
     start,
     pause,
