@@ -19,4 +19,10 @@ describe('BasePanel', () => {
 
     expect(wrapper.attributes('aria-labelledby')).toBe(wrapper.get('h2').attributes('id'))
   })
+
+  it('lets keyboard users focus its scrolling body', () => {
+    const wrapper = mount(BasePanel, { props: { title: 'Results' } })
+
+    expect(wrapper.get('.base-panel__body').attributes('tabindex')).toBe('0')
+  })
 })

@@ -42,6 +42,7 @@ withDefaults(
         heading
       }}
       <span v-if="active" class="visually-hidden">(current round)</span>
+      <span v-if="muted" class="round-table__tag">Done</span>
     </caption>
     <thead>
       <tr>
@@ -67,7 +68,6 @@ withDefaults(
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-sm);
-  transition: opacity var(--duration-fast);
 
   & + & {
     margin-top: var(--space-4);
@@ -86,8 +86,20 @@ withDefaults(
     color: var(--color-primary-contrast);
   }
 
+  // Played down with a quieter text colour rather than opacity, which would push the
+  // text below the contrast it needs to stay readable.
   &--muted {
-    opacity: 0.55;
+    color: var(--color-text-muted);
+
+    :deep(.horse-badge__swatch) {
+      opacity: 0.5;
+    }
+  }
+
+  &__tag {
+    float: right;
+    font-size: var(--font-size-xs);
+    font-weight: 500;
   }
 
   th,

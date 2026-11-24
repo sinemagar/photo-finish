@@ -61,12 +61,13 @@ describe('RoundTable', () => {
     ).toEqual(['1', '2'])
   })
 
-  it('can be played down', () => {
+  it('can be played down, saying so in words', () => {
     const wrapper = mount(RoundTable, {
       props: { heading: 'Round 1', rankLabel: 'Lane', rows, muted: true },
     })
 
     expect(wrapper.classes()).toContain('round-table--muted')
+    expect(wrapper.get('caption').text()).toContain('Done')
   })
 
   it('paints each horse in its own colour', () => {

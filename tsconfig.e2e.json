@@ -1,0 +1,9 @@
+// TSConfig for the Playwright tests, which run in Node.js but describe a browser page.
+{
+  "extends": "./tsconfig.node.json",
+  "include": ["tests/e2e/**/*"],
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM"],
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.e2e.tsbuildinfo"
+  }
+}

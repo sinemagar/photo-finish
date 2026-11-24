@@ -14,7 +14,8 @@ const titleId = useId()
       <h2 :id="titleId" class="base-panel__title">{{ title }}</h2>
       <slot name="actions" />
     </header>
-    <div class="base-panel__body">
+    <!-- Focusable so that keyboard users can scroll a panel whose content overflows. -->
+    <div class="base-panel__body" tabindex="0" role="group" :aria-labelledby="titleId">
       <slot />
     </div>
   </section>
@@ -52,6 +53,10 @@ const titleId = useId()
     min-height: 0;
     overflow-y: auto;
     padding: var(--space-3) var(--space-4) var(--space-4);
+
+    &:focus-visible {
+      outline-offset: -2px;
+    }
   }
 }
 </style>

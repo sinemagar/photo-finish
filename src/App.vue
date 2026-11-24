@@ -42,8 +42,8 @@ useFrameLoop(meeting.tick, () => meeting.isClockRunning)
     flex: 1;
     gap: var(--space-4);
     padding: var(--space-4);
-    // Narrow screens: one column, with the track first.
-    grid-template-areas: 'track' 'programme' 'results' 'stable';
+    // Phones: one column in order of importance while a meeting is on.
+    grid-template-areas: 'track' 'results' 'programme' 'stable';
   }
 
   &__stable {
@@ -62,6 +62,7 @@ useFrameLoop(meeting.tick, () => meeting.isClockRunning)
     grid-area: results;
   }
 
+  // Tablets: the track across the top, the two lists side by side.
   @media (min-width: 48rem) {
     &__main {
       grid-template-columns: 1fr 1fr;
@@ -72,12 +73,31 @@ useFrameLoop(meeting.tick, () => meeting.isClockRunning)
     }
   }
 
-  @media (min-width: 80rem) {
+  // Laptops: the track keeps most of the width, the stable moves below it. When the
+  // window is tall enough everything fits one screen and each panel scrolls on its own.
+  @media (min-width: 64rem) {
+    &__main {
+      grid-template-columns: minmax(0, 1fr) 15rem 17rem;
+      grid-template-rows: auto minmax(0, 1fr);
+      grid-template-areas:
+        'track programme results'
+        'stable programme results';
+    }
+  }
+
+  @media (min-width: 64rem) and (min-height: 44rem) {
     height: 100vh;
 
     &__main {
       min-height: 0;
+    }
+  }
+
+  // Wide screens: four columns side by side.
+  @media (min-width: 90rem) {
+    &__main {
       grid-template-columns: 21.5rem minmax(0, 1fr) 14.5rem 16.5rem;
+      grid-template-rows: minmax(0, 1fr);
       grid-template-areas: 'stable track programme results';
     }
   }
