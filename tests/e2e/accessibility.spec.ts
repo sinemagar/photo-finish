@@ -57,3 +57,15 @@ test('has no serious accessibility issues with every round opened by hand', asyn
 
   expect(await blockingViolations(meeting)).toEqual([])
 })
+
+test('has no serious accessibility issues while the result banner is shown', async () => {
+  await meeting.generate()
+  await meeting.start()
+  await meeting.advanceUntilResults(1)
+
+  // The break is counted down by the game clock, so the banner stays while axe runs.
+  const { page } = meeting
+  await expect(page.getByTestId('result-banner')).toBeVisible()
+
+  expect(await blockingViolations(meeting)).toEqual([])
+})

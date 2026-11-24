@@ -152,7 +152,7 @@ test.describe('racing', () => {
 
   test('starts the next round by itself after a short break', async () => {
     await meeting.advanceUntilResults(1)
-    await expect(meeting.statusBadge).toHaveText('Next round soon')
+    await expect(meeting.statusBadge).toHaveText('Break')
 
     await meeting.advance(3000)
 
@@ -222,6 +222,71 @@ test.describe('following the meeting', () => {
 
     // One second at 4× covers about four times the ground of one second at 1×.
     expect(fast - normal).toBeGreaterThan(normal * 3)
+  })
+})
+
+test.describe('the race experience', () => {
+  test.beforeEach(async () => {
+    await meeting.generate()
+    await meeting.start()
+  })
+
+  test('names the three leaders during a round, matching the ranks on the gates', async ({
+    page,
+  }) => {
+    await meeting.advance(3000)
+
+    const leaders = await page
+      .getByTestId('live-leaders')
+      .locator('.horse-badge__name')
+      .allTextContents()
+    const gates = await page.getByTestId('track-lane').evaluateAll((lanes) =>
+      lanes.map((lane) => ({
+        name: lane.querySelector('.track-lane__name')?.textContent?.trim() ?? '',
+        rank: Number(lane.querySelector('[data-testid="track-rank"]')?.textContent),
+      })),
+    )
+    const byRank = gates.sort((a, b) => a.rank - b.rank).map((gate) => gate.name)
+
+    expect(leaders).toHaveLength(3)
+    expect(leaders).toEqual(byRank.slice(0, 3))
+    expect(gates.map((gate) => gate.rank).sort((a, b) => a - b)).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+    ])
+  })
+
+  test('shows the podium and counts down to the next round during the break', async ({ page }) => {
+    await meeting.advanceUntilResults(1)
+
+    const banner = page.getByTestId('result-banner')
+    const winner = (await meeting.horseNames(meeting.resultRounds.first()))[0]!
+
+    await expect(banner).toBeVisible()
+    await expect(banner.locator('li').first()).toContainText(winner)
+    await expect(page.getByTestId('next-round')).toContainText('Round 2 · 1400 m')
+    await expect(page.getByTestId('countdown')).toHaveText('3')
+
+    await meeting.advance(1000)
+    await expect(page.getByTestId('countdown')).toHaveText('2')
+
+    await meeting.advance(2000)
+    await expect(banner).toBeHidden()
+  })
+
+  test('sums the meeting up at the end and starts over from the summary', async ({ page }) => {
+    await meeting.advanceUntilResults(6)
+
+    const summary = page.getByTestId('meeting-summary')
+
+    await expect(summary).toBeVisible()
+    await expect(summary.locator('li')).toHaveCount(3)
+    await expect(summary.locator('li').first()).toContainText(/\d wins?/)
+
+    await page.getByTestId('restart-button').click()
+
+    await expect(summary).toBeHidden()
+    await expect(meeting.statusBadge).toHaveText('Ready')
+    await expect(meeting.resultRounds).toHaveCount(0)
   })
 })
 
