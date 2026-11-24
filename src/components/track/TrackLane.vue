@@ -34,6 +34,14 @@ const isGalloping = computed(() => props.racing && props.runner?.position === nu
     <div class="track-lane__gate">
       <span class="track-lane__number"> <span class="visually-hidden">Lane </span>{{ lane }} </span>
       <span v-if="runner" class="track-lane__name">{{ runner.horse.name }}</span>
+      <span
+        v-if="runner && runner.rank !== null"
+        class="track-lane__rank"
+        :data-rank="runner.rank"
+        data-testid="track-rank"
+      >
+        {{ runner.rank }}
+      </span>
     </div>
     <div class="track-lane__course">
       <div v-if="runner" class="track-lane__mover" :style="moverStyle" data-testid="track-runner">
@@ -84,6 +92,38 @@ const isGalloping = computed(() => props.racing && props.runner?.position === nu
     font-variant-numeric: tabular-nums;
   }
 
+  // Live place in the field, pushed to the edge of the gate next to the course.
+  &__rank {
+    flex: none;
+    min-width: 1.25rem;
+    margin-left: auto;
+    border-radius: 1rem;
+    color: rgb(255 255 255 / 75%);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.25rem;
+    text-align: center;
+
+    &[data-rank='1'],
+    &[data-rank='2'],
+    &[data-rank='3'] {
+      color: var(--color-podium-contrast);
+    }
+
+    &[data-rank='1'] {
+      background: var(--color-gold);
+    }
+
+    &[data-rank='2'] {
+      background: var(--color-silver);
+    }
+
+    &[data-rank='3'] {
+      background: var(--color-bronze);
+    }
+  }
+
   &__name {
     overflow: hidden;
     font-size: var(--font-size-xs);
@@ -92,15 +132,20 @@ const isGalloping = computed(() => props.racing && props.runner?.position === nu
     white-space: nowrap;
   }
 
+  // Turf mown in bands across the course, a shade apart from lane to lane.
   &__course {
     position: relative;
     min-width: 0;
-    border-bottom: 1px dashed rgb(255 255 255 / 40%);
-    background: var(--color-turf);
+    border-bottom: 1px dashed rgb(255 255 255 / 35%);
+    background:
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 5%) 0 5%, transparent 5% 10%),
+      var(--color-turf);
   }
 
   &:nth-child(even) &__course {
-    background: var(--color-turf-alt);
+    background:
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 5%) 0 5%, transparent 5% 10%),
+      var(--color-turf-alt);
   }
 
   &:last-child &__course,
@@ -159,7 +204,8 @@ const isGalloping = computed(() => props.racing && props.runner?.position === nu
       padding: 0;
     }
 
-    &__name {
+    &__name,
+    &__rank {
       display: none;
     }
   }

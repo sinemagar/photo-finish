@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
 import { useSessionStore } from '@/stores/session'
-import { mountWithStores, tickUntilStatusChanges } from '@/test/mountWithStores'
+import { mountWithStores, runWholeMeeting, tickUntilStatusChanges } from '@/test/mountWithStores'
 
 import HorseSprite from './HorseSprite.vue'
 import TrackPanel from './TrackPanel.vue'
@@ -131,5 +131,76 @@ describe('TrackPanel', () => {
     await nextTick()
     expect(galloping().some(Boolean)).toBe(false)
     expect(wrapper.get(status).text()).toBe('Paused.')
+  })
+
+  describe('between rounds', () => {
+    it('shows the podium of the round and counts down to the next one', async () => {
+      const { wrapper, meeting, stable } = mountWithStores(TrackPanel)
+      const banner = '[data-testid="result-banner"]'
+
+      meeting.generateProgramme()
+      meeting.start()
+      await nextTick()
+      expect(wrapper.find(banner).exists()).toBe(false)
+
+      tickUntilStatusChanges(meeting)
+      await nextTick()
+
+      const winner = stable.getHorse(meeting.results[0]?.placings[0]?.horseId ?? 0)
+
+      expect(wrapper.get(banner).get('h3').text()).toBe('Round 1 result')
+      expect(wrapper.get(banner).findAll('li')).toHaveLength(3)
+      expect(wrapper.get(banner).get('li').text()).toContain(winner?.name)
+      expect(wrapper.get('[data-testid="next-round"]').text()).toContain('Round 2 · 1400 m')
+      expect(wrapper.get('[data-testid="countdown"]').text()).toBe('3')
+
+      tickUntilStatusChanges(meeting)
+      await nextTick()
+      expect(wrapper.find(banner).exists()).toBe(false)
+    })
+  })
+
+  describe('during a round', () => {
+    it('names the three leading horses', async () => {
+      const { wrapper, meeting } = mountWithStores(TrackPanel)
+
+      meeting.generateProgramme()
+      meeting.start()
+      meeting.tick(200)
+      await nextTick()
+
+      const leaders = [...meeting.trackRunners]
+        .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+        .slice(0, 3)
+        .map((runner) => runner.horse.name)
+
+      expect(
+        wrapper
+          .get('[data-testid="live-leaders"]')
+          .findAll('.horse-badge__name')
+          .map((name) => name.text()),
+      ).toEqual(leaders)
+    })
+  })
+
+  describe('after the last round', () => {
+    it('sums the meeting up and offers a new programme', async () => {
+      const { wrapper, meeting, stable } = mountWithStores(TrackPanel)
+      const summary = '[data-testid="meeting-summary"]'
+
+      runWholeMeeting(meeting)
+      await nextTick()
+
+      const best = stable.getHorse(meeting.standings[0]?.horseId ?? 0)
+
+      expect(wrapper.get(summary).findAll('li')).toHaveLength(3)
+      expect(wrapper.get(summary).get('li').text()).toContain(best?.name)
+      expect(wrapper.find('[data-testid="result-banner"]').exists()).toBe(false)
+
+      await wrapper.get('[data-testid="restart-button"]').trigger('click')
+
+      expect(meeting.status).toBe('ready')
+      expect(wrapper.find(summary).exists()).toBe(false)
+    })
   })
 })

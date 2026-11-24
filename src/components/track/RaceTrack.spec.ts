@@ -16,6 +16,7 @@ const runnerIn = (lane: number): TrackRunner => ({
   },
   progress: 0.25,
   position: null,
+  rank: null,
 })
 
 describe('RaceTrack', () => {

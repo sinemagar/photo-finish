@@ -5,10 +5,14 @@ import BasePanel from '@/components/ui/BasePanel.vue'
 import { ROUND_DISTANCES, RUNNERS_PER_ROUND, type MeetingStatus } from '@/domain'
 import { useMeetingStore } from '@/stores/meeting'
 import { useSessionStore } from '@/stores/session'
-import { formatDistance } from '@/utils/format'
+import { useStableStore } from '@/stores/stable'
+import { formatDistance, formatRaceTime } from '@/utils/format'
 
+import LiveLeaders from './LiveLeaders.vue'
 import MeetingStatusBadge from './MeetingStatusBadge.vue'
+import MeetingSummary, { type SummaryEntry } from './MeetingSummary.vue'
 import RaceTrack from './RaceTrack.vue'
+import RoundResultBanner, { type PodiumEntry } from './RoundResultBanner.vue'
 import RoundStepper from './RoundStepper.vue'
 import SpeedControl from './SpeedControl.vue'
 
@@ -18,17 +22,17 @@ const STATUS_MESSAGES: Record<MeetingStatus, string> = {
   running: 'The race is on.',
   paused: 'Paused.',
   intermission: 'Round finished. The next round starts shortly.',
-  finished: 'The meeting is over. Generate a new programme to race again.',
+  finished: 'The meeting is over.',
 }
 
-/**
- * States in which the message is shown over the track. The finished state is left out on
- * purpose: the final positions on the finish line should stay readable.
- */
+/** States in which the plain message is shown over the track. */
 const SPOTLIGHT: readonly MeetingStatus[] = ['idle', 'paused']
+
+const PODIUM_SIZE = 3
 
 const meeting = useMeetingStore()
 const session = useSessionStore()
+const stable = useStableStore()
 
 const title = computed(() => {
   const round = meeting.currentRound
@@ -44,6 +48,26 @@ const roundOnTrack = computed(() =>
   meeting.status === 'idle' || meeting.status === 'finished'
     ? null
     : (meeting.currentRound?.number ?? null),
+)
+
+/** The first three of the round that has just finished, shown during the break. */
+const podium = computed(() =>
+  (meeting.latestResult?.placings ?? []).slice(0, PODIUM_SIZE).flatMap((placing): PodiumEntry[] => {
+    const horse = stable.getHorse(placing.horseId)
+    return horse ? [{ position: placing.position, horse, time: formatRaceTime(placing.time) }] : []
+  }),
+)
+
+const nextHeading = computed(() => {
+  const round = meeting.nextRound
+  return round ? `Round ${round.number} · ${formatDistance(round.distance)}` : undefined
+})
+
+const horsesOfTheDay = computed(() =>
+  meeting.standings.slice(0, PODIUM_SIZE).flatMap((record): SummaryEntry[] => {
+    const horse = stable.getHorse(record.horseId)
+    return horse ? [{ horse, wins: record.wins, podiums: record.podiums }] : []
+  }),
 )
 </script>
 
@@ -64,11 +88,25 @@ const roundOnTrack = computed(() =>
       />
       <p
         v-if="SPOTLIGHT.includes(meeting.status)"
-        class="track-panel__spotlight"
+        class="track-panel__overlay track-panel__spotlight"
         data-testid="track-status"
       >
         {{ STATUS_MESSAGES[meeting.status] }}
       </p>
+      <RoundResultBanner
+        v-else-if="meeting.status === 'intermission' && meeting.latestResult"
+        class="track-panel__overlay track-panel__overlay--aside"
+        :round-number="meeting.latestResult.roundNumber"
+        :podium="podium"
+        :next-heading="nextHeading"
+        :countdown="meeting.nextRoundCountdown"
+      />
+      <MeetingSummary
+        v-else-if="meeting.status === 'finished'"
+        class="track-panel__overlay track-panel__overlay--aside track-panel__overlay--wide"
+        :leaders="horsesOfTheDay"
+        @restart="meeting.generateProgramme"
+      />
     </div>
     <div class="track-panel__footer">
       <RoundStepper
@@ -76,9 +114,11 @@ const roundOnTrack = computed(() =>
         :completed="meeting.results.length"
         :current="roundOnTrack"
       />
+      <LiveLeaders v-if="meeting.status === 'running'" :runners="meeting.trackRunners" />
       <p
         v-if="!SPOTLIGHT.includes(meeting.status)"
         class="track-panel__status"
+        :class="{ 'visually-hidden': meeting.status === 'running' }"
         data-testid="track-status"
       >
         {{ STATUS_MESSAGES[meeting.status] }}
@@ -99,14 +139,36 @@ const roundOnTrack = computed(() =>
     position: relative;
   }
 
-  &__spotlight {
+  // On a phone the header has room for the title and the speed control only; the footer
+  // and the main button already say what state the meeting is in.
+  @media (max-width: 40rem) {
+    &__actions :deep(.status-badge) {
+      display: none;
+    }
+  }
+
+  &__overlay {
     position: absolute;
     top: 50%;
     left: 50%;
     width: max-content;
     max-width: calc(100% - var(--space-6) * 2);
-    padding: var(--space-3) var(--space-6);
     transform: translate(-50%, -50%);
+
+    // Sits over the empty part of the track, leaving the finish line and the horses on
+    // it in view.
+    &--aside {
+      left: 42%;
+      width: min(19rem, 64%);
+    }
+
+    &--wide {
+      width: min(23rem, 70%);
+    }
+  }
+
+  &__spotlight {
+    padding: var(--space-3) var(--space-6);
     border: 1px solid rgb(255 255 255 / 12%);
     border-radius: var(--radius);
     background: rgb(6 14 10 / 86%);
@@ -121,6 +183,7 @@ const roundOnTrack = computed(() =>
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2) var(--space-4);
+    min-height: 1.75rem;
     margin-top: var(--space-3);
   }
 

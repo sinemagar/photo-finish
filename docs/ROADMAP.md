@@ -22,7 +22,7 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 | 6     | End-to-end and visual tests              | Done        |
 | 7     | Delivery                                 | Done        |
 | 8     | Experience foundation                    | Done        |
-| 9     | Race experience                          | Not started |
+| 9     | Race experience                          | Done        |
 | 10    | Onboarding, performance and final review | Not started |
 
 ---
@@ -174,12 +174,13 @@ Phases 0 to 7 deliver everything the brief asks for. Phases 8 to 10 raise the qu
 
 **Outcome:** the race itself is worth watching.
 
-- [ ] Horse artwork: refined silhouette with shading, mane and tail, and a jockey
-- [ ] Track artwork: mown turf, rails, shadows under the horses
-- [ ] Live standings during a round (FR-24)
-- [ ] Countdown to the next round during the break
-- [ ] Winner banner when a round finishes; meeting summary when all six are done
-- [ ] Tests for every new behaviour
+- [x] Horse artwork: refined silhouette with a lighter back, darker far legs, mane and tail, all shaded from the horse's one colour, and a jockey
+- [x] Track artwork: turf mown in bands, floodlight falloff, shadows under the horses
+- [x] Live standings during a round (FR-24): rank on every gate and the three leaders named under the track
+- [x] Countdown to the next round during the break
+- [x] Winner banner with the podium when a round finishes; meeting summary with the horses of the day and a restart button when all six are done
+- [x] `summariseMeeting` in the domain: wins, podiums and best finish per horse
+- [x] Tests for every new behaviour
 
 **Exit criteria:** at any moment the screen answers three questions without reading a table: who is leading, which round this is, and what happens next.
 

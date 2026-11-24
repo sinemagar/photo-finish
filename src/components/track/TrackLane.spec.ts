@@ -11,6 +11,7 @@ const runner = (overrides: Partial<TrackRunner> = {}): TrackRunner => ({
   horse: { id: 4, name: 'Dusty Monarch', color: { name: 'Lime', hex: '#84cc16' }, condition: 60 },
   progress: 0,
   position: null,
+  rank: null,
   ...overrides,
 })
 
@@ -67,5 +68,17 @@ describe('TrackLane', () => {
 
     await wrapper.setProps({ runner: runner({ progress: 1, position: 2 }) })
     expect(wrapper.get(position).text()).toBe('2nd')
+  })
+
+  it('shows the live rank on the gate once the field has an order', async () => {
+    const wrapper = mount(TrackLane, { props: { lane: 3, runner: runner() } })
+    const rank = '[data-testid="track-rank"]'
+
+    expect(wrapper.find(rank).exists()).toBe(false)
+
+    await wrapper.setProps({ runner: runner({ progress: 0.4, rank: 2 }) })
+
+    expect(wrapper.get(rank).text()).toBe('2')
+    expect(wrapper.get(rank).attributes('data-rank')).toBe('2')
   })
 })

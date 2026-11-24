@@ -11,7 +11,7 @@ describe('MeetingStatusBadge', () => {
     ['ready', 'Ready'],
     ['running', 'Racing'],
     ['paused', 'Paused'],
-    ['intermission', 'Next round soon'],
+    ['intermission', 'Break'],
     ['finished', 'Finished'],
   ])('describes "%s" as "%s" in words, not only in colour', (status, label) => {
     const wrapper = mount(MeetingStatusBadge, { props: { status } })

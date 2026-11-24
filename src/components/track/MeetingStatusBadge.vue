@@ -10,7 +10,7 @@ const LABELS: Record<MeetingStatus, string> = {
   ready: 'Ready',
   running: 'Racing',
   paused: 'Paused',
-  intermission: 'Next round soon',
+  intermission: 'Break',
   finished: 'Finished',
 }
 </script>

@@ -344,6 +344,99 @@ describe('meeting store', () => {
     })
   })
 
+  describe('live standings', () => {
+    beforeEach(() => {
+      meeting.generateProgramme()
+    })
+
+    it('has no ranks before the round is under way', () => {
+      expect(meeting.trackRunners.every((runner) => runner.rank === null)).toBe(true)
+
+      meeting.start()
+      expect(meeting.trackRunners.every((runner) => runner.rank === null)).toBe(true)
+    })
+
+    it('ranks the field from 1 to 10 by distance covered', () => {
+      meeting.start()
+      meeting.tick(200)
+
+      const byRank = [...meeting.trackRunners].sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+
+      expect(byRank.map((runner) => runner.rank)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+      byRank.slice(1).forEach((runner, index) => {
+        expect(runner.progress).toBeLessThanOrEqual(byRank[index]?.progress ?? 0)
+      })
+    })
+
+    it('ends on the finishing positions', () => {
+      meeting.start()
+      finishRound(meeting)
+
+      for (const runner of meeting.trackRunners) {
+        expect(runner.rank).toBe(runner.position)
+      }
+    })
+  })
+
+  describe('between rounds', () => {
+    beforeEach(() => {
+      meeting.generateProgramme()
+      meeting.start()
+    })
+
+    it('knows the latest result and the round that comes next', () => {
+      expect(meeting.latestResult).toBeNull()
+      expect(meeting.nextRound?.number).toBe(2)
+
+      finishRound(meeting)
+
+      expect(meeting.latestResult).toBe(meeting.results[0])
+      expect(meeting.nextRound?.number).toBe(2)
+    })
+
+    it('counts the break down in whole seconds and only during the break', () => {
+      const speed = useSessionStore().speed
+      expect(meeting.nextRoundCountdown).toBeNull()
+
+      finishRound(meeting)
+      expect(meeting.nextRoundCountdown).toBe(Math.ceil(PLAYBACK.intermissionMs / 1000))
+
+      meeting.tick((PLAYBACK.intermissionMs - 900) / speed)
+      expect(meeting.nextRoundCountdown).toBe(1)
+
+      meeting.tick(900 / speed)
+      expect(meeting.status).toBe('running')
+      expect(meeting.nextRoundCountdown).toBeNull()
+    })
+
+    it('has no next round during the last one', () => {
+      runWholeMeeting(setup())
+      const finished = useMeetingStore()
+
+      expect(finished.nextRound).toBeNull()
+    })
+  })
+
+  describe('standings', () => {
+    it('are empty until a round has finished', () => {
+      meeting.generateProgramme()
+      meeting.start()
+
+      expect(meeting.standings).toEqual([])
+    })
+
+    it('sum up the whole meeting, best first', () => {
+      runWholeMeeting(meeting)
+      const winners = meeting.results.map((result) => result.placings[0]?.horseId)
+      const [leader] = meeting.standings
+
+      expect(leader?.wins).toBeGreaterThanOrEqual(1)
+      expect(winners).toContain(leader?.horseId)
+      expect(meeting.standings.reduce((total, record) => total + record.wins, 0)).toBe(6)
+      expect(meeting.standings.reduce((total, record) => total + record.races, 0)).toBe(60)
+    })
+  })
+
   describe('the clock', () => {
     it('runs only during a round or an intermission', () => {
       expect(meeting.isClockRunning).toBe(false)
