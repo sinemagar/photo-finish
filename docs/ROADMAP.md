@@ -11,17 +11,17 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/) and are kept small enough to review one at a time.
 - `main` always builds and is always deployable.
 
-| Phase | Outcome | Status |
-|---|---|---|
-| 0 | Project foundation | Not started |
-| 1 | Domain core | Not started |
-| 2 | State management | Not started |
-| 3 | Functional interface | Not started |
-| 4 | Race engine and animation | Not started |
-| 5 | Visual design and polish | Not started |
-| 6 | End-to-end and visual tests | Not started |
-| 7 | Delivery | Not started |
-| 8 | Stretch: 3D renderer | Optional |
+| Phase | Outcome                     | Status      |
+| ----- | --------------------------- | ----------- |
+| 0     | Project foundation          | Done        |
+| 1     | Domain core                 | Not started |
+| 2     | State management            | Not started |
+| 3     | Functional interface        | Not started |
+| 4     | Race engine and animation   | Not started |
+| 5     | Visual design and polish    | Not started |
+| 6     | End-to-end and visual tests | Not started |
+| 7     | Delivery                    | Not started |
+| 8     | Stretch: 3D renderer        | Optional    |
 
 ---
 
@@ -29,13 +29,13 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 
 **Outcome:** an empty application that builds, lints, type-checks and runs an example test, locally and in CI.
 
-- [ ] Scaffold Vue 3, TypeScript (strict) and Vite
-- [ ] Add Pinia and SCSS
-- [ ] Configure ESLint, Prettier and `vue-tsc`
-- [ ] Configure Vitest with Vue Test Utils and coverage
-- [ ] Create the folder structure from PRD §6.2 and the `@/` path alias
-- [ ] Add npm scripts: `dev`, `build`, `preview`, `lint`, `typecheck`, `test`, `test:e2e`
-- [ ] Add a GitHub Actions workflow: lint, type-check, unit tests, build
+- [x] Scaffold Vue 3, TypeScript (strict) and Vite
+- [x] Add Pinia and SCSS
+- [x] Configure ESLint, Prettier and `vue-tsc`
+- [x] Configure Vitest with Vue Test Utils and coverage
+- [x] Set up the `@/` path alias; folders from PRD §6.2 are added as each phase fills them
+- [x] Add npm scripts: `dev`, `build`, `preview`, `lint`, `format`, `typecheck`, `test`
+- [x] Add a GitHub Actions workflow: lint, type-check, unit tests, build
 
 **Exit criteria:** `npm run lint && npm run typecheck && npm test && npm run build` passes; CI is green on `main`.
 
