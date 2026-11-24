@@ -27,7 +27,7 @@ defineEmits<{
     </div>
     <div class="app-header__actions">
       <BaseButton data-testid="generate-button" :disabled="!canGenerate" @click="$emit('generate')">
-        Generate Programme
+        Generate<span class="app-header__wide"> Programme</span>
       </BaseButton>
       <BaseButton
         data-testid="toggle-button"
@@ -44,18 +44,19 @@ defineEmits<{
 <style scoped lang="scss">
 .app-header {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: linear-gradient(120deg, var(--color-primary-strong), var(--color-primary));
-  color: var(--color-primary-contrast);
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  background: rgb(9 18 14 / 80%);
+  backdrop-filter: blur(8px);
 
   &__brand {
     display: flex;
     align-items: center;
     gap: var(--space-3);
+    min-width: 0;
   }
 
   &__mark {
@@ -63,7 +64,7 @@ defineEmits<{
     width: 2.25rem;
     height: 2.25rem;
     border-radius: var(--radius-sm);
-    background: rgb(255 255 255 / 10%);
+    background: var(--color-surface-muted);
     fill: none;
     stroke: var(--color-accent);
     stroke-width: 4;
@@ -71,19 +72,52 @@ defineEmits<{
   }
 
   &__title {
-    font-size: var(--font-size-lg);
-    line-height: 1.2;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display);
+    font-size: 1.625rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    text-transform: uppercase;
+    white-space: nowrap;
   }
 
   &__tagline {
-    color: rgb(255 255 255 / 75%);
+    color: var(--color-text-muted);
     font-size: var(--font-size-xs);
   }
 
   &__actions {
     display: flex;
+    flex: none;
     gap: var(--space-2);
+  }
+
+  // On a narrow screen the brand shrinks so the two actions always fit on one line.
+  @media (max-width: 40rem) {
+    padding-inline: var(--space-3);
+
+    &__tagline,
+    &__wide {
+      display: none;
+    }
+
+    &__title {
+      font-size: 1.25rem;
+    }
+
+    &__mark {
+      width: 1.875rem;
+      height: 1.875rem;
+    }
+
+    &__brand {
+      gap: var(--space-2);
+    }
+
+    :deep(.base-button) {
+      min-width: 0;
+      padding-inline: var(--space-3);
+    }
   }
 }
 </style>

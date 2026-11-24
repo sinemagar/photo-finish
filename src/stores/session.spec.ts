@@ -49,4 +49,16 @@ describe('session store', () => {
     session.configure({ speed: 0 })
     expect(session.speed).toBe(1)
   })
+
+  it('changes the speed on request and ignores values that make no sense', () => {
+    const session = useSessionStore()
+
+    session.setSpeed(4)
+    expect(session.speed).toBe(4)
+
+    session.setSpeed(0)
+    session.setSpeed(-2)
+    session.setSpeed(Number.NaN)
+    expect(session.speed).toBe(4)
+  })
 })

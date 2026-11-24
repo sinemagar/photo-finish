@@ -11,17 +11,19 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/) and are kept small enough to review one at a time.
 - `main` always builds and is always deployable.
 
-| Phase | Outcome                     | Status   |
-| ----- | --------------------------- | -------- |
-| 0     | Project foundation          | Done     |
-| 1     | Domain core                 | Done     |
-| 2     | State management            | Done     |
-| 3     | Functional interface        | Done     |
-| 4     | Race engine and animation   | Done     |
-| 5     | Visual design and polish    | Done     |
-| 6     | End-to-end and visual tests | Done     |
-| 7     | Delivery                    | Done     |
-| 8     | Stretch: 3D renderer        | Optional |
+| Phase | Outcome                                  | Status      |
+| ----- | ---------------------------------------- | ----------- |
+| 0     | Project foundation                       | Done        |
+| 1     | Domain core                              | Done        |
+| 2     | State management                         | Done        |
+| 3     | Functional interface                     | Done        |
+| 4     | Race engine and animation                | Done        |
+| 5     | Visual design and polish                 | Done        |
+| 6     | End-to-end and visual tests              | Done        |
+| 7     | Delivery                                 | Done        |
+| 8     | Experience foundation                    | Done        |
+| 9     | Race experience                          | Not started |
+| 10    | Onboarding, performance and final review | Not started |
 
 ---
 
@@ -144,9 +146,57 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 
 **Exit criteria:** every item in the PRD's definition of done is met.
 
-## Phase 8 — Stretch: 3D renderer
+## Phase 8 — Experience foundation
 
-Only started when Phases 0 to 7 are complete.
+Phases 0 to 7 deliver everything the brief asks for. Phases 8 to 10 raise the quality of the experience, starting from a review of the delivered interface:
+
+| Finding                                                                              | Response                                                               |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| On a phone the programme is six long tables, so the results sit several screens away | App-like layout: track always in view, the lists behind tabs           |
+| Programme and results show every round in full, which hides the one that matters     | Rounds collapse to a one-line summary; the current one opens by itself |
+| A full meeting takes about ninety seconds and cannot be hurried                      | Speed control                                                          |
+| Nothing shows how far the meeting has got                                            | Round stepper                                                          |
+| The look is that of an admin screen rather than a game                               | A "race night" visual language with its own type and colour            |
+
+**Outcome:** the new visual language, layout and navigation are in place on every screen size.
+
+- [x] Design tokens for the dark "race night" theme; self-hosted display typeface
+- [x] `RoundCard`: collapsible round with a one-line summary, replacing the always-open table
+- [x] Programme and results follow the meeting: the current round and the latest result open by themselves
+- [x] Compact layout below 1024 px: track fixed in view, results, programme and stable as tabs
+- [x] Speed control (1×, 2×, 4×)
+- [x] Round stepper showing finished, current and upcoming rounds
+- [x] Unit, end-to-end, accessibility and visual tests updated, including the phone flow
+
+**Exit criteria:** on a 390 px wide phone the track, the controls and the latest result are reachable without scrolling the page.
+
+## Phase 9 — Race experience
+
+**Outcome:** the race itself is worth watching.
+
+- [ ] Horse artwork: refined silhouette with shading, mane and tail, and a jockey
+- [ ] Track artwork: mown turf, rails, shadows under the horses
+- [ ] Live standings during a round (FR-24)
+- [ ] Countdown to the next round during the break
+- [ ] Winner banner when a round finishes; meeting summary when all six are done
+- [ ] Tests for every new behaviour
+
+**Exit criteria:** at any moment the screen answers three questions without reading a table: who is leading, which round this is, and what happens next.
+
+## Phase 10 — Onboarding, performance and final review
+
+**Outcome:** a first-time visitor understands the game at once, and the build is measurably fast.
+
+- [ ] Welcome state on the empty track with the three steps and the main action
+- [ ] "How it works" dialog: the rules, the race model and reproducible seeds
+- [ ] Performance budget measured with Lighthouse and frame timing; results recorded in the README
+- [ ] Visual baselines regenerated; README and screenshot updated
+
+**Exit criteria:** Lighthouse performance and accessibility scores of at least 95 on the deployed build; no long frames during a race on a mid-range laptop.
+
+## Later — 3D renderer
+
+Not planned for this delivery.
 
 - [ ] Extract the renderer contract from `RaceTrack` (runners in, pixels out)
 - [ ] Add a lazily loaded 3D track that implements the same contract

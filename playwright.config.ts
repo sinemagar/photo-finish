@@ -28,12 +28,14 @@ export default defineConfig({
     {
       name: 'desktop',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+      testIgnore: /mobile\.spec\.ts/,
     },
     {
       name: 'mobile',
       use: { ...devices['Pixel 7'] },
-      // The flow is the same on a phone; only its appearance needs a second look.
-      testMatch: /visual\.spec\.ts/,
+      // The rules are the same on a phone, so only its own layout and its appearance are
+      // tested again.
+      testMatch: /(visual|mobile)\.spec\.ts/,
     },
   ],
 

@@ -70,7 +70,7 @@ const markers = computed(() =>
 
 <style scoped lang="scss">
 .race-track {
-  --lane-height: clamp(2.5rem, 5.4vh, 3.5rem);
+  --lane-height: clamp(2.25rem, 5.2vh, 3.5rem);
   --sprite-width: calc(var(--lane-height) * 1.25);
   --gate-width: 8.5rem;
   --ruler-height: 1.5rem;
@@ -78,14 +78,16 @@ const markers = computed(() =>
 
   position: relative;
   overflow: hidden;
-  border: 3px solid var(--color-rail);
-  border-radius: var(--radius);
-  outline: 1px solid var(--color-border);
+  border: 2px solid var(--color-rail);
+  border-radius: var(--radius-sm);
   background: var(--color-turf-dark);
 
+  // Phones: lanes scale with the height of the screen so the whole track always fits
+  // above the tabs; the gate shrinks to the lane number.
   @media (max-width: 40rem) {
-    --lane-height: 2.25rem;
+    --lane-height: clamp(1.5rem, 3.6dvh, 2.25rem);
     --gate-width: 2rem;
+    --ruler-height: 1.125rem;
   }
 
   &__lanes {

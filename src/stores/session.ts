@@ -23,14 +23,20 @@ export const useSessionStore = defineStore('session', () => {
   // The generator is deliberately kept out of reactive state: it is a stateful function.
   let rng = createRng(seed.value)
 
+  /** Changes the playback speed; a value that is not a positive number is ignored. */
+  function setSpeed(value: number) {
+    if (Number.isFinite(value) && value > 0) speed.value = value
+  }
+
   function configure(options: SessionOptions = {}) {
     seed.value = options.seed ?? clockSeed()
-    speed.value = options.speed !== undefined && options.speed > 0 ? options.speed : 1
+    speed.value = 1
+    if (options.speed !== undefined) setSpeed(options.speed)
     rng = createRng(seed.value)
   }
 
   /** Stable reference that always draws from the current generator. */
   const random: Rng = () => rng()
 
-  return { seed, speed, configure, random }
+  return { seed, speed, configure, setSpeed, random }
 })

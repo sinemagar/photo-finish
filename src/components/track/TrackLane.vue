@@ -67,15 +67,15 @@ const isGalloping = computed(() => props.racing && props.runner?.position === nu
     padding: 0 var(--space-2);
     border-bottom: 1px solid rgb(255 255 255 / 12%);
     background: var(--color-turf-dark);
-    color: var(--color-primary-contrast);
+    color: var(--color-rail);
   }
 
   &__number {
     display: grid;
     flex: none;
     place-items: center;
-    width: 1.5rem;
-    height: 1.5rem;
+    width: min(1.5rem, calc(var(--lane-height) - 0.375rem));
+    height: min(1.5rem, calc(var(--lane-height) - 0.375rem));
     border-radius: var(--radius-sm);
     background: var(--color-rail);
     color: var(--color-turf-dark);
@@ -131,8 +131,8 @@ const isGalloping = computed(() => props.racing && props.runner?.position === nu
     padding: 0 var(--space-2);
     transform: translateY(-50%);
     border-radius: 1rem;
-    background: var(--color-surface);
-    color: var(--color-text);
+    background: var(--color-rail);
+    color: var(--color-podium-contrast);
     font-size: 0.6875rem;
     font-weight: 700;
     line-height: 1.6;

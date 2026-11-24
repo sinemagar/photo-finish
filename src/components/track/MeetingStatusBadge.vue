@@ -46,19 +46,19 @@ const LABELS: Record<MeetingStatus, string> = {
 
   &--ready,
   &--intermission {
-    --tone: var(--color-accent-strong);
+    --tone: var(--color-accent);
   }
 
   &--running {
-    --tone: #16a34a;
+    --tone: var(--color-primary);
   }
 
   &--paused {
-    --tone: #dc2626;
+    --tone: var(--color-danger);
   }
 
   &--finished {
-    --tone: var(--color-primary);
+    --tone: var(--color-text);
   }
 
   @media (prefers-reduced-motion: no-preference) {
