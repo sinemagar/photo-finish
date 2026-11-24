@@ -1,47 +1,55 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 
+import type { CameraMode } from '@/scene/cameras'
+
 import TrackViewControl from './TrackViewControl.vue'
 
-const mountControl = (renderer: '2d' | '3d', camera = 'tv' as const) =>
+const mountControl = (renderer: '2d' | '3d', camera: CameraMode = 'tv') =>
   mount(TrackViewControl, { props: { renderer, camera } })
+
+const pressed = (wrapper: ReturnType<typeof mountControl>, prefix: string) =>
+  wrapper
+    .findAll(`[data-testid^="${prefix}-"]`)
+    .filter((button) => button.attributes('aria-pressed') === 'true')
+    .map((button) => button.text())
 
 describe('TrackViewControl', () => {
   it('offers the three cameras in 3D and marks the current one', () => {
     const wrapper = mountControl('3d')
-    const cameras = wrapper.findAll('[data-testid^="camera-"]')
 
-    expect(cameras.map((button) => button.text())).toEqual(['TV', 'Chase', 'Overhead'])
-    expect(cameras.map((button) => button.attributes('aria-pressed'))).toEqual([
-      'true',
-      'false',
-      'false',
+    expect(wrapper.findAll('[data-testid^="camera-"]').map((button) => button.text())).toEqual([
+      'TV',
+      'Chase',
+      'Aerial',
     ])
+    expect(pressed(wrapper, 'camera')).toEqual(['TV'])
   })
 
   it('asks for another camera when one is chosen', async () => {
     const wrapper = mountControl('3d')
 
-    await wrapper.get('[data-testid="camera-overhead"]').trigger('click')
+    await wrapper.get('[data-testid="camera-aerial"]').trigger('click')
 
-    expect(wrapper.emitted('update:camera')).toEqual([['overhead']])
+    expect(wrapper.emitted('update:camera')).toEqual([['aerial']])
   })
 
   it('hides the cameras on the 2D track', () => {
     expect(mountControl('2d').find('[data-testid^="camera-"]').exists()).toBe(false)
   })
 
-  it('switches between 2D and 3D, saying what the button will do', async () => {
+  it('shows both views, marks the current one and switches between them', async () => {
     const wrapper = mountControl('3d')
-    const toggle = wrapper.get('[data-testid="renderer-toggle"]')
 
-    expect(toggle.text()).toBe('2D')
-    expect(toggle.attributes('aria-label')).toBe('Show the 2D track')
+    expect(pressed(wrapper, 'renderer')).toEqual(['3D'])
 
-    await toggle.trigger('click')
+    await wrapper.get('[data-testid="renderer-2d"]').trigger('click')
     expect(wrapper.emitted('update:renderer')).toEqual([['2d']])
+  })
 
-    await wrapper.setProps({ renderer: '2d' })
-    expect(toggle.attributes('aria-label')).toBe('Show the 3D track')
+  it('labels both groups for assistive technology', () => {
+    const groups = mountControl('3d').findAll('[role="group"]')
+
+    expect(groups.map((group) => group.attributes('aria-label'))).toEqual(['View', 'Camera'])
   })
 })

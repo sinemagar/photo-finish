@@ -101,11 +101,7 @@ const horsesOfTheDay = computed(() =>
 <template>
   <BasePanel :title="title" data-testid="track-panel">
     <template #actions>
-      <div class="track-panel__actions">
-        <TrackViewControl v-model:camera="camera" v-model:renderer="renderer" />
-        <SpeedControl v-model="speed" />
-        <MeetingStatusBadge :status="meeting.status" />
-      </div>
+      <MeetingStatusBadge :status="meeting.status" />
     </template>
     <div class="track-panel__stage">
       <RaceTrack3D
@@ -113,8 +109,7 @@ const horsesOfTheDay = computed(() =>
         :runners="meeting.trackRunners"
         :lanes="RUNNERS_PER_ROUND"
         :distance="meeting.currentRound?.distance"
-        :racing="meeting.status === 'running'"
-        :speed="session.speed"
+        :paused="meeting.status === 'paused'"
         :camera="camera"
         @error="renderer = '2d'"
       />
@@ -152,6 +147,10 @@ const horsesOfTheDay = computed(() =>
         :leaders="horsesOfTheDay"
         @restart="meeting.generateProgramme"
       />
+    </div>
+    <div class="track-panel__toolbar">
+      <TrackViewControl v-model:camera="camera" v-model:renderer="renderer" />
+      <SpeedControl v-model="speed" />
     </div>
     <div class="track-panel__footer">
       <RoundStepper
@@ -202,9 +201,13 @@ const horsesOfTheDay = computed(() =>
 
     // Sits over the empty part of the track, leaving the finish line and the horses on
     // it in view.
+    // Tucked into the bottom-left corner, leaving the horses and the finish in view.
     &--aside {
-      left: 42%;
-      width: min(19rem, 64%);
+      top: auto;
+      bottom: var(--space-3);
+      left: var(--space-3);
+      width: min(19rem, calc(100% - var(--space-6)));
+      transform: none;
     }
 
     &--wide {
@@ -226,6 +229,16 @@ const horsesOfTheDay = computed(() =>
     font-size: 1.25rem;
     font-weight: 600;
     text-align: center;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
   }
 
   &__footer {

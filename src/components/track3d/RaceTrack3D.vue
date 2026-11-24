@@ -15,11 +15,11 @@ const props = withDefaults(
     runners: TrackRunner[]
     lanes: number
     distance?: number
-    racing?: boolean
-    speed?: number
+    /** Freezes every horse where it stands. */
+    paused?: boolean
     camera?: CameraMode
   }>(),
-  { distance: undefined, racing: false, speed: 1, camera: 'tv' },
+  { distance: undefined, paused: false, camera: 'tv' },
 )
 
 const emit = defineEmits<{
@@ -45,8 +45,7 @@ function pushField() {
   scene?.setField({
     runners: props.runners,
     distance: props.distance ?? null,
-    racing: props.racing,
-    speed: props.speed,
+    paused: props.paused,
   })
 }
 
@@ -69,7 +68,7 @@ onMounted(async () => {
   }
 })
 
-watch(() => [props.runners, props.distance, props.racing, props.speed], pushField)
+watch(() => [props.runners, props.distance, props.paused], pushField)
 watch(
   () => props.camera,
   (mode) => scene?.setCamera(mode),

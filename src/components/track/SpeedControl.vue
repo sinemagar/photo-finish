@@ -41,28 +41,35 @@ const groupName = useId()
 <style scoped lang="scss">
 .speed-control {
   display: inline-flex;
+  gap: 2px;
   margin: 0;
-  padding: 2px;
+  padding: 3px;
   border: 1px solid var(--color-border);
-  border-radius: 1rem;
+  border-radius: var(--radius-sm);
   background: var(--color-surface-muted);
 
   &__option {
     position: relative;
-    min-width: 2rem;
+    display: inline-grid;
+    place-items: center;
+    min-width: 2.75rem;
+    min-height: 2.25rem;
     padding: 0 var(--space-2);
-    border-radius: 1rem;
+    border-radius: calc(var(--radius-sm) - 2px);
     color: var(--color-text-muted);
-    font-size: var(--font-size-xs);
+    font-family: var(--font-display);
+    font-size: 1rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-    line-height: 1.375rem;
-    text-align: center;
     cursor: pointer;
 
+    &:hover {
+      color: var(--color-text);
+    }
+
     &--selected {
-      background: var(--color-text);
-      color: var(--color-bg);
+      background: var(--color-accent);
+      color: var(--color-accent-contrast);
     }
 
     &:has(:focus-visible) {
