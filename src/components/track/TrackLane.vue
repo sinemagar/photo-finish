@@ -31,65 +31,81 @@ const isGalloping = computed(() => props.racing && props.runner?.position === nu
 
 <template>
   <li class="track-lane" data-testid="track-lane">
-    <span class="track-lane__number"> <span class="visually-hidden">Lane </span>{{ lane }} </span>
+    <div class="track-lane__gate">
+      <span class="track-lane__number"> <span class="visually-hidden">Lane </span>{{ lane }} </span>
+      <span v-if="runner" class="track-lane__name">{{ runner.horse.name }}</span>
+    </div>
     <div class="track-lane__course">
-      <template v-if="runner">
-        <span class="track-lane__name">{{ runner.horse.name }}</span>
-        <div class="track-lane__mover" :style="moverStyle" data-testid="track-runner">
-          <div class="track-lane__horse">
-            <span
-              v-if="runner.position !== null"
-              class="track-lane__position"
-              data-testid="track-position"
-            >
-              {{ formatOrdinal(runner.position) }}
-            </span>
-            <HorseSprite :color="runner.horse.color.hex" :galloping="isGalloping" />
-          </div>
+      <div v-if="runner" class="track-lane__mover" :style="moverStyle" data-testid="track-runner">
+        <div class="track-lane__horse">
+          <span
+            v-if="runner.position !== null"
+            class="track-lane__position"
+            :data-position="runner.position"
+            data-testid="track-position"
+          >
+            {{ formatOrdinal(runner.position) }}
+          </span>
+          <HorseSprite :color="runner.horse.color.hex" :number="lane" :galloping="isGalloping" />
         </div>
-      </template>
+      </div>
     </div>
   </li>
 </template>
 
 <style scoped lang="scss">
 .track-lane {
-  --sprite-width: calc(var(--lane-height) * 1.2);
-
   display: grid;
-  grid-template-columns: 2rem 1fr;
+  grid-template-columns: var(--gate-width) 1fr;
   height: var(--lane-height);
+
+  &__gate {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: 0 var(--space-2);
+    border-bottom: 1px solid rgb(255 255 255 / 12%);
+    background: var(--color-turf-dark);
+    color: var(--color-primary-contrast);
+  }
 
   &__number {
     display: grid;
+    flex: none;
     place-items: center;
-    background: var(--color-turf-dark);
-    color: var(--color-primary-contrast);
-    font-size: var(--font-size-sm);
-    font-weight: 600;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-rail);
+    color: var(--color-turf-dark);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
+  }
+
+  &__name {
+    overflow: hidden;
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__course {
     position: relative;
     min-width: 0;
-    border-bottom: 1px dashed rgb(255 255 255 / 45%);
+    border-bottom: 1px dashed rgb(255 255 255 / 40%);
     background: var(--color-turf);
   }
 
-  &:last-child &__course {
-    border-bottom: 0;
+  &:nth-child(even) &__course {
+    background: var(--color-turf-alt);
   }
 
-  &__name {
-    position: absolute;
-    top: 50%;
-    left: calc(var(--sprite-width) + var(--space-2));
-    transform: translateY(-50%);
-    color: rgb(255 255 255 / 70%);
-    font-size: 0.75rem;
-    white-space: nowrap;
-    pointer-events: none;
+  &:last-child &__course,
+  &:last-child &__gate {
+    border-bottom: 0;
   }
 
   &__mover {
@@ -103,7 +119,7 @@ const isGalloping = computed(() => props.racing && props.runner?.position === nu
     top: 50%;
     left: 0;
     width: var(--sprite-width);
-    height: calc(var(--lane-height) * 0.9);
+    height: calc(var(--sprite-width) * 0.7);
     transform: translateY(-50%);
   }
 
@@ -112,14 +128,40 @@ const isGalloping = computed(() => props.racing && props.runner?.position === nu
     top: 50%;
     right: 100%;
     margin-right: var(--space-1);
-    padding: 0 var(--space-1);
+    padding: 0 var(--space-2);
     transform: translateY(-50%);
-    border-radius: var(--space-1);
+    border-radius: 1rem;
     background: var(--color-surface);
     color: var(--color-text);
     font-size: 0.6875rem;
     font-weight: 700;
-    line-height: 1.4;
+    line-height: 1.6;
+    white-space: nowrap;
+
+    &[data-position='1'] {
+      background: var(--color-gold);
+    }
+
+    &[data-position='2'] {
+      background: var(--color-silver);
+    }
+
+    &[data-position='3'] {
+      background: var(--color-bronze);
+    }
+  }
+
+  // On a narrow screen the gate shrinks to the lane number; the saddle cloth and the
+  // programme still tell the horses apart.
+  @media (max-width: 40rem) {
+    &__gate {
+      justify-content: center;
+      padding: 0;
+    }
+
+    &__name {
+      display: none;
+    }
   }
 }
 </style>
