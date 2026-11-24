@@ -22,6 +22,8 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: 'retain-on-failure',
+    // Software WebGL, so the 3D track can be drawn on machines without a GPU, as in CI.
+    launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] },
   },
 
   projects: [

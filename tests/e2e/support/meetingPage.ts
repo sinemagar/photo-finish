@@ -30,10 +30,23 @@ export class MeetingPage {
     this.positions = page.getByTestId('track-position')
   }
 
-  async open(seed = 7) {
+  /**
+   * Opens the game with a fixed seed. Flow tests use the 2D track, which exposes every
+   * horse's position in the DOM; the 3D track has tests of its own.
+   */
+  async open(
+    seed = 7,
+    { renderer = '2d', speed }: { renderer?: '2d' | '3d' | 'auto'; speed?: number } = {},
+  ) {
     await this.page.clock.install({ time: START_TIME })
-    await this.page.goto(`/?seed=${seed}`)
-    await this.page.clock.pauseAt(new Date(START_TIME.getTime() + 1000))
+    const params = new URLSearchParams({ seed: String(seed) })
+    if (renderer !== 'auto') params.set('renderer', renderer)
+    if (speed) params.set('speed', String(speed))
+    await this.page.goto(`/?${params}`)
+
+    // Stop the clock shortly after the page has loaded, however long loading took.
+    const loadedAt = await this.page.evaluate(() => Date.now())
+    await this.page.clock.pauseAt(new Date(loadedAt + 500))
   }
 
   /** Moves the game clock forward, running every animation frame on the way. */
