@@ -25,28 +25,33 @@ const titleId = useId()
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: var(--color-surface);
+  overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
+  background: var(--color-surface);
+  box-shadow: var(--shadow);
 
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
-    padding: var(--space-3) var(--space-4);
+    min-height: 3rem;
+    padding: var(--space-2) var(--space-4);
     border-bottom: 1px solid var(--color-border);
   }
 
   &__title {
     font-size: 1rem;
+    font-weight: 650;
+    letter-spacing: -0.005em;
   }
 
   &__body {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-3) var(--space-4) var(--space-4);
   }
 }
 </style>
