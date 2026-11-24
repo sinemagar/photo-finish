@@ -19,7 +19,7 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 | 3     | Functional interface        | Done        |
 | 4     | Race engine and animation   | Done        |
 | 5     | Visual design and polish    | Done        |
-| 6     | End-to-end and visual tests | Not started |
+| 6     | End-to-end and visual tests | Done        |
 | 7     | Delivery                    | Not started |
 | 8     | Stretch: 3D renderer        | Optional    |
 
@@ -122,13 +122,14 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 
 **Outcome:** the bonus test suites exist and run in CI.
 
-- [ ] Playwright set-up with a production build as the web server
-- [ ] E2E: happy path through all six rounds
-- [ ] E2E: pause and resume; regenerate clears results; Start disabled before Generate
-- [ ] Accessibility: automated axe check of the main states reports no serious issues (NFR-04)
-- [ ] Visual: initial, programme generated, mid-race (paused at a known time), finished; desktop and mobile
-- [ ] Generate visual baselines in the CI container; upload diffs as artefacts on failure
-- [ ] Add E2E and visual jobs to the workflow
+- [x] Playwright set-up with the production build as the web server
+- [x] Controlled browser clock: time moves only when a test advances it, so a seed replays frame for frame and no test waits on real time
+- [x] E2E: the whole meeting, with each result appearing as its round finishes and in round order
+- [x] E2E: pause and resume; Generate locked while racing; regenerate clears results; Start disabled before Generate; same seed gives the same programme; keyboard-only play
+- [x] Accessibility: automated axe check of four states reports no serious issues (NFR-04). It found two real problems, both fixed: scrolling panels that could not be reached from the keyboard, and low-contrast text in finished rounds
+- [x] Visual: initial, programme generated, paused mid-race, first round finished, meeting finished; desktop and mobile
+- [x] Visual baselines generated in the CI container; report and screenshots uploaded as artefacts
+- [x] Browser tests added to the workflow as a second job
 
 **Exit criteria:** the whole suite passes in CI three times in a row without retries.
 

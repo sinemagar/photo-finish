@@ -241,7 +241,7 @@ Unit tests sit next to the file they test (`simulation.ts`, `simulation.spec.ts`
 | End-to-end   | Playwright             | The full flow from Generate to the sixth result; pause holds positions and resume continues; regenerating clears results                                                                                                                                                                                                                                    |
 | Visual       | Playwright screenshots | Key states with a fixed seed: initial, programme generated, mid-race (paused at a known time), meeting finished; desktop and mobile widths                                                                                                                                                                                                                  |
 
-Two things make the browser tests fast and stable: the fixed seed (§5.3) and a test-only speed multiplier, so that a meeting completes in a couple of seconds. Visual baselines are generated and compared in the same containerised environment in CI, to avoid font-rendering differences between machines.
+Two things make the browser tests fast and stable: the fixed seed (§5.3) and Playwright's clock control. The tests take over the page's clock, so animation frames only run when a test advances time; a whole meeting replays in a few seconds and always frame for frame. Visual baselines are generated and compared in the same containerised environment in CI, to avoid font-rendering differences between machines; on other machines the comparison is skipped.
 
 **Target:** at least 90% line coverage on `domain/` and `stores/`.
 
