@@ -229,6 +229,7 @@ The 2D version is tagged `v1.0-2d`.
 - [x] On phones the page scrolls as a whole, with the header and the tabs kept in reach; the fixed-height layout that left no room for the lists is gone
 - [x] Less text: the tagline and the status sentences are gone from view (the status is still announced to screen readers)
 - [x] The empty course is shown from high above before a programme exists
+- [x] Dark mode from a switch in the header; follows the device until the player chooses, remembers the choice, and is applied before the first paint
 - [x] Tests and visual baselines updated; phone tests now check scrolling and the absence of sideways scrolling
 
 **Exit criteria:** on a 375 × 667 phone the controls and the track are on the first screen and every list can be scrolled to its end.
