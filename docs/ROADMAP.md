@@ -14,7 +14,7 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 | Phase | Outcome                     | Status      |
 | ----- | --------------------------- | ----------- |
 | 0     | Project foundation          | Done        |
-| 1     | Domain core                 | Not started |
+| 1     | Domain core                 | Done        |
 | 2     | State management            | Not started |
 | 3     | Functional interface        | Not started |
 | 4     | Race engine and animation   | Not started |
@@ -43,13 +43,13 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 
 **Outcome:** all game rules exist as pure, fully tested TypeScript with no Vue imports.
 
-- [ ] `config`: stable size, runners per round, round distances, simulation coefficients
-- [ ] `rng`: seeded pseudo-random generator with `int`, `float`, `shuffle` and `sample` helpers
-- [ ] `types`: `Horse`, `Round`, `Runner`, `RoundState`, `RoundResult`, `MeetingStatus`
-- [ ] `stable`: create 20 horses with unique names and colours and a random condition (FR-01 to FR-03)
-- [ ] `programme`: create 6 rounds with fixed distances and 10 distinct runners each, with lanes (FR-05 to FR-07)
-- [ ] `simulation`: create the initial round state, advance it by a time step, detect completion, produce the finishing order (FR-13, FR-22, NFR-02)
-- [ ] Unit tests for every module, including determinism under a seed, step-size independence and the statistical effect of condition
+- [x] `config`: stable size, runners per round, round distances, simulation coefficients
+- [x] `rng`: seeded pseudo-random generator with integer, float, `shuffle` and `sample` helpers
+- [x] `types`: `Horse`, `Round`, `Runner`, `RoundState`, `RoundResult`, `MeetingStatus`
+- [x] `stable`: create 20 horses with unique names and colours and a random condition (FR-01 to FR-03)
+- [x] `programme`: create 6 rounds with fixed distances and 10 distinct runners each, with lanes (FR-05 to FR-07)
+- [x] `simulation`: create the initial round state, advance it by a time step, detect completion, produce the finishing order (FR-13, FR-22, NFR-02)
+- [x] Unit tests for every module, including determinism under a seed, step-size independence and the statistical effect of condition
 
 **Exit criteria:** a whole meeting can be simulated in a unit test from a seed, with the same result every time; coverage on `domain/` is at least 90%.
 
