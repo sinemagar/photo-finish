@@ -61,4 +61,17 @@ describe('session store', () => {
     session.setSpeed(Number.NaN)
     expect(session.speed).toBe(4)
   })
+
+  it('draws the track in 2D unless told otherwise, and remembers a change', () => {
+    const session = useSessionStore()
+
+    session.configure()
+    expect(session.renderer).toBe('2d')
+
+    session.configure({ renderer: '3d' })
+    expect(session.renderer).toBe('3d')
+
+    session.setRenderer('2d')
+    expect(session.renderer).toBe('2d')
+  })
 })
