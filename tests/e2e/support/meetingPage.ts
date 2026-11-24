@@ -73,8 +73,8 @@ export class MeetingPage {
 
   /** Advances in small steps until the given number of results is on screen. */
   async advanceUntilResults(count: number) {
-    // A whole meeting lasts about 85 seconds of game time; this allows for twice that.
-    for (let step = 0; step < 700; step++) {
+    // A whole meeting lasts about two and a half minutes of game time; this allows for twice that.
+    for (let step = 0; step < 1300; step++) {
       if ((await this.resultRounds.count()) >= count) return
       await this.advance(250)
     }

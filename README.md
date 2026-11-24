@@ -236,7 +236,7 @@ The brief leaves some points open. These are the decisions taken; each is isolat
 | The example shows "Start / Pause", the text only mentions Start | One control that starts, pauses and resumes.                                        |
 | Generating while a race is running                              | Disabled during a round; allowed when paused or finished, which resets the results. |
 | Moving from one round to the next                               | Automatic after a short break.                                                      |
-| A 2200 m race takes over two minutes in reality                 | Played back nine times faster; finish times are still reported in real race time.   |
+| A 2200 m race takes over two minutes in reality                 | Played back five times faster; finish times are still reported in real race time.   |
 
 ## How it was built
 
