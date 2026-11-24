@@ -161,8 +161,7 @@ const horsesOfTheDay = computed(() =>
       <LiveLeaders v-if="meeting.status === 'running'" :runners="meeting.trackRunners" />
       <p
         v-if="!SPOTLIGHT.includes(meeting.status)"
-        class="track-panel__status"
-        :class="{ 'visually-hidden': meeting.status === 'running' }"
+        class="visually-hidden"
         data-testid="track-status"
       >
         {{ STATUS_MESSAGES[meeting.status] }}
@@ -222,9 +221,10 @@ const horsesOfTheDay = computed(() =>
 
   &__spotlight {
     padding: var(--space-3) var(--space-6);
-    border: 1px solid rgb(255 255 255 / 12%);
+    border: 1px solid var(--color-overlay-border);
     border-radius: var(--radius);
-    background: rgb(6 14 10 / 86%);
+    background: var(--color-overlay);
+    box-shadow: var(--shadow-overlay);
     font-family: var(--font-display);
     font-size: 1.25rem;
     font-weight: 600;
