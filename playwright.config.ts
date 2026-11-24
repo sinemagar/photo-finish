@@ -16,7 +16,8 @@ export default defineConfig({
   ignoreSnapshots: !isCI,
   snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{arg}{ext}',
   expect: {
-    toHaveScreenshot: { animations: 'disabled', maxDiffPixelRatio: 0.01 },
+    // A full-page capture of the finished meeting can take a while on a busy CI machine.
+    toHaveScreenshot: { animations: 'disabled', maxDiffPixelRatio: 0.01, timeout: 20_000 },
   },
 
   use: {
