@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
+import { useSessionStore } from '@/stores/session'
 import { mountWithStores, tickUntilStatusChanges } from '@/test/mountWithStores'
 
 import HorseSprite from './HorseSprite.vue'
@@ -70,7 +71,7 @@ describe('TrackPanel', () => {
 
   it('puts the message over the track only while nothing is on it or it is paused', async () => {
     const { wrapper, meeting } = mountWithStores(TrackPanel)
-    const isSpotlit = () => wrapper.get(status).classes('track-panel__status--spotlight')
+    const isSpotlit = () => wrapper.get(status).classes('track-panel__spotlight')
 
     expect(isSpotlit()).toBe(true)
 
@@ -87,6 +88,30 @@ describe('TrackPanel', () => {
     tickUntilStatusChanges(meeting)
     await nextTick()
     expect(isSpotlit()).toBe(false)
+  })
+
+  it('shows how far the meeting has got', async () => {
+    const { wrapper, meeting } = mountWithStores(TrackPanel)
+    const steps = () =>
+      wrapper.findAll('.round-stepper__step').map((step) => step.classes()[1]?.split('--')[1])
+
+    expect(steps()).toEqual(Array(6).fill('upcoming'))
+
+    meeting.generateProgramme()
+    meeting.start()
+    tickUntilStatusChanges(meeting)
+    tickUntilStatusChanges(meeting)
+    await nextTick()
+
+    expect(steps()).toEqual(['done', 'current', 'upcoming', 'upcoming', 'upcoming', 'upcoming'])
+  })
+
+  it('changes the playback speed from the speed control', async () => {
+    const { wrapper } = mountWithStores(TrackPanel, { speed: 1 })
+
+    await wrapper.get('[data-testid="speed-4"]').setValue(true)
+
+    expect(useSessionStore().speed).toBe(4)
   })
 
   it('gallops while running and stands still while paused', async () => {
