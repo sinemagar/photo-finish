@@ -71,8 +71,8 @@ const markers = computed(() =>
 <style scoped lang="scss">
 .race-track {
   --lane-height: clamp(2.25rem, 5.2vh, 3.5rem);
-  --sprite-width: calc(var(--lane-height) * 1.25);
-  --gate-width: 8.5rem;
+  --sprite-width: calc(var(--lane-height) * 1.36);
+  --gate-width: 10rem;
   --ruler-height: 1.5rem;
   --finish-width: 0.5rem;
 
@@ -95,6 +95,17 @@ const markers = computed(() =>
     // Room on the right for the finish line, so a finished horse stops right at it.
     padding: 0 var(--finish-width) 0 0;
     list-style: none;
+  }
+
+  // Floodlights: brighter in the middle of the track, falling off towards the corners.
+  &::after {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 55% 40%, rgb(255 255 255 / 9%), transparent 60%),
+      linear-gradient(rgb(0 0 0 / 0%) 55%, rgb(0 0 0 / 22%));
+    content: '';
+    pointer-events: none;
   }
 
   &__ruler {
