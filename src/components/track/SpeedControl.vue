@@ -68,9 +68,9 @@ const groupName = useId()
     }
 
     &--selected {
-      background: var(--color-surface);
+      background: var(--color-selected);
       color: var(--color-primary);
-      box-shadow: 0 1px 3px rgb(16 32 24 / 14%);
+      box-shadow: var(--shadow-selected);
     }
 
     &:has(:focus-visible) {

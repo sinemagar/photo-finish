@@ -26,9 +26,12 @@
   --color-danger: #d64545;
   --color-focus: #2563eb;
 
-  // Cards floating over the track
+  // Cards floating over the track, the sticky header and selected segments
   --color-overlay: rgb(255 255 255 / 94%);
   --color-overlay-border: rgb(19 32 26 / 8%);
+  --color-header: rgb(255 255 255 / 88%);
+  --color-selected: #ffffff;
+  --shadow-selected: 0 1px 3px rgb(16 32 24 / 14%);
 
   // Track
   --color-turf: #2d8a4f;
@@ -61,6 +64,35 @@
   --font-size-lg: 1.25rem;
 
   --duration-fast: 140ms;
+}
+
+// Dark theme. Chosen from the header, or from the device setting until the player
+// chooses; `src/composables/useTheme.ts` sets the attribute.
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #0e1512;
+  --color-surface: #151e19;
+  --color-surface-raised: #18221c;
+  --color-surface-muted: #1e2a23;
+  --color-border: #2a3830;
+  --color-text: #e8f0ea;
+  --color-text-muted: #9fb2a6;
+  --color-hover: rgb(255 255 255 / 6%);
+
+  --color-primary: #3ecf82;
+  --color-primary-strong: #5bdb97;
+  --color-primary-contrast: #04130a;
+  --color-focus: #9cc2ff;
+
+  --color-overlay: rgb(21 30 25 / 92%);
+  --color-overlay-border: rgb(255 255 255 / 10%);
+  --color-header: rgb(14 21 18 / 85%);
+  --color-selected: #2b3a32;
+  --shadow-selected: 0 1px 3px rgb(0 0 0 / 40%);
+
+  --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 8px 24px rgb(0 0 0 / 30%);
+  --shadow-overlay: 0 12px 32px rgb(0 0 0 / 45%);
 }
 
 *,

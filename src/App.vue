@@ -9,6 +9,7 @@ import StablePanel from '@/components/stable/StablePanel.vue'
 import TrackPanel from '@/components/track/TrackPanel.vue'
 import BaseTabs, { type TabItem } from '@/components/ui/BaseTabs.vue'
 import { useFrameLoop } from '@/composables/useFrameLoop'
+import { useTheme } from '@/composables/useTheme'
 import { useMeetingStore } from '@/stores/meeting'
 
 type SectionId = 'results' | 'programme' | 'stable'
@@ -21,6 +22,7 @@ const meeting = useMeetingStore()
 useFrameLoop(meeting.tick, () => meeting.isClockRunning)
 
 const isHelpOpen = ref(false)
+const { theme, toggle: toggleTheme } = useTheme()
 
 /**
  * The results, programme and stable share one panel behind tabs: next to the track on a
@@ -62,6 +64,8 @@ const sectionAttrs = (section: SectionId) => ({
       :can-generate="meeting.canGenerate"
       :can-toggle="meeting.canToggle"
       :toggle-label="meeting.toggleLabel"
+      :theme="theme"
+      @toggle-theme="toggleTheme"
       @generate="meeting.generateProgramme"
       @toggle="meeting.toggle"
       @help="isHelpOpen = true"

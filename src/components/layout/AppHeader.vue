@@ -1,17 +1,23 @@
 <script setup lang="ts">
 import BaseButton from '@/components/ui/BaseButton.vue'
+import type { Theme } from '@/composables/useTheme'
 import type { ToggleLabel } from '@/stores/meeting'
 
-defineProps<{
-  canGenerate: boolean
-  canToggle: boolean
-  toggleLabel: ToggleLabel
-}>()
+withDefaults(
+  defineProps<{
+    canGenerate: boolean
+    canToggle: boolean
+    toggleLabel: ToggleLabel
+    theme?: Theme
+  }>(),
+  { theme: 'light' },
+)
 
 defineEmits<{
   generate: []
   toggle: []
   help: []
+  toggleTheme: []
 }>()
 </script>
 
@@ -24,6 +30,28 @@ defineEmits<{
       <h1 class="app-header__title">Photo Finish</h1>
     </div>
     <div class="app-header__actions">
+      <button
+        type="button"
+        class="app-header__help"
+        :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+        data-testid="theme-toggle"
+        @click="$emit('toggleTheme')"
+      >
+        <svg
+          v-if="theme === 'dark'"
+          class="app-header__icon"
+          viewBox="0 0 20 20"
+          aria-hidden="true"
+        >
+          <circle cx="10" cy="10" r="3.5" />
+          <path
+            d="M10 2v2 M10 16v2 M2 10h2 M16 10h2 M4.3 4.3l1.4 1.4 M14.3 14.3l1.4 1.4 M4.3 15.7l1.4-1.4 M14.3 5.7l1.4-1.4"
+          />
+        </svg>
+        <svg v-else class="app-header__icon" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M15.5 12.5A6.5 6.5 0 0 1 7.5 4.5a6.5 6.5 0 1 0 8 8Z" />
+        </svg>
+      </button>
       <button
         type="button"
         class="app-header__help"
@@ -59,7 +87,7 @@ defineEmits<{
   gap: var(--space-3);
   padding: var(--space-2) var(--space-4);
   border-bottom: 1px solid var(--color-border);
-  background: rgb(255 255 255 / 88%);
+  background: var(--color-header);
   backdrop-filter: blur(10px);
 
   &__brand {
@@ -116,17 +144,37 @@ defineEmits<{
     }
   }
 
+  &__icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
   // On a narrow screen the brand shrinks so the actions always fit on one line.
   @media (max-width: 40rem) {
     padding-inline: var(--space-3);
 
-    &__wide,
-    &__mark {
+    &__wide {
       display: none;
     }
 
+    // The logo stands in for the name, which stays available to assistive technology.
     &__title {
-      font-size: 1.25rem;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    &__help {
+      width: 2.25rem;
+      height: 2.25rem;
     }
 
     :deep(.base-button) {
