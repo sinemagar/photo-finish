@@ -20,6 +20,13 @@ test('initial state', async ({ page }) => {
   await expect(page).toHaveScreenshot('initial.png', { fullPage: true })
 })
 
+test('how it works', async ({ page }) => {
+  await page.getByTestId('help-button').click()
+  await expect(page.getByTestId('help-dialog')).toBeVisible()
+
+  await expect(page).toHaveScreenshot('how-it-works.png', { fullPage: true })
+})
+
 test('programme generated', async ({ page }) => {
   await meeting.generate()
   await expect(meeting.runners).toHaveCount(10)

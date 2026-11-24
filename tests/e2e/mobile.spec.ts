@@ -41,6 +41,17 @@ test('fits the track, the controls and a list on one screen without scrolling th
   }
 })
 
+test('fits the welcome card inside the track on a phone', async ({ page }) => {
+  const card = (await page.getByTestId('welcome-card').boundingBox())!
+  const track = (await page.getByTestId('race-track').boundingBox())!
+
+  expect(card.x).toBeGreaterThanOrEqual(track.x)
+  expect(card.x + card.width).toBeLessThanOrEqual(track.x + track.width)
+  expect(card.y).toBeGreaterThanOrEqual(track.y)
+  expect(card.y + card.height).toBeLessThanOrEqual(track.y + track.height)
+  await expect(page.getByTestId('welcome-generate')).toBeVisible()
+})
+
 test('shows one list at a time and switches with the tabs', async ({ page }) => {
   await meeting.generate()
 

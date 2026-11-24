@@ -29,6 +29,54 @@ test.describe('before a programme exists', () => {
   })
 })
 
+test.describe('getting started', () => {
+  test('welcomes a first-time visitor and starts from the card', async ({ page }) => {
+    const welcome = page.getByTestId('welcome-card')
+
+    await expect(welcome).toBeVisible()
+    await expect(welcome.locator('li')).toHaveCount(3)
+
+    await page.getByTestId('welcome-generate').click()
+
+    await expect(welcome).toBeHidden()
+    await expect(meeting.programmeRounds).toHaveCount(6)
+    await expect(meeting.statusBadge).toHaveText('Ready')
+  })
+
+  test('explains the game in a dialog that traps focus and gives it back', async ({ page }) => {
+    const dialog = page.getByTestId('help-dialog')
+    const helpButton = page.getByTestId('help-button')
+
+    await helpButton.click()
+
+    await expect(dialog).toBeVisible()
+    await expect(dialog).toContainText('A stable of 20 horses')
+    await expect(page.getByTestId('session-seed')).toHaveText('7')
+    await expect(page.getByTestId('replay-link')).toHaveAttribute('href', '?seed=7')
+
+    // While the dialog is open the page behind it cannot be reached.
+    for (let presses = 0; presses < 8; presses++) await page.keyboard.press('Tab')
+    expect(await dialog.evaluate((element) => element.contains(document.activeElement))).toBe(true)
+
+    await page.keyboard.press('Escape')
+
+    await expect(dialog).toBeHidden()
+    await expect(helpButton).toBeFocused()
+  })
+
+  test('closes the dialog from its button and from the backdrop', async ({ page }) => {
+    const dialog = page.getByTestId('help-dialog')
+
+    await page.getByTestId('welcome-help').click()
+    await page.getByTestId('dialog-close').click()
+    await expect(dialog).toBeHidden()
+
+    await page.getByTestId('help-button').click()
+    await page.mouse.click(5, 5)
+    await expect(dialog).toBeHidden()
+  })
+})
+
 test.describe('generating a programme', () => {
   test('creates six rounds at the required distances with ten horses each', async () => {
     await meeting.generate()
@@ -291,6 +339,8 @@ test.describe('the race experience', () => {
 })
 
 test('can be played with the keyboard alone', async ({ page }) => {
+  await page.keyboard.press('Tab')
+  await expect(page.getByTestId('help-button')).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(meeting.generateButton).toBeFocused()
   await page.keyboard.press('Enter')

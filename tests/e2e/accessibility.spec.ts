@@ -69,3 +69,10 @@ test('has no serious accessibility issues while the result banner is shown', asy
 
   expect(await blockingViolations(meeting)).toEqual([])
 })
+
+test('has no serious accessibility issues with the help dialog open', async () => {
+  await meeting.page.getByTestId('help-button').click()
+  await expect(meeting.page.getByTestId('help-dialog')).toBeVisible()
+
+  expect(await blockingViolations(meeting)).toEqual([])
+})
