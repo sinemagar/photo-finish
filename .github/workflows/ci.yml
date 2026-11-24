@@ -37,3 +37,33 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  browser-tests:
+    name: End-to-end, accessibility and visual tests
+    runs-on: ubuntu-latest
+    # The official image pins the browser and the fonts, which keeps screenshots stable.
+    # Its version must match @playwright/test in package.json.
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+
+      - name: Upload report and screenshots
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright
+          path: |
+            playwright-report
+            tests/e2e/__screenshots__
+          retention-days: 7
