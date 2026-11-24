@@ -78,6 +78,8 @@ export class RaceScene {
   private mode: CameraMode = 'tv'
   private fieldKey = ''
   private snapCamera = true
+  /** Something changed that the next frame must show, even if nothing is moving. */
+  private dirty = true
 
   private constructor(
     canvas: HTMLCanvasElement,
@@ -110,12 +112,14 @@ export class RaceScene {
     }
 
     this.field = field
+    this.dirty = true
   }
 
   setCamera(mode: CameraMode): void {
     if (mode === this.mode) return
     this.mode = mode
     this.snapCamera = true
+    this.dirty = true
   }
 
   resize(width: number, height: number): void {
@@ -123,6 +127,7 @@ export class RaceScene {
     this.renderer.setSize(width, height, false)
     this.camera.aspect = width / height
     this.camera.updateProjectionMatrix()
+    this.dirty = true
   }
 
   dispose(): void {
@@ -149,6 +154,8 @@ export class RaceScene {
       this.runners.set(runner.lane, horseRunner)
       this.scene.add(horseRunner.root)
     }
+    // Prepare the new materials now, rather than stalling the first frame of the race.
+    this.renderer.compile(this.scene, this.camera)
   }
 
   /**
@@ -199,6 +206,7 @@ export class RaceScene {
     this.timer.update()
     const { runners, distance, paused } = this.field
     const delta = paused ? 0 : Math.min(this.timer.getDelta(), 0.1)
+    let moving = false
 
     const entries: FieldEntry[] = []
 
@@ -214,7 +222,11 @@ export class RaceScene {
       horse.root.rotation.y = point.heading
 
       this.setGait(horse, motion.speed)
-      horse.mixer.update(delta)
+      // A horse standing still keeps its pose, so an idle course costs no drawing at all.
+      if (motion.speed > 0.01) {
+        horse.mixer.update(delta)
+        moving = true
+      }
       this.seat(horse)
       horse.marker.visible = this.mode === 'aerial'
 
@@ -227,18 +239,27 @@ export class RaceScene {
     }
 
     const view: FieldView = { ...describeField(entries), aspect: this.camera.aspect, fov: FOV }
-    this.moveCamera(cameraPose(this.mode, view), delta)
+    const cameraMoving = this.moveCamera(cameraPose(this.mode, view), delta)
 
-    this.renderer.render(this.scene, this.camera)
+    // Draw only when something changed: a waiting or paused course is left as it is.
+    if (moving || cameraMoving || this.dirty) {
+      this.renderer.render(this.scene, this.camera)
+      this.dirty = false
+    }
   }
 
-  private moveCamera(pose: CameraPose, delta: number): void {
+  /** Eases the camera towards its pose; returns whether it is still on its way. */
+  private moveCamera(pose: CameraPose, delta: number): boolean {
     const { position, target } = pose
     const blend = this.snapCamera ? 1 : 1 - Math.exp(-delta * CAMERA_STIFFNESS)
     this.snapCamera = false
 
-    this.camera.position.lerp(this.scratch.set(position.x, position.y, position.z), blend)
+    const goal = this.scratch.set(position.x, position.y, position.z)
+    const travelling = this.camera.position.distanceToSquared(goal) > 1e-4
+    this.camera.position.lerp(goal, blend)
     this.lookAt.lerp(this.scratch.set(target.x, target.y, target.z), blend)
     this.camera.lookAt(this.lookAt)
+
+    return travelling
   }
 }

@@ -103,7 +103,7 @@ const horsesOfTheDay = computed(() =>
     <template #actions>
       <MeetingStatusBadge :status="meeting.status" />
     </template>
-    <div class="track-panel__stage">
+    <div class="track-panel__stage" :class="{ 'track-panel__stage--3d': renderer === '3d' }">
       <RaceTrack3D
         v-if="renderer === '3d'"
         :runners="meeting.trackRunners"
@@ -180,6 +180,17 @@ const horsesOfTheDay = computed(() =>
 
   &__stage {
     position: relative;
+
+    // The 3D track arrives a moment after the page; holding its space avoids a jump.
+    &--3d {
+      aspect-ratio: 16 / 9;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(#bcd6e6, #3f8f4a);
+
+      @media (max-width: 40rem) {
+        aspect-ratio: 4 / 3;
+      }
+    }
   }
 
   // On a phone the header has room for the title and the speed control only; the footer
