@@ -1,13 +1,25 @@
+# Dependencies and build output
 node_modules
 dist
 coverage
+*.tsbuildinfo
+.eslintcache
+
+# Logs
+*.log
+
+# Local environment
 .DS_Store
 *.local
 .env
 .env.*
 !.env.example
-test-results
-playwright-report
+
+# Editors
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# Playwright
+test-results
+playwright-report
