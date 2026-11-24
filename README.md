@@ -1,29 +1,76 @@
-# Photo Finish
+<h1 align="center">Photo Finish</h1>
 
-An interactive horse racing game built with Vue 3, Pinia and TypeScript.
+<p align="center">
+  An interactive horse racing game built with Vue 3, Pinia and TypeScript.<br />
+  Six rounds. Twenty horses. One finish line.
+</p>
 
-**[Play it live](https://photo-finish.sinemaar1.workers.dev/)**
+<p align="center">
+  <a href="https://photo-finish.sinemaar1.workers.dev/"><strong>Play it live</strong></a>
+  ·
+  <a href="./docs/PRD.md">Product requirements</a>
+  ·
+  <a href="./docs/ROADMAP.md">Roadmap</a>
+  ·
+  <a href="https://github.com/sinemagar/photo-finish/pulls?q=is%3Apr+is%3Aclosed">Pull requests</a>
+</p>
 
-Generate a six-round programme from a stable of twenty horses, start the meeting and watch each round play out on the track, with results appearing as every round finishes.
+<p align="center">
+  <a href="https://github.com/sinemagar/photo-finish/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/sinemagar/photo-finish/actions/workflows/ci.yml/badge.svg" /></a>
+  <img alt="Vue 3" src="https://img.shields.io/badge/Vue-3-42b883?logo=vuedotjs&logoColor=white" />
+  <img alt="TypeScript strict" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
+  <img alt="Pinia" src="https://img.shields.io/badge/state-Pinia-f7d336" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-303%20passing-3ecf82" />
+  <img alt="Lighthouse" src="https://img.shields.io/badge/Lighthouse-100%20%2F%20100%20%2F%20100-3ecf82?logo=lighthouse&logoColor=white" />
+</p>
 
-| Desktop                                                                                                                                                                                                 | Phone                                                                                                                                    |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| ![The track after the first round: horses on the finish line with their positions, the podium banner counting down to the next round, the programme and the first result](./docs/images/screenshot.png) | ![The same moment on a phone: the track stays on screen and the result sits behind the Results tab](./docs/images/screenshot-mobile.png) |
+<p align="center">
+  <img src="./docs/media/race-desktop.gif" alt="A first-time visitor generates a programme from the welcome card and starts the meeting. Ten horses gallop down their lanes with their live rank on each gate; when the round ends, a banner shows the podium and counts down to round 2." width="900" />
+</p>
+
+---
 
 ## Contents
 
+- [At a glance](#at-a-glance)
 - [Requirements covered](#requirements-covered)
 - [Getting started](#getting-started)
 - [Architecture](#architecture)
-- [Experience](#experience)
 - [Testing](#testing)
 - [Performance](#performance)
 - [Assumptions](#assumptions)
+- [How it was built](#how-it-was-built)
 - [Project structure](#project-structure)
-- [How the work was organised](#how-the-work-was-organised)
 - [What could come next](#what-could-come-next)
 
+## At a glance
+
+<table>
+  <tr>
+    <td width="32%" valign="top">
+      <img src="./docs/media/phone.gif" alt="On a phone the track and controls stay on screen; when the first round ends the Results tab comes forward, then the Programme and Stable tabs are opened." />
+    </td>
+    <td valign="top">
+      <img src="./docs/media/meeting-summary.gif" alt="The sixth round finishes at four times speed and the meeting summary names the horses of the day with their wins and podiums, next to a New programme button." />
+    </td>
+  </tr>
+  <tr>
+    <td valign="top"><strong>On a phone</strong><br />Track and controls stay in view; the lists sit behind tabs and the results come forward by themselves.</td>
+    <td valign="top"><strong>End of the meeting</strong><br />After six rounds a summary names the horses of the day and offers a new programme.</td>
+  </tr>
+</table>
+
+|                              |                                                                                                                               |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Live race**                | Live rank on every gate, the three leaders named under the track, a gallop that only plays while a horse is running           |
+| **Always clear what's next** | A podium banner with a countdown between rounds, a round stepper, collapsible rounds that follow the meeting                  |
+| **In your hands**            | Start, pause and resume; playback at 1×, 2× or 4×; a welcome card and a "How it works" dialog                                 |
+| **Reproducible**             | Every session runs on a seed. `?seed=7` brings back the same horses, programme and races                                      |
+| **For everyone**             | Keyboard-only play, screen-reader announcements once per round, colour never the only cue, `prefers-reduced-motion` respected |
+
 ## Requirements covered
+
+Every point of the brief, and where to find it in the code.
 
 | Requirement                                                | Where                                                                        |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------- |
@@ -39,16 +86,36 @@ Generate a six-round programme from a stable of twenty horses, start the meeting
 | Bonus: E2E tests                                           | [`tests/e2e/meeting.spec.ts`](./tests/e2e/meeting.spec.ts)                   |
 | Bonus: visual tests                                        | [`tests/e2e/visual.spec.ts`](./tests/e2e/visual.spec.ts), desktop and mobile |
 
-Beyond the brief: pause and resume, playback speed, live standings, realistic finish times, a result banner and meeting summary, a phone layout, a reproducible session from a seed, and automated accessibility and performance checks. See [Experience](#experience).
-
 ## Getting started
 
-Requires Node.js 22.18 or newer (see `.nvmrc`).
+### Try it
+
+Open **[photo-finish.sinemaar1.workers.dev](https://photo-finish.sinemaar1.workers.dev/)**, press **Generate programme**, then **Start**.
+
+### Run it locally
+
+You need [Node.js](https://nodejs.org/) 22.18 or newer (see `.nvmrc`) and npm.
 
 ```sh
+# 1. Get the code
+git clone https://github.com/sinemagar/photo-finish.git
+cd photo-finish
+
+# 2. Install dependencies
 npm install
+
+# 3. Start the development server, then open http://localhost:5173
 npm run dev
 ```
+
+To run the browser tests, install their browser once:
+
+```sh
+npx playwright install chromium
+npm run test:e2e
+```
+
+### Scripts
 
 | Command                 | Description                                                         |
 | ----------------------- | ------------------------------------------------------------------- |
@@ -64,51 +131,64 @@ npm run dev
 | `npm run size`          | Check the built bundle against its size budget                      |
 | `npm run perf:frames`   | Measure frame times during a race (needs `npm run preview` running) |
 
-The end-to-end tests need a browser once: `npx playwright install chromium`.
+### URL parameters
 
-Two URL parameters help when exploring or debugging:
+| Parameter  | Effect                                                                |
+| ---------- | --------------------------------------------------------------------- |
+| `?seed=7`  | Fixes all randomness: the same horses, programme and races every time |
+| `?speed=4` | Plays the meeting four times faster (the speed control does the same) |
 
-- `?seed=7` fixes all randomness, so the same horses, programme and races come back every time.
-- `?speed=5` plays the meeting five times faster.
+### Deployment
+
+The site is a static build hosted on Cloudflare. Every merge to `main` is built and deployed automatically; no configuration is needed beyond the build command `npm run build` and the output folder `dist`.
 
 ## Architecture
 
-Dependencies point one way only: components use stores and composables, which use the domain.
+Dependencies point one way only. Components never contain a game rule, and the rules never import Vue.
 
+```mermaid
+flowchart TD
+    UI["<b>components/</b><br/>What is on screen.<br/>Shows data, forwards clicks."]
+    STATE["<b>stores/</b> and <b>composables/</b><br/>What is true right now<br/>and what happens next."]
+    DOMAIN["<b>domain/</b><br/>Pure TypeScript rules:<br/>stable, programme, simulation, ranking."]
+    CLOCK(["requestAnimationFrame"])
+
+    UI --> STATE --> DOMAIN
+    CLOCK -- "tick(elapsedMs)" --> STATE
 ```
-components/   What is on screen. Shows data and forwards clicks. Contains no game rule.
-     ↓
-stores/       What is true right now: the programme, the live round, the results.
-composables/  Decides what happens next and delegates every calculation downwards.
-     ↓
-domain/       The rules, as pure TypeScript with no Vue import: create the stable,
-              draw the programme, advance a race, rank the finishers.
+
+The meeting is a state machine. Every button's label and enabled state is derived from this one value, never from separate flags.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> idle
+    idle --> ready: generate
+    ready --> running: start
+    running --> paused: pause
+    paused --> running: resume
+    running --> intermission: round finished
+    intermission --> running: break over
+    running --> finished: last round finished
+    ready --> ready: generate
+    paused --> ready: generate
+    finished --> ready: generate
 ```
 
-A few decisions shape the code:
+Decisions that shape the code:
 
-- **The rules are framework-free.** Everything in `src/domain` is a pure function, so it is tested without mounting anything and would survive a change of framework or renderer.
-- **The meeting is a state machine.** It is always in exactly one of `idle`, `ready`, `running`, `paused`, `intermission` or `finished`. What each button allows and says is derived from that single value, never from separate flags.
-- **Time is injected.** The store moves only when `tick(elapsedMs)` is called. One composable, `useFrameLoop`, connects it to `requestAnimationFrame`; tests call `tick` directly.
-- **Randomness is seeded.** Every random choice goes through one generator, which makes a session reproducible and the tests stable.
-- **The result does not depend on frame rate.** The simulation advances in fixed steps and carries leftover time over, so a slow machine or a background tab produces the same race.
-- **The track is a renderer.** `RaceTrack` receives runners and their progress as props and knows nothing about stores. Horses move by `transform` alone.
+- **The rules are framework-free.** Everything in `src/domain` is a pure function, tested without mounting anything.
+- **Stores orchestrate, the domain computes.** A store action calls a domain function and keeps the result.
+- **Time is injected.** The store moves only when `tick(elapsedMs)` is called. One composable, `useFrameLoop`, connects it to the browser; tests call `tick` directly.
+- **Randomness is seeded.** One generator for every random choice makes sessions reproducible and tests stable.
+- **The result does not depend on frame rate.** The simulation advances in fixed steps and carries leftover time over, so a slow machine or a background tab produces the same race. A unit test proves it.
+- **The track is a renderer.** `RaceTrack` takes runners and their progress as props and knows nothing about stores. Horses move by `transform` alone.
 
 The full reasoning, including the race model, is in the [product requirements](./docs/PRD.md).
 
-## Experience
-
-The brief is met by the first seven phases of the [roadmap](./docs/ROADMAP.md). Three more phases started from a review of that first delivery and reworked the experience.
-
-- **Always in view.** Below 1024 px the track and the controls stay on screen, and the results, programme and stable share the space underneath behind tabs. The page itself never scrolls.
-- **Lists that follow the meeting.** Rounds collapse to one line. The programme opens the round on the track; the results open the latest one and fold earlier rounds to their winner.
-- **A race worth watching.** Live rank on every gate, the three leaders named under the track, horses drawn with a jockey and shaded from their one colour, and a gallop that only plays while a horse is actually running.
-- **Always clear what happens next.** A banner shows the podium of the round that just finished and counts down to the next one; after the last round a summary names the horses of the day and offers a new programme.
-- **In the player's hands.** Playback at 1×, 2× or 4×, a round stepper, and a welcome card on the empty track with the three steps and the main action.
-- **Explained from the source.** The "How it works" dialog reads its figures from the game configuration, shows the seed of the session and links to a replay of it.
-- **For everyone.** Colour is never the only cue, results are announced to screen readers once per round, the dialog traps and returns focus, every control works from the keyboard, and decorative motion stops under `prefers-reduced-motion`.
-
 ## Testing
+
+**303 tests**, all running in CI on every pull request.
 
 | Layer                      | Tool                   | Count | What it proves                                                                                                                        |
 | -------------------------- | ---------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------- |
@@ -122,29 +202,27 @@ The brief is met by the first seven phases of the [roadmap](./docs/ROADMAP.md). 
 
 Line coverage of the unit and component tests is above 99%.
 
-The browser tests take control of the page's clock: time moves only when a test advances it. A given seed therefore replays frame for frame, a full meeting runs in a few seconds, and no test waits on real time. Visual baselines are generated and compared in the CI container, because screenshots depend on the fonts of the machine; elsewhere the comparison is skipped.
+**How the browser tests stay deterministic.** They take control of the page's clock: time moves only when a test advances it. With a fixed seed a meeting replays frame for frame, a whole 85-second meeting runs in a few seconds, and no test waits on real time. Visual baselines are produced and compared in the CI container, because screenshots depend on the fonts of the machine.
 
-CI runs lint, formatting, type-check, unit tests and build in one job and the browser tests in another, on every pull request.
+**Tests that paid off.** The accessibility checks found panels that could not be scrolled from the keyboard and low-contrast text in finished rounds; a unit test caught a rounding bug in the condition meter; the first visual baseline exposed a squeezed track at 1280 px. All were fixed in the same pull request that found them.
 
 ## Performance
 
-| Measure                   | Result                                                        | How                                              |
-| ------------------------- | ------------------------------------------------------------- | ------------------------------------------------ |
-| Lighthouse performance    | 100                                                           | Mobile profile with throttling, production build |
-| Lighthouse accessibility  | 100                                                           | Same run                                         |
-| Lighthouse best practices | 100                                                           | Same run                                         |
-| Largest contentful paint  | 1.1 s                                                         | Same run                                         |
-| Total blocking time       | 30 ms                                                         | Same run                                         |
-| Layout shift              | 0                                                             | Same run                                         |
-| Frame time during a race  | 16.7 ms on average and at the 95th percentile, no long frames | `npm run perf:frames`, 360 frames at 1440 × 900  |
-| JavaScript shipped        | 40.5 kB gzip                                                  | `npm run size`; CI fails above 60 kB             |
-| CSS shipped               | 6.0 kB gzip                                                   | `npm run size`; CI fails above 10 kB             |
+| Measure                                     | Result                                              |
+| ------------------------------------------- | --------------------------------------------------- |
+| Lighthouse performance / a11y / best pract. | 100 / 100 / 100 (mobile profile, production build)  |
+| Largest contentful paint                    | 1.1 s                                               |
+| Total blocking time                         | 30 ms                                               |
+| Layout shift                                | 0                                                   |
+| Frame time during a race                    | 16.7 ms average and 95th percentile, no long frames |
+| JavaScript shipped                          | 40.5 kB gzip (CI fails above 60 kB)                 |
+| CSS shipped                                 | 6.0 kB gzip (CI fails above 10 kB)                  |
 
 What keeps it fast:
 
 - Horses move by `transform` alone, so a frame costs no layout work.
 - The live round state is immutable and held in a `shallowRef`; a tick replaces one reference instead of triggering deep reactivity.
-- The simulation is a handful of multiplications per horse per step, and the frame loop only runs while the clock does.
+- The frame loop only runs while the clock does.
 - The only runtime dependencies are Vue and Pinia. The display typeface is bundled, so nothing is fetched from another origin.
 
 ## Assumptions
@@ -160,11 +238,35 @@ The brief leaves some points open. These are the decisions taken; each is isolat
 | Moving from one round to the next                               | Automatic after a short break.                                                      |
 | A 2200 m race takes over two minutes in reality                 | Played back nine times faster; finish times are still reported in real race time.   |
 
+## How it was built
+
+### Plan first, then phases
+
+The work started with a [product requirements document](./docs/PRD.md) and a [roadmap](./docs/ROADMAP.md), before any code. Each phase was built on its own branch and merged through a pull request that says what changed, why, and how it was verified, with CI green. The [closed pull requests](https://github.com/sinemagar/photo-finish/pulls?q=is%3Apr+is%3Aclosed) tell the story in order:
+
+| Phases | Outcome                                                                                                                          |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| 0–2    | Tooling and CI, the rules as pure TypeScript, Pinia stores and the state machine                                                 |
+| 3–4    | A working interface, then the animated track: every requirement of the brief met                                                 |
+| 5–7    | Visual design, end-to-end, accessibility and visual tests, deployment                                                            |
+| 8–10   | A review of the first delivery, then a new visual language, the phone layout, live standings, onboarding and performance budgets |
+
+### Working with Claude
+
+I used [Claude Code](https://claude.com/claude-code) as a pair programmer throughout, the same way I use AI tools in my day-to-day work. It helped me most with:
+
+- **Planning:** turning the brief into the PRD and the phased roadmap, and spotting the ambiguities worth deciding up front.
+- **Infrastructure:** project scaffolding, the CI workflow, the Playwright set-up with a controlled clock, and the deployment.
+- **Design and visualisation:** iterating on the theme, layout and SVG artwork, and reviewing screenshots at several screen sizes.
+- **Tests:** drafting test cases alongside each feature, which I then extended and kept green.
+
+I set the direction and the priorities, decided between the options it proposed, reviewed every pull request, and checked each phase in the browser on desktop and phone before merging. Nothing was merged on trust: every change had to pass lint, type-check, the unit tests and the browser tests in CI. Being able to explain each decision in this repository was the bar.
+
 ## Project structure
 
 ```
 src/
-  domain/         Game rules: config, rng, stable, programme, simulation, types
+  domain/         Game rules: config, rng, stable, programme, simulation, summary, types
   stores/         Pinia stores: session, stable, meeting
   composables/    useFrameLoop, useRevealInScroller, useAutoExpand, useMediaQuery
   components/
@@ -177,12 +279,8 @@ src/
   styles/         Design tokens and base styles
 tests/e2e/        Playwright specs, page object and visual baselines
 scripts/          Bundle size budget and frame-timing measurement
-docs/             Product requirements and roadmap
+docs/             Product requirements, roadmap, screenshots and recordings
 ```
-
-## How the work was organised
-
-The project started with a [product requirements document](./docs/PRD.md) and a [roadmap](./docs/ROADMAP.md) that splits the work into phases. Each phase was built on its own branch, reviewed as a pull request with a description of what changed and how it was verified, and merged only with CI green. The [closed pull requests](../../pulls?q=is%3Apr+is%3Aclosed) tell the story in order.
 
 ## What could come next
 
