@@ -191,7 +191,10 @@ src/
   config/         Presentation settings such as playback speed. Game rules stay in domain/.
   composables/    Vue glue, e.g. the animation-frame loop that drives the simulation.
   components/     Feature folders: stable, programme, track, results, layout.
-    ui/           Small presentational building blocks (button, panel, table).
+    ui/           Small presentational building blocks (button, panel).
+    shared/       Presentational pieces used by several features (horse badge, round table).
+  utils/          Framework-free helpers: formatting, reading URL options.
+  test/           Helpers shared by component tests.
   styles/         Tokens, reset, mixins.
   App.vue
 tests/

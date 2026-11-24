@@ -311,6 +311,32 @@ describe('meeting store', () => {
     })
   })
 
+  describe('the clock', () => {
+    it('runs only during a round or an intermission', () => {
+      expect(meeting.isClockRunning).toBe(false)
+
+      meeting.generateProgramme()
+      expect(meeting.isClockRunning).toBe(false)
+
+      meeting.start()
+      expect(meeting.isClockRunning).toBe(true)
+
+      meeting.pause()
+      expect(meeting.isClockRunning).toBe(false)
+
+      meeting.resume()
+      finishRound(meeting)
+      expect(meeting.status).toBe('intermission')
+      expect(meeting.isClockRunning).toBe(true)
+    })
+
+    it('stops when the meeting is finished', () => {
+      runWholeMeeting(meeting)
+
+      expect(meeting.isClockRunning).toBe(false)
+    })
+  })
+
   describe('a whole meeting', () => {
     beforeEach(() => runWholeMeeting(meeting))
 
