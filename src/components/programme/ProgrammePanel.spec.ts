@@ -41,6 +41,25 @@ describe('ProgrammePanel', () => {
     })
   })
 
+  it('plays down the rounds that have been run', async () => {
+    const { wrapper, meeting } = mountWithStores(ProgrammePanel)
+    const mutedRounds = () =>
+      wrapper.findAll('.round-table--muted').map((table) => table.attributes('data-round'))
+
+    meeting.generateProgramme()
+    meeting.start()
+    await nextTick()
+    expect(mutedRounds()).toEqual([])
+
+    tickUntilStatusChanges(meeting) // round 1 finishes; it stays highlighted for the break
+    await nextTick()
+    expect(mutedRounds()).toEqual([])
+
+    tickUntilStatusChanges(meeting) // round 2 starts
+    await nextTick()
+    expect(mutedRounds()).toEqual(['1'])
+  })
+
   it('highlights only the round that is on the track', async () => {
     const { wrapper, meeting } = mountWithStores(ProgrammePanel)
     const activeRounds = () =>

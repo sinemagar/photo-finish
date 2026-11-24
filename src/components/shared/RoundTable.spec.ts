@@ -48,6 +48,27 @@ describe('RoundTable', () => {
     expect(wrapper.get('caption').text()).toContain('(current round)')
   })
 
+  it('decorates the podium only when asked to', () => {
+    const plain = mount(RoundTable, { props: { heading: 'Round 1', rankLabel: 'Lane', rows } })
+    const podium = mount(RoundTable, {
+      props: { heading: 'Round 1', rankLabel: 'Pos', rows, podium: true },
+    })
+
+    expect(plain.classes()).not.toContain('round-table--podium')
+    expect(podium.classes()).toContain('round-table--podium')
+    expect(
+      podium.findAll('.round-table__rank-mark').map((mark) => mark.attributes('data-rank')),
+    ).toEqual(['1', '2'])
+  })
+
+  it('can be played down', () => {
+    const wrapper = mount(RoundTable, {
+      props: { heading: 'Round 1', rankLabel: 'Lane', rows, muted: true },
+    })
+
+    expect(wrapper.classes()).toContain('round-table--muted')
+  })
+
   it('paints each horse in its own colour', () => {
     const wrapper = mount(RoundTable, {
       props: { heading: 'Round 1', rankLabel: 'Lane', rows },

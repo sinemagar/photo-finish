@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 
 import RoundTable, { type RoundTableRow } from '@/components/shared/RoundTable.vue'
 import BasePanel from '@/components/ui/BasePanel.vue'
+import { useRevealInScroller } from '@/composables/useRevealInScroller'
 import { useMeetingStore } from '@/stores/meeting'
 import { useStableStore } from '@/stores/stable'
 import { formatDistance, formatRaceTime } from '@/utils/format'
@@ -21,14 +22,23 @@ const rounds = computed(() =>
   })),
 )
 
+const latest = computed(() => rounds.value[rounds.value.length - 1])
+
 /** Spoken summary of the most recent result, for screen-reader users. */
 const announcement = computed(() => {
-  const latest = rounds.value[rounds.value.length - 1]
-  const winner = latest?.rows[0]
-  if (!latest || !winner) return ''
+  const winner = latest.value?.rows[0]
+  if (!latest.value || !winner) return ''
 
-  return `Round ${latest.number} finished. Winner: ${winner.horse.name}.`
+  return `Round ${latest.value.number} finished. Winner: ${winner.horse.name}.`
 })
+
+// Bring each new result into view as it arrives.
+const list = useTemplateRef<HTMLElement>('list')
+useRevealInScroller(
+  list,
+  () => rounds.value.length,
+  () => (latest.value ? `[data-round="${latest.value.number}"]` : null),
+)
 </script>
 
 <template>
@@ -39,15 +49,19 @@ const announcement = computed(() => {
     <p v-if="rounds.length === 0" class="results-panel__empty">
       Results appear here as each round finishes.
     </p>
-    <RoundTable
-      v-for="round in rounds"
-      :key="round.number"
-      data-testid="result-round"
-      :heading="round.heading"
-      rank-label="Pos"
-      detail-label="Time"
-      :rows="round.rows"
-    />
+    <div ref="list">
+      <RoundTable
+        v-for="round in rounds"
+        :key="round.number"
+        data-testid="result-round"
+        :data-round="round.number"
+        :heading="round.heading"
+        rank-label="Pos"
+        detail-label="Time"
+        :rows="round.rows"
+        podium
+      />
+    </div>
   </BasePanel>
 </template>
 
