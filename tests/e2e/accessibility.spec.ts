@@ -1,0 +1,50 @@
+import AxeBuilder from '@axe-core/playwright'
+import { expect, test } from '@playwright/test'
+
+import { MeetingPage } from './support/meetingPage'
+
+/** Runs axe on the page and returns the violations that would block a user. */
+async function blockingViolations(meeting: MeetingPage) {
+  const { page } = meeting
+  await meeting.releaseClock()
+
+  const { violations } = await new AxeBuilder({ page }).analyze()
+
+  return violations
+    .filter(({ impact }) => impact === 'serious' || impact === 'critical')
+    .map(({ id, nodes }) => `${id}: ${nodes.map((node) => node.target.join(' ')).join(', ')}`)
+}
+
+let meeting: MeetingPage
+
+test.beforeEach(async ({ page }) => {
+  meeting = new MeetingPage(page)
+  await meeting.open()
+})
+
+test('has no serious accessibility issues before a programme exists', async () => {
+  expect(await blockingViolations(meeting)).toEqual([])
+})
+
+test('has no serious accessibility issues with a programme ready', async () => {
+  await meeting.generate()
+
+  expect(await blockingViolations(meeting)).toEqual([])
+})
+
+test('has no serious accessibility issues while paused mid-race', async () => {
+  await meeting.generate()
+  await meeting.start()
+  await meeting.advance(4000)
+  await meeting.toggleButton.click()
+
+  expect(await blockingViolations(meeting)).toEqual([])
+})
+
+test('has no serious accessibility issues once the meeting is over', async () => {
+  await meeting.generate()
+  await meeting.start()
+  await meeting.advanceUntilResults(6)
+
+  expect(await blockingViolations(meeting)).toEqual([])
+})
