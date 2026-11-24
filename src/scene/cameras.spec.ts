@@ -74,8 +74,22 @@ describe('cameraPose', () => {
     expect(horizontal(pose.position, pointOnCourse(700 - 12 - 16))).toBeLessThan(15)
   })
 
-  it('looks down on the whole oval from above, whatever the field does', () => {
-    expect(cameraPose('overhead', field())).toEqual(overheadPose(16 / 9, 40))
+  it('shows the whole oval from above in the aerial view before any horse is out', () => {
+    const empty = field({ leaderArc: null, centreArc: null, leaderMetresToGo: null })
+
+    expect(cameraPose('aerial', empty)).toEqual(overheadPose(16 / 9, 40))
+  })
+
+  it('looks down on the leaders at an angle in the aerial view', () => {
+    const pose = cameraPose('aerial', field())
+    const leaders = pointOnCourse(690)
+    const drop = pose.position.y - pose.target.y
+    const across = horizontal(pose.position, pose.target)
+
+    expect(horizontal(pose.target, leaders)).toBeLessThan(25)
+    // Neither flat nor straight down: somewhere between 30 and 60 degrees.
+    expect(Math.atan2(drop, across)).toBeGreaterThan(Math.PI / 6)
+    expect(Math.atan2(drop, across)).toBeLessThan(Math.PI / 3)
   })
 })
 

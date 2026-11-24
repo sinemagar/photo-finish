@@ -1,4 +1,4 @@
-import { PerspectiveCamera, Timer, Scene, SRGBColorSpace, Vector3, WebGLRenderer } from 'three'
+import { PerspectiveCamera, Scene, SRGBColorSpace, Timer, Vector3, WebGLRenderer } from 'three'
 
 import type { TrackRunner } from '@/stores/meeting'
 
@@ -18,22 +18,39 @@ export interface FieldState {
   runners: TrackRunner[]
   /** Distance of the round on the track, in metres. */
   distance: number | null
-  /** Whether the race is moving right now. */
-  racing: boolean
-  /** Playback speed multiplier, used to pace the gallop. */
-  speed: number
+  /** Whether the meeting is paused, which freezes every horse where it stands. */
+  paused: boolean
 }
 
 const FOV = 40
-/** How far past the line a horse pulls up after finishing, in scene units. */
-const RUN_OUT = 8
-/** Gap between finishers as they pull up, in scene units. */
-const RUN_OUT_GAP = 1.6
-/** Speed of the gallop clip at normal playback speed. */
-const GALLOP_RATE = 1.3
+/** Distance in which a horse comes to a halt after the line, in scene units. */
+const PULL_UP_DISTANCE = 16
+/** Ground covered by one gallop stride, in scene units; sets how fast the legs move. */
+const GALLOP_STRIDE = 7.3
+/** Length of the gallop clip in seconds. */
+const GALLOP_CLIP = 0.583
+/** Ground covered by one walking stride, in scene units. */
+const WALK_STRIDE = 1.4
+/** Speeds, in scene units per second, between which the gait changes. */
+const WALK_SPEED = 0.6
+const GALLOP_SPEED = 6
+/** Fastest the legs may move, as a multiple of the clip's own speed. */
+const MAX_LEG_RATE = 3
 /** How quickly the camera catches up with where it should be; higher is snappier. */
 const CAMERA_STIFFNESS = 2.6
-const RIDER_OFFSET = new Vector3(0, 0.08, -0.08)
+/** From the bone under the saddle to the top of the saddle, in the horse's own space. */
+const SEAT_OFFSET = new Vector3(0, 0.32, 0.1)
+
+/** How one horse is moving, carried from frame to frame. */
+interface Motion {
+  arc: number
+  /** Ground speed in scene units per second. */
+  speed: number
+  /** Deceleration used to pull up after the line, fixed when the horse finishes. */
+  braking: number | null
+}
+
+const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1)
 
 /**
  * The 3D renderer. It only draws the state it is given: the race itself is simulated by
@@ -42,19 +59,18 @@ const RIDER_OFFSET = new Vector3(0, 0.08, -0.08)
 export class RaceScene {
   private readonly renderer: WebGLRenderer
   private readonly scene = new Scene()
-  private readonly camera = new PerspectiveCamera(FOV, 16 / 9, 0.5, 3000)
+  private readonly camera = new PerspectiveCamera(FOV, 16 / 9, 0.3, 2500)
   private readonly timer = new Timer()
   private readonly shadow = createShadowTexture()
   private readonly runners = new Map<number, HorseRunner>()
-  private readonly arcs = new Map<number, number>()
+  private readonly motion = new Map<number, Motion>()
   private readonly lookAt = new Vector3()
   private readonly scratch = new Vector3()
 
-  private field: FieldState = { runners: [], distance: null, racing: false, speed: 1 }
+  private field: FieldState = { runners: [], distance: null, paused: false }
   private mode: CameraMode = 'tv'
   private fieldKey = ''
   private snapCamera = true
-  private fog: Scene['fog'] = null
 
   private constructor(
     canvas: HTMLCanvasElement,
@@ -68,7 +84,6 @@ export class RaceScene {
     this.renderer.outputColorSpace = SRGBColorSpace
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75))
     buildEnvironment(this.scene)
-    this.fog = this.scene.fog
     this.renderer.setAnimationLoop(() => this.frame())
   }
 
@@ -94,8 +109,6 @@ export class RaceScene {
     if (mode === this.mode) return
     this.mode = mode
     this.snapCamera = true
-    // Haze helps the low views but would wash out the whole course seen from above.
-    this.scene.fog = mode === 'overhead' ? null : this.fog
   }
 
   resize(width: number, height: number): void {
@@ -122,7 +135,7 @@ export class RaceScene {
       disposeHorseRunner(runner)
     }
     this.runners.clear()
-    this.arcs.clear()
+    this.motion.clear()
 
     for (const runner of runners) {
       const horseRunner = createHorseRunner(this.template, runner.horse, runner.lane, this.shadow)
@@ -131,19 +144,53 @@ export class RaceScene {
     }
   }
 
-  /** Where a horse should be: on its way, or pulling up past the line in finishing order. */
-  private targetArc(runner: TrackRunner, distance: number): number {
-    if (runner.position !== null) {
-      return COURSE.finishAt + RUN_OUT + (10 - runner.position) * RUN_OUT_GAP
+  /**
+   * Moves a horse for this frame. While running it is exactly where the simulation puts
+   * it; after the line it keeps its finishing speed and brakes evenly to a halt.
+   */
+  private move(runner: TrackRunner, distance: number, delta: number): Motion {
+    const previous = this.motion.get(runner.lane)
+
+    if (runner.position === null || !previous) {
+      const arc = arcForRunner(distance, runner.progress * distance)
+      if (!previous || delta === 0) return { arc, speed: previous?.speed ?? 0, braking: null }
+
+      // Smooth the measured speed: it only drives the legs, and should not flicker.
+      const measured = Math.max((arc - previous.arc) / delta, 0)
+      return { arc, speed: previous.speed + (measured - previous.speed) * 0.2, braking: null }
     }
-    return arcForRunner(distance, runner.progress * distance)
+
+    const braking = previous.braking ?? previous.speed ** 2 / (2 * PULL_UP_DISTANCE)
+    const speed = Math.max(previous.speed - braking * delta, 0)
+    return { arc: previous.arc + speed * delta, speed, braking }
+  }
+
+  /** Blends idle, walk and gallop by ground speed, with the legs matched to the ground. */
+  private setGait(horse: HorseRunner, speed: number): void {
+    const gallop = clamp01((speed - WALK_SPEED) / (GALLOP_SPEED - WALK_SPEED))
+    const walk = (1 - gallop) * clamp01(speed / WALK_SPEED)
+
+    horse.gallop.setEffectiveWeight(gallop)
+    horse.walk.setEffectiveWeight(walk)
+    horse.idle.setEffectiveWeight(1 - gallop - walk)
+
+    const gallopRate = speed / (GALLOP_STRIDE / GALLOP_CLIP)
+    horse.gallop.timeScale = Math.min(Math.max(gallopRate, 0.6), MAX_LEG_RATE)
+    horse.walk.timeScale = Math.min(Math.max(speed / WALK_STRIDE, 0.5), MAX_LEG_RATE)
+  }
+
+  /** Keeps the saddle and jockey on the horse's back as the back rises and falls. */
+  private seat(horse: HorseRunner): void {
+    if (!horse.saddleBone) return
+    horse.saddleBone.getWorldPosition(this.scratch)
+    horse.root.worldToLocal(this.scratch)
+    horse.seat.position.copy(this.scratch).add(SEAT_OFFSET)
   }
 
   private frame(): void {
     this.timer.update()
-    const delta = Math.min(this.timer.getDelta(), 0.1)
-    const { runners, distance, racing, speed } = this.field
-    const smoothing = 1 - Math.exp(-delta * 3)
+    const { runners, distance, paused } = this.field
+    const delta = paused ? 0 : Math.min(this.timer.getDelta(), 0.1)
 
     let leaderArc: number | null = null
     let leaderToGo: number | null = null
@@ -153,68 +200,39 @@ export class RaceScene {
       const horse = this.runners.get(runner.lane)
       if (!horse || distance === null) continue
 
-      const target = this.targetArc(runner, distance)
-      const previous = this.arcs.get(runner.lane)
-      // Running horses follow the simulation exactly; finished ones glide to a halt.
-      const arc =
-        runner.position === null || previous === undefined
-          ? target
-          : previous + (target - previous) * smoothing
-      this.arcs.set(runner.lane, arc)
+      const motion = this.move(runner, distance, delta)
+      this.motion.set(runner.lane, motion)
 
-      const point = pointOnCourse(arc, laneOffset(runner.lane))
+      const point = pointOnCourse(motion.arc, laneOffset(runner.lane))
       horse.root.position.set(point.x, 0, point.z)
       horse.root.rotation.y = point.heading
 
-      const moving = racing && runner.position === null
-      const pullingUp = racing && runner.position !== null && Math.abs(target - arc) > 0.2
-      this.setGait(horse, moving || pullingUp, speed)
+      this.setGait(horse, motion.speed)
       horse.mixer.update(delta)
-      this.seatRider(horse)
-      horse.marker.visible = this.mode === 'overhead'
+      this.seat(horse)
+      horse.marker.visible = this.mode === 'aerial'
 
       const toGo = distance * (1 - runner.progress)
       if (runner.position === null && (leaderToGo === null || toGo < leaderToGo)) {
         leaderToGo = toGo
-        leaderArc = arc
+        leaderArc = motion.arc
       }
-      arcSum += arc
+      arcSum += motion.arc
     }
 
-    const finishedField = runners.length > 0 && runners.every((runner) => runner.position !== null)
+    const finished = runners.length > 0 && runners.every((runner) => runner.position !== null)
     const view: FieldView = {
-      leaderArc: finishedField ? COURSE.finishAt : leaderArc,
-      centreArc:
-        runners.length > 0 ? (finishedField ? COURSE.finishAt : arcSum / runners.length) : null,
-      leaderMetresToGo: finishedField ? 0 : leaderToGo,
+      leaderArc: finished ? COURSE.finishAt : leaderArc,
+      centreArc: runners.length > 0 ? (finished ? COURSE.finishAt : arcSum / runners.length) : null,
+      leaderMetresToGo: finished ? 0 : leaderToGo,
       started: runners.some((runner) => runner.progress > 0),
-      finished: finishedField,
+      finished,
       aspect: this.camera.aspect,
       fov: FOV,
     }
     this.moveCamera(cameraPose(this.mode, view), delta)
 
     this.renderer.render(this.scene, this.camera)
-  }
-
-  private setGait(horse: HorseRunner, galloping: boolean, speed: number): void {
-    if (galloping && !horse.gallop.isRunning()) {
-      horse.gallop.reset().play()
-      horse.idle.crossFadeTo(horse.gallop, 0.25, false)
-    } else if (!galloping && horse.gallop.isRunning() && horse.gallop.getEffectiveWeight() > 0) {
-      horse.idle.reset().play()
-      horse.gallop.crossFadeTo(horse.idle, 0.4, false)
-    }
-
-    // The clip is one stride; faster playback means faster strides, within reason.
-    horse.gallop.timeScale = GALLOP_RATE * Math.min(speed, 2.5)
-  }
-
-  private seatRider(horse: HorseRunner): void {
-    if (!horse.saddleBone) return
-    horse.saddleBone.getWorldPosition(this.scratch)
-    horse.root.worldToLocal(this.scratch)
-    horse.rider.position.copy(this.scratch).add(RIDER_OFFSET)
   }
 
   private moveCamera(pose: CameraPose, delta: number): void {

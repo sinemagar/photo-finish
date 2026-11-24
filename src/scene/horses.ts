@@ -95,48 +95,71 @@ function numberTexture(number: number, colour: string): CanvasTexture {
   return texture
 }
 
+/** A capsule running from one point to another, for limbs and bodies. */
+function limb(from: Vector3, to: Vector3, radius: number, material: MeshStandardMaterial): Mesh {
+  const direction = to.clone().sub(from)
+  const length = direction.length()
+  const mesh = new Mesh(
+    new CapsuleGeometry(radius, Math.max(length - 2 * radius, 0.01), 4, 8),
+    material,
+  )
+  mesh.position.copy(from).add(to).multiplyScalar(0.5)
+  mesh.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), direction.normalize())
+  return mesh
+}
+
+const point = (x: number, y: number, z: number) => new Vector3(x, y, z)
+
 /**
- * A crouching jockey in the horse's silks, built from simple shapes in the same low-poly
- * style as the horse. Positioned in the horse's own space, where the horse faces +z.
+ * The saddle, saddle cloths and a jockey in racing crouch: short stirrups, knees high,
+ * body low over the withers and hands on the neck. Built from simple shapes in the same
+ * low-poly style as the horse, around the top of the saddle, with the horse facing +z.
  */
-function createJockey(silks: string): Group {
-  const jockey = new Group()
-  const silk = new MeshStandardMaterial({ color: silks, roughness: 0.6 })
+function createSeat(silks: string, number: number): Group {
+  const seat = new Group()
+  const silk = new MeshStandardMaterial({ color: silks, roughness: 0.55 })
   const breeches = new MeshStandardMaterial({ color: '#f3f1ea', roughness: 0.8 })
-  const boots = new MeshStandardMaterial({ color: '#141414', roughness: 0.7 })
+  const leather = new MeshStandardMaterial({ color: '#2a1d16', roughness: 0.7 })
   const skin = new MeshStandardMaterial({ color: '#e2b293', roughness: 0.8 })
 
-  const body = new Mesh(new CapsuleGeometry(0.17, 0.42, 4, 8), silk)
-  body.rotation.x = 1.05
-  body.position.set(0, 0.36, 0.12)
+  const saddle = new Mesh(new BoxGeometry(0.46, 0.06, 0.5), leather)
+  saddle.position.set(0, 0.01, 0)
+  seat.add(saddle)
 
-  const head = new Mesh(new SphereGeometry(0.13, 12, 8), skin)
-  head.position.set(0, 0.6, 0.42)
-
-  const cap = new Mesh(new SphereGeometry(0.145, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), silk)
-  cap.position.set(0, 0.62, 0.42)
-
-  const peak = new Mesh(new BoxGeometry(0.18, 0.02, 0.1), silk)
-  peak.position.set(0, 0.62, 0.57)
-
+  // Saddle cloth on both flanks, in the horse's colour with its number.
+  const cloth = new MeshStandardMaterial({ map: numberTexture(number, silks), roughness: 0.9 })
   for (const side of [-1, 1]) {
-    const thigh = new Mesh(new CapsuleGeometry(0.075, 0.28, 3, 6), breeches)
-    thigh.rotation.x = -0.9
-    thigh.position.set(side * 0.19, 0.12, 0.08)
-
-    const shin = new Mesh(new CapsuleGeometry(0.06, 0.26, 3, 6), boots)
-    shin.rotation.x = 0.5
-    shin.position.set(side * 0.21, -0.06, 0.02)
-
-    const arm = new Mesh(new CapsuleGeometry(0.055, 0.32, 3, 6), silk)
-    arm.rotation.x = 1.4
-    arm.position.set(side * 0.16, 0.42, 0.52)
-
-    jockey.add(thigh, shin, arm)
+    const panel = new Mesh(new PlaneGeometry(0.56, 0.4), cloth)
+    panel.rotation.y = (side * Math.PI) / 2
+    panel.position.set(side * 0.37, -0.2, -0.04)
+    seat.add(panel)
   }
 
-  jockey.add(body, head, cap, peak)
-  return jockey
+  const hips = point(0, 0.2, -0.06)
+  const shoulders = point(0, 0.4, 0.4)
+  seat.add(limb(hips, shoulders, 0.15, silk))
+
+  const head = new Mesh(new SphereGeometry(0.115, 14, 10), skin)
+  head.position.set(0, 0.5, 0.58)
+  const cap = new Mesh(new SphereGeometry(0.13, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), silk)
+  cap.position.set(0, 0.52, 0.57)
+  const peak = new Mesh(new BoxGeometry(0.16, 0.02, 0.1), silk)
+  peak.position.set(0, 0.52, 0.71)
+  seat.add(head, cap, peak)
+
+  for (const side of [-1, 1]) {
+    const hip = point(side * 0.16, 0.17, -0.06)
+    const knee = point(side * 0.3, 0.2, 0.26)
+    const foot = point(side * 0.36, -0.24, 0.12)
+    const shoulder = point(side * 0.14, 0.38, 0.4)
+    const hand = point(side * 0.08, 0.18, 0.86)
+
+    seat.add(limb(hip, knee, 0.075, breeches))
+    seat.add(limb(knee, foot, 0.06, leather))
+    seat.add(limb(shoulder, hand, 0.055, silk))
+  }
+
+  return seat
 }
 
 /** One runner on the course: the horse, its rider and everything that moves with it. */
@@ -145,14 +168,16 @@ export interface HorseRunner {
   mixer: AnimationMixer
   gallop: AnimationAction
   idle: AnimationAction
-  /** A numbered marker above the horse, shown in the overhead view. */
+  walk: AnimationAction
+  /** A numbered marker above the horse, shown in the aerial view. */
   marker: Sprite
-  /** The bone the rider sits on, followed every frame. */
+  /** The bone under the saddle, followed every frame so the rider moves with the horse. */
   saddleBone: Bone | null
-  rider: Group
+  /** Saddle, saddle cloths and jockey. */
+  seat: Group
 }
 
-const SADDLE_BONE = 'Torso'
+const SADDLE_BONE = 'Torso2'
 
 export function createHorseRunner(
   template: HorseTemplate,
@@ -166,21 +191,8 @@ export function createHorseRunner(
   paintCoat(model, coatFor(horse))
   root.add(model)
 
-  const silks = horse.color.hex
-  const rider = createJockey(silks)
-  root.add(rider)
-
-  // Saddle cloth on both flanks, in the horse's colour with its number.
-  const clothTexture = numberTexture(lane, silks)
-  for (const side of [-1, 1]) {
-    const cloth = new Mesh(
-      new PlaneGeometry(0.62, 0.46),
-      new MeshStandardMaterial({ map: clothTexture, roughness: 0.9 }),
-    )
-    cloth.rotation.y = (side * Math.PI) / 2
-    cloth.position.set(side * 0.37, 1.32, -0.12)
-    root.add(cloth)
-  }
+  const seat = createSeat(horse.color.hex, lane)
+  root.add(seat)
 
   const ground = new Mesh(
     new PlaneGeometry(1.4, 3.2),
@@ -192,13 +204,13 @@ export function createHorseRunner(
 
   const marker = new Sprite(
     new SpriteMaterial({
-      map: numberTexture(lane, silks),
+      map: numberTexture(lane, horse.color.hex),
       depthTest: false,
       sizeAttenuation: false,
     }),
   )
-  marker.scale.setScalar(0.045)
-  marker.position.y = 4
+  marker.scale.setScalar(0.028)
+  marker.position.y = 3.2
   marker.renderOrder = 10
   marker.visible = false
   root.add(marker)
@@ -211,7 +223,12 @@ export function createHorseRunner(
   }
   const gallop = mixer.clipAction(clip('Gallop')).setLoop(LoopRepeat, Infinity)
   const idle = mixer.clipAction(clip('Idle')).setLoop(LoopRepeat, Infinity)
-  idle.play()
+  const walk = mixer.clipAction(clip('Walk')).setLoop(LoopRepeat, Infinity)
+  // All three gaits play at once; the scene blends them by setting their weights.
+  for (const action of [gallop, walk, idle]) action.play()
+  gallop.setEffectiveWeight(0)
+  walk.setEffectiveWeight(0)
+  idle.setEffectiveWeight(1)
   // Horses that start together should not move in step.
   mixer.setTime((lane * 0.137) % 1)
 
@@ -220,7 +237,7 @@ export function createHorseRunner(
     if (object.name === SADDLE_BONE && (object as Bone).isBone) saddleBone = object as Bone
   })
 
-  return { root, mixer, gallop, idle, marker, saddleBone, rider }
+  return { root, mixer, gallop, idle, walk, marker, saddleBone, seat }
 }
 
 /** Frees the GPU memory held by a runner. */

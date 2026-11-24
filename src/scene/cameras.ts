@@ -1,9 +1,9 @@
 import { COURSE, laneOffset, pointOnCourse, type CourseShape } from './course'
 
 /** The camera views the player can choose between. */
-export type CameraMode = 'tv' | 'chase' | 'overhead'
+export type CameraMode = 'tv' | 'chase' | 'aerial'
 
-export const CAMERA_MODES: readonly CameraMode[] = ['tv', 'chase', 'overhead']
+export const CAMERA_MODES: readonly CameraMode[] = ['tv', 'chase', 'aerial']
 
 export interface Vec3 {
   x: number
@@ -46,7 +46,7 @@ const at = (arc: number, offset: number, height: number, shape: CourseShape): Ve
   return { x: point.x, y: height, z: point.z }
 }
 
-/** The whole oval from above, framed to fit the picture. */
+/** The whole oval from above, framed to fit the picture; used before any horse is out. */
 export function overheadPose(aspect: number, fov: number, shape: CourseShape = COURSE): CameraPose {
   const halfWidth = shape.straight / 2 + shape.radius + OUTER_EDGE + 12
   const halfDepth = shape.radius + OUTER_EDGE + 12
@@ -94,8 +94,20 @@ export function cameraPose(
   field: FieldView,
   shape: CourseShape = COURSE,
 ): CameraPose {
-  if (mode === 'overhead') return overheadPose(field.aspect, field.fov, shape)
-  if (field.leaderArc === null || field.centreArc === null) return standPose(shape)
+  if (field.leaderArc === null || field.centreArc === null) {
+    return mode === 'aerial' ? overheadPose(field.aspect, field.fov, shape) : standPose(shape)
+  }
+
+  if (mode === 'aerial') {
+    // A drone high above the outside rail, looking down on the leading group at an angle.
+    const focus = field.finished
+      ? shape.finishAt + 12
+      : Math.max(field.centreArc, field.leaderArc - 10)
+    return {
+      position: at(focus - 22, OUTER_EDGE + 16, 30, shape),
+      target: at(focus + 6, MIDDLE_OFFSET, 0, shape),
+    }
+  }
 
   if (mode === 'chase') {
     // Just behind the leading group: in a long round the back markers can be far behind.

@@ -22,12 +22,13 @@ export interface CourseShape {
 }
 
 export const COURSE: CourseShape = {
-  straight: 250,
-  radius: 111,
+  straight: 160,
+  radius: 75,
   laneWidth: 1.9,
   railGap: 1.2,
-  finishAt: 205,
-  unitsPerMetre: 0.5,
+  finishAt: 120,
+  // Drawn at a reduced scale so that horses do not appear to fly at the playback speed.
+  unitsPerMetre: 0.28,
 }
 
 /** A point on the course, with the direction a horse running there is facing. */
