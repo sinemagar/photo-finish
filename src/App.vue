@@ -77,7 +77,7 @@ useFrameLoop(meeting.tick, () => meeting.isClockRunning)
 
     &__main {
       min-height: 0;
-      grid-template-columns: 20rem minmax(0, 1fr) 15rem 17rem;
+      grid-template-columns: 21.5rem minmax(0, 1fr) 14.5rem 16.5rem;
       grid-template-areas: 'stable track programme results';
     }
   }
