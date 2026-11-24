@@ -80,7 +80,7 @@ test('switches to the 2D track and back without losing the meeting', async ({ pa
   const offsets = await meeting.runnerOffsets()
   expect(offsets.every((offset) => offset > 0 && offset < 100)).toBe(true)
 
-  await page.getByTestId('renderer-3d').click()
+  await page.getByTestId('camera-tv').click()
   await expect(page.locator(track3d)).toBeVisible()
   await expect(meeting.toggleButton).toHaveText('Resume')
 })

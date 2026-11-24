@@ -4,8 +4,8 @@ import { expect, test } from '@playwright/test'
 import { MeetingPage } from './support/meetingPage'
 
 /**
- * The phone layout: the track and the controls stay on screen, and the three lists share
- * the space below behind tabs.
+ * The phone layout: the track and the controls come first, the three lists share the
+ * space below behind tabs, and the page scrolls with the header and tabs kept in reach.
  */
 let meeting: MeetingPage
 
@@ -14,31 +14,44 @@ test.beforeEach(async ({ page }) => {
   await meeting.open()
 })
 
-test('fits the track, the controls and a list on one screen without scrolling the page', async ({
-  page,
-}) => {
+test('shows the controls and the track on the first screen', async ({ page }) => {
   await meeting.generate()
 
   const viewport = page.viewportSize()!
-  const fitsViewport = await page.evaluate(
-    () => document.documentElement.scrollHeight <= window.innerHeight,
-  )
-
-  expect(fitsViewport).toBe(true)
   for (const target of [
     meeting.generateButton,
     meeting.toggleButton,
     page.getByTestId('race-track'),
-    page.getByRole('tablist'),
-    meeting.programmeRounds.first().getByTestId('round-heading'),
   ]) {
-    const box = await target.boundingBox()
+    const box = (await target.boundingBox())!
 
-    expect(box).not.toBeNull()
-    expect(box!.y).toBeGreaterThanOrEqual(0)
-    expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height)
-    expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width)
+    expect(box.y).toBeGreaterThanOrEqual(0)
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height)
+    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width)
   }
+})
+
+test('scrolls down to the end of a long list, keeping the header and tabs in reach', async ({
+  page,
+}) => {
+  await meeting.generate()
+  await page.getByRole('tab', { name: 'Stable' }).click()
+
+  await meeting.stableRows.last().scrollIntoViewIfNeeded()
+
+  await expect(meeting.stableRows.last()).toBeInViewport()
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await expect(meeting.toggleButton).toBeInViewport()
+  await expect(page.getByRole('tablist')).toBeInViewport()
+})
+
+test('never scrolls sideways', async ({ page }) => {
+  await meeting.generate()
+
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  )
+  expect(overflow).toBeLessThanOrEqual(0)
 })
 
 test('fits the welcome card inside the track on a phone', async ({ page }) => {
@@ -86,17 +99,6 @@ test('stays on the tab the player picked', async ({ page }) => {
   await meeting.advanceUntilResults(1)
 
   await expect(page.getByTestId('stable-panel')).toBeVisible()
-})
-
-test('keeps the track in view while a long list is scrolled', async ({ page }) => {
-  await meeting.generate()
-  await page.getByRole('tab', { name: 'Stable' }).click()
-  const before = await page.getByTestId('race-track').boundingBox()
-
-  await meeting.stableRows.last().scrollIntoViewIfNeeded()
-
-  await expect(meeting.stableRows.last()).toBeInViewport()
-  expect(await page.getByTestId('race-track').boundingBox()).toEqual(before)
 })
 
 test('has no serious accessibility issues in the tabbed layout', async ({ page }) => {
