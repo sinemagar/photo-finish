@@ -44,12 +44,10 @@ const titleId = useId()
   }
 
   &__title {
-    font-family: var(--font-display);
-    font-size: var(--font-size-lg);
+    font-size: 1.0625rem;
     font-weight: 700;
-    letter-spacing: 0.01em;
-    line-height: 1.2;
-    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
   }
 
   &__body {

@@ -52,13 +52,14 @@ defineProps<{
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
-  border: 1px solid rgb(255 255 255 / 14%);
+  border: 1px solid var(--color-overlay-border);
   border-radius: var(--radius);
-  background: rgb(6 14 10 / 90%);
-  box-shadow: var(--shadow);
+  background: var(--color-overlay);
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-overlay);
 
   &__title {
-    color: var(--color-accent);
+    color: var(--color-primary);
     font-family: var(--font-display);
     font-size: 1.125rem;
     font-weight: 700;
@@ -129,7 +130,7 @@ defineProps<{
     justify-content: space-between;
     gap: var(--space-3);
     padding-top: var(--space-2);
-    border-top: 1px solid rgb(255 255 255 / 12%);
+    border-top: 1px solid var(--color-border);
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
   }

@@ -111,7 +111,7 @@ const tableId = useId()
     cursor: pointer;
 
     &:hover {
-      background: rgb(255 255 255 / 4%);
+      background: var(--color-hover);
     }
 
     &:focus-visible {
@@ -121,10 +121,8 @@ const tableId = useId()
 
   &__heading {
     flex: none;
-    font-family: var(--font-display);
-    font-size: 1.0625rem;
+    font-size: var(--font-size-sm);
     font-weight: 700;
-    letter-spacing: 0.01em;
   }
 
   &__summary {
