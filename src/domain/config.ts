@@ -21,10 +21,13 @@ export const SIMULATION = {
   maxSpeed: 17,
   /** Maximum deviation of the per-round form multiplier from 1. */
   formSpread: 0.06,
-  /** Share of the current surge kept at each step; lower values calm surges faster. */
-  surgeDecay: 0.98,
-  /** Maximum change of the surge per step. */
-  surgeNoise: 0.008,
+  /**
+   * Share of the current surge kept at each step. At 0.995 a surge fades over roughly ten
+   * seconds of race time, long enough to be seen as a horse gaining or losing ground.
+   */
+  surgeDecay: 0.995,
+  /** Maximum change of the surge per step; together with the decay it keeps surges near 5%. */
+  surgeNoise: 0.0087,
   /** Fixed simulation step in seconds of race time. */
   step: 0.05,
 } as const
