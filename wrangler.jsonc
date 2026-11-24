@@ -1,9 +1,0 @@
-// Deployment to Cloudflare as a static site. The build output in `dist` is served as is.
-{
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "photo-finish",
-  "compatibility_date": "2026-11-01",
-  "assets": {
-    "directory": "./dist"
-  }
-}
