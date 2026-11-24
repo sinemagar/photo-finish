@@ -33,7 +33,7 @@ test.describe('generating a programme', () => {
   test('creates six rounds at the required distances with ten horses each', async () => {
     await meeting.generate()
 
-    await expect(meeting.programmeRounds.locator('caption')).toHaveText(ROUND_HEADINGS)
+    await expect(meeting.programmeRounds.getByTestId('round-heading')).toHaveText(ROUND_HEADINGS)
     for (const round of await meeting.programmeRounds.all()) {
       const names = await meeting.horseNames(round)
 
@@ -118,7 +118,7 @@ test.describe('racing', () => {
       await meeting.advanceUntilResults(round)
 
       // Never more than one new result at a time, and always in round order.
-      await expect(meeting.resultRounds.locator('caption')).toHaveText(
+      await expect(meeting.resultRounds.getByTestId('round-heading')).toHaveText(
         ROUND_HEADINGS.slice(0, round),
       )
       await expect(meeting.positions).toHaveCount(10)
@@ -136,7 +136,7 @@ test.describe('racing', () => {
     const ranked = await meeting.horseNames(meeting.resultRounds.first())
 
     expect([...ranked].sort()).toEqual([...entered].sort())
-    await expect(meeting.resultRounds.first().locator('.round-table__rank-mark')).toHaveText([
+    await expect(meeting.resultRounds.first().locator('.round-card__rank-mark')).toHaveText([
       '1',
       '2',
       '3',
@@ -169,6 +169,59 @@ test.describe('racing', () => {
     await expect(meeting.resultRounds).toHaveCount(0)
     await expect(meeting.programmeRounds).toHaveCount(6)
     await expect(meeting.statusBadge).toHaveText('Ready')
+  })
+})
+
+test.describe('following the meeting', () => {
+  test.beforeEach(async () => {
+    await meeting.generate()
+    await meeting.start()
+  })
+
+  test('keeps the latest result open and folds earlier ones to their winner', async () => {
+    await meeting.advanceUntilResults(2)
+
+    const [first, second] = await meeting.resultRounds.all()
+
+    await expect(first!.getByRole('button')).toHaveAttribute('aria-expanded', 'false')
+    await expect(first!.getByTestId('round-summary')).toContainText('Won by')
+    await expect(second!.getByRole('button')).toHaveAttribute('aria-expanded', 'true')
+
+    await first!.getByRole('button').click()
+    await expect(first!.locator('tbody tr')).toHaveCount(10)
+    await expect(first!.locator('tbody tr').first()).toBeVisible()
+  })
+
+  test('opens the round on the track in the programme', async () => {
+    await meeting.advanceUntilResults(1)
+    await meeting.advance(3000)
+
+    const expanded = meeting.programmeRounds.locator('button[aria-expanded="true"]')
+
+    await expect(expanded).toHaveCount(1)
+    await expect(expanded.getByTestId('round-heading')).toHaveText('Round 2 · 1400 m')
+    await expect(expanded.getByTestId('round-summary')).toHaveText('On track')
+  })
+
+  test('shows how far the meeting has got', async ({ page }) => {
+    await meeting.advanceUntilResults(1)
+    await meeting.advance(3000)
+
+    await expect(page.getByTestId('round-stepper').locator('[aria-current="step"]')).toContainText(
+      'Round 2',
+    )
+  })
+
+  test('runs faster at a higher playback speed', async ({ page }) => {
+    await meeting.advance(1000)
+    const [normal = 0] = await meeting.runnerOffsets()
+
+    await page.getByTestId('speed-control').getByText('4×').click()
+    await meeting.advance(1000)
+    const [fast = 0] = await meeting.runnerOffsets()
+
+    // One second at 4× covers about four times the ground of one second at 1×.
+    expect(fast - normal).toBeGreaterThan(normal * 3)
   })
 })
 

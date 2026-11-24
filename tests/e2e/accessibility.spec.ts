@@ -48,3 +48,12 @@ test('has no serious accessibility issues once the meeting is over', async () =>
 
   expect(await blockingViolations(meeting)).toEqual([])
 })
+
+test('has no serious accessibility issues with every round opened by hand', async () => {
+  await meeting.generate()
+  for (const toggle of await meeting.programmeRounds.getByRole('button').all()) {
+    if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click()
+  }
+
+  expect(await blockingViolations(meeting)).toEqual([])
+})
