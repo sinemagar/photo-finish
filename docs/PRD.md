@@ -188,6 +188,7 @@ Dependencies point in one direction only: components → stores and composables 
 src/
   domain/         Pure TypeScript. No Vue imports. Horses, programme, simulation, RNG, config.
   stores/         Pinia stores. Hold state, call the domain, expose getters and actions.
+  config/         Presentation settings such as playback speed. Game rules stay in domain/.
   composables/    Vue glue, e.g. the animation-frame loop that drives the simulation.
   components/     Feature folders: stable, programme, track, results, layout.
     ui/           Small presentational building blocks (button, panel, table).
@@ -211,6 +212,7 @@ Unit tests sit next to the file they test (`simulation.ts`, `simulation.spec.ts`
 
 | Store             | State                                                             | Responsibility                                                                       |
 | ----------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `useSessionStore` | seed, playback speed                                              | The single seeded random source shared by the other stores                           |
 | `useStableStore`  | horses                                                            | Creating and exposing the stable                                                     |
 | `useMeetingStore` | status, programme, current round index, live round state, results | The state machine, programme generation, advancing the simulation, recording results |
 
