@@ -34,6 +34,7 @@ const titleId = useId()
 
   &__header {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
@@ -43,9 +44,12 @@ const titleId = useId()
   }
 
   &__title {
-    font-size: 1rem;
-    font-weight: 650;
-    letter-spacing: -0.005em;
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    text-transform: uppercase;
   }
 
   &__body {
@@ -53,6 +57,8 @@ const titleId = useId()
     min-height: 0;
     overflow-y: auto;
     padding: var(--space-3) var(--space-4) var(--space-4);
+    scrollbar-color: var(--color-border) transparent;
+    scrollbar-width: thin;
 
     &:focus-visible {
       outline-offset: -2px;

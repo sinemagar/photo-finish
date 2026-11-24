@@ -19,9 +19,12 @@ withDefaults(
   padding: var(--space-2) var(--space-4);
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  font: inherit;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   line-height: 1.25;
+  text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
   transition:
@@ -29,7 +32,7 @@ withDefaults(
     border-color var(--duration-fast);
 
   &--primary {
-    min-width: 6.5rem;
+    min-width: 6.25rem;
     background: var(--color-accent);
     color: var(--color-accent-contrast);
 
@@ -39,17 +42,13 @@ withDefaults(
   }
 
   &--secondary {
-    border-color: rgb(255 255 255 / 55%);
-    background: transparent;
-    color: var(--color-primary-contrast);
+    border-color: rgb(255 255 255 / 28%);
+    background: rgb(255 255 255 / 4%);
+    color: var(--color-text);
 
     &:hover:not(:disabled) {
       background: rgb(255 255 255 / 12%);
     }
-  }
-
-  &:focus-visible {
-    outline-color: var(--color-primary-contrast);
   }
 
   &:disabled {
