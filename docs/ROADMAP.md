@@ -138,9 +138,9 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 **Outcome:** the project can be evaluated from a link.
 
 - [ ] Deploy to Cloudflare Pages with automatic deploys from `main`
-- [ ] README: live link, screenshot, how to run, test and build, architecture summary, assumptions (PRD §2.2), what would come next
+- [x] README: screenshot, requirements map, how to run, test and build, architecture summary, testing, assumptions (PRD §2.2), what could come next
 - [ ] Review the commit history and the PRD traceability table against the brief
-- [ ] Final cross-browser check (NFR-05)
+- [x] Final cross-browser check (NFR-05): the flow tests also pass in Firefox and WebKit
 
 **Exit criteria:** every item in the PRD's definition of done is met.
 
