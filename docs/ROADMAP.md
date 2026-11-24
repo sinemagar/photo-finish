@@ -21,7 +21,7 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 | 5     | Visual design and polish                 | Done        |
 | 6     | End-to-end and visual tests              | Done        |
 | 7     | Delivery                                 | Done        |
-| 8     | Experience foundation                    | In progress |
+| 8     | Experience foundation                    | Done        |
 | 9     | Race experience                          | Not started |
 | 10    | Onboarding, performance and final review | Not started |
 
@@ -160,13 +160,13 @@ Phases 0 to 7 deliver everything the brief asks for. Phases 8 to 10 raise the qu
 
 **Outcome:** the new visual language, layout and navigation are in place on every screen size.
 
-- [ ] Design tokens for the dark "race night" theme; self-hosted display typeface
-- [ ] `RoundCard`: collapsible round with a one-line summary, replacing the always-open table
-- [ ] Programme and results follow the meeting: the current round and the latest result open by themselves
-- [ ] Compact layout below 1024 px: track fixed in view, results, programme and stable as tabs
-- [ ] Speed control (1×, 2×, 4×)
-- [ ] Round stepper showing finished, current and upcoming rounds
-- [ ] Unit, end-to-end, accessibility and visual tests updated, including the phone flow
+- [x] Design tokens for the dark "race night" theme; self-hosted display typeface
+- [x] `RoundCard`: collapsible round with a one-line summary, replacing the always-open table
+- [x] Programme and results follow the meeting: the current round and the latest result open by themselves
+- [x] Compact layout below 1024 px: track fixed in view, results, programme and stable as tabs
+- [x] Speed control (1×, 2×, 4×)
+- [x] Round stepper showing finished, current and upcoming rounds
+- [x] Unit, end-to-end, accessibility and visual tests updated, including the phone flow
 
 **Exit criteria:** on a 390 px wide phone the track, the controls and the latest result are reachable without scrolling the page.
 
