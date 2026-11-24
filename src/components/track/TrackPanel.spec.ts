@@ -69,11 +69,24 @@ describe('TrackPanel', () => {
     expect(badge()).toBe('Racing')
   })
 
-  it('puts the message over the track only while nothing is on it or it is paused', async () => {
+  it('welcomes the player on an empty track and starts from there', async () => {
+    const { wrapper, meeting } = mountWithStores(TrackPanel)
+    const welcome = '[data-testid="welcome-card"]'
+
+    expect(wrapper.find(welcome).exists()).toBe(true)
+
+    await wrapper.get('[data-testid="welcome-help"]').trigger('click')
+    expect(wrapper.emitted('help')).toHaveLength(1)
+
+    await wrapper.get('[data-testid="welcome-generate"]').trigger('click')
+
+    expect(meeting.status).toBe('ready')
+    expect(wrapper.find(welcome).exists()).toBe(false)
+  })
+
+  it('puts the message over the track while paused and below it otherwise', async () => {
     const { wrapper, meeting } = mountWithStores(TrackPanel)
     const isSpotlit = () => wrapper.get(status).classes('track-panel__spotlight')
-
-    expect(isSpotlit()).toBe(true)
 
     meeting.generateProgramme()
     meeting.start()
