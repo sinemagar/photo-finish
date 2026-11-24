@@ -11,6 +11,7 @@ defineProps<{
 defineEmits<{
   generate: []
   toggle: []
+  help: []
 }>()
 </script>
 
@@ -26,6 +27,15 @@ defineEmits<{
       </div>
     </div>
     <div class="app-header__actions">
+      <button
+        type="button"
+        class="app-header__help"
+        aria-label="How it works"
+        data-testid="help-button"
+        @click="$emit('help')"
+      >
+        ?
+      </button>
       <BaseButton data-testid="generate-button" :disabled="!canGenerate" @click="$emit('generate')">
         Generate<span class="app-header__wide"> Programme</span>
       </BaseButton>
@@ -89,7 +99,28 @@ defineEmits<{
   &__actions {
     display: flex;
     flex: none;
+    align-items: center;
     gap: var(--space-2);
+  }
+
+  &__help {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid rgb(255 255 255 / 28%);
+    border-radius: 50%;
+    background: none;
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:hover {
+      background: rgb(255 255 255 / 12%);
+    }
   }
 
   // On a narrow screen the brand shrinks so the two actions always fit on one line.
@@ -105,9 +136,14 @@ defineEmits<{
       font-size: 1.25rem;
     }
 
+    // The mark gives its place to the help button; the name alone identifies the game.
     &__mark {
-      width: 1.875rem;
-      height: 1.875rem;
+      display: none;
+    }
+
+    &__help {
+      width: 2rem;
+      height: 2rem;
     }
 
     &__brand {

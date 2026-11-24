@@ -15,6 +15,7 @@ import RaceTrack from './RaceTrack.vue'
 import RoundResultBanner, { type PodiumEntry } from './RoundResultBanner.vue'
 import RoundStepper from './RoundStepper.vue'
 import SpeedControl from './SpeedControl.vue'
+import WelcomeCard from './WelcomeCard.vue'
 
 const STATUS_MESSAGES: Record<MeetingStatus, string> = {
   idle: 'Generate a programme to set up the meeting.',
@@ -25,8 +26,13 @@ const STATUS_MESSAGES: Record<MeetingStatus, string> = {
   finished: 'The meeting is over.',
 }
 
-/** States in which the plain message is shown over the track. */
+/** States in which something is shown over the track instead of a line below it. */
 const SPOTLIGHT: readonly MeetingStatus[] = ['idle', 'paused']
+
+defineEmits<{
+  /** The player asked how the game works. */
+  help: []
+}>()
 
 const PODIUM_SIZE = 3
 
@@ -86,8 +92,14 @@ const horsesOfTheDay = computed(() =>
         :distance="meeting.currentRound?.distance"
         :racing="meeting.status === 'running'"
       />
+      <WelcomeCard
+        v-if="meeting.status === 'idle'"
+        class="track-panel__overlay track-panel__overlay--welcome"
+        @generate="meeting.generateProgramme"
+        @help="$emit('help')"
+      />
       <p
-        v-if="SPOTLIGHT.includes(meeting.status)"
+        v-else-if="meeting.status === 'paused'"
         class="track-panel__overlay track-panel__spotlight"
         data-testid="track-status"
       >
@@ -164,6 +176,11 @@ const horsesOfTheDay = computed(() =>
 
     &--wide {
       width: min(23rem, 70%);
+    }
+
+    &--welcome {
+      width: min(24rem, calc(100% - var(--space-4) * 2));
+      max-width: none;
     }
   }
 

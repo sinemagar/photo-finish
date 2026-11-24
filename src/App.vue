@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
+import HowItWorksDialog from '@/components/help/HowItWorksDialog.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import ProgrammePanel from '@/components/programme/ProgrammePanel.vue'
 import ResultsPanel from '@/components/results/ResultsPanel.vue'
@@ -25,6 +26,8 @@ useFrameLoop(meeting.tick, () => meeting.isClockRunning)
  * stay in view. On wider screens all three are shown side by side and the tabs disappear.
  */
 const isCompact = useMediaQuery('(max-width: 63.9375rem)')
+
+const isHelpOpen = ref(false)
 
 const activeSection = ref<SectionId>('programme')
 const hasChosenSection = ref(false)
@@ -70,10 +73,11 @@ const isShown = (section: SectionId) => !isCompact.value || activeSection.value 
       :toggle-label="meeting.toggleLabel"
       @generate="meeting.generateProgramme"
       @toggle="meeting.toggle"
+      @help="isHelpOpen = true"
     />
     <main class="app__main">
       <div class="app__slot app__slot--track">
-        <TrackPanel />
+        <TrackPanel @help="isHelpOpen = true" />
       </div>
       <BaseTabs
         v-if="isCompact"
@@ -106,6 +110,7 @@ const isShown = (section: SectionId) => !isCompact.value || activeSection.value 
         <ResultsPanel />
       </div>
     </main>
+    <HowItWorksDialog v-model:open="isHelpOpen" />
   </div>
 </template>
 

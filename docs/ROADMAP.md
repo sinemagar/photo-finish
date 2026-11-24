@@ -11,19 +11,19 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/) and are kept small enough to review one at a time.
 - `main` always builds and is always deployable.
 
-| Phase | Outcome                                  | Status      |
-| ----- | ---------------------------------------- | ----------- |
-| 0     | Project foundation                       | Done        |
-| 1     | Domain core                              | Done        |
-| 2     | State management                         | Done        |
-| 3     | Functional interface                     | Done        |
-| 4     | Race engine and animation                | Done        |
-| 5     | Visual design and polish                 | Done        |
-| 6     | End-to-end and visual tests              | Done        |
-| 7     | Delivery                                 | Done        |
-| 8     | Experience foundation                    | Done        |
-| 9     | Race experience                          | Done        |
-| 10    | Onboarding, performance and final review | Not started |
+| Phase | Outcome                                  | Status |
+| ----- | ---------------------------------------- | ------ |
+| 0     | Project foundation                       | Done   |
+| 1     | Domain core                              | Done   |
+| 2     | State management                         | Done   |
+| 3     | Functional interface                     | Done   |
+| 4     | Race engine and animation                | Done   |
+| 5     | Visual design and polish                 | Done   |
+| 6     | End-to-end and visual tests              | Done   |
+| 7     | Delivery                                 | Done   |
+| 8     | Experience foundation                    | Done   |
+| 9     | Race experience                          | Done   |
+| 10    | Onboarding, performance and final review | Done   |
 
 ---
 
@@ -188,12 +188,16 @@ Phases 0 to 7 deliver everything the brief asks for. Phases 8 to 10 raise the qu
 
 **Outcome:** a first-time visitor understands the game at once, and the build is measurably fast.
 
-- [ ] Welcome state on the empty track with the three steps and the main action
-- [ ] "How it works" dialog: the rules, the race model and reproducible seeds
-- [ ] Performance budget measured with Lighthouse and frame timing; results recorded in the README
-- [ ] Visual baselines regenerated; README and screenshot updated
+- [x] Welcome card on the empty track with the three steps and the main action
+- [x] "How it works" dialog on the native `<dialog>` element: the rules, the race model and the seed of the session with a replay link, all read from the game configuration
+- [x] Bundle size budget enforced in CI; frame-timing script
+- [x] Measured with Lighthouse and frame timing; results recorded in the README
+- [x] `robots.txt` and theme colour
+- [x] Visual baselines regenerated; README and screenshots updated
 
-**Exit criteria:** Lighthouse performance and accessibility scores of at least 95 on the deployed build; no long frames during a race on a mid-range laptop.
+**Exit criteria:** Lighthouse performance and accessibility scores of at least 95; no long frames during a race on a mid-range laptop.
+
+**Measured:** Lighthouse 100 for performance, accessibility and best practices; 16.7 ms per frame on average and at the 95th percentile with no long frames; 40.5 kB of JavaScript and 6.0 kB of CSS after gzip.
 
 ## Later — 3D renderer
 

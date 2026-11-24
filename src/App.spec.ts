@@ -47,6 +47,25 @@ describe('App', () => {
     expect(wrapper.findAll('[data-testid="result-round"]')).toHaveLength(1)
   })
 
+  it('opens the explanation from the header and from the welcome card, and closes it', async () => {
+    ;({ wrapper } = mountWithStores(App, {}, { attachTo: document.body }))
+    const dialog = () => wrapper.get('[data-testid="help-dialog"]').element as HTMLDialogElement
+
+    expect(dialog().hasAttribute('open')).toBe(false)
+
+    await wrapper.get('[data-testid="help-button"]').trigger('click')
+    await nextTick()
+    expect(dialog().hasAttribute('open')).toBe(true)
+
+    await wrapper.get('[data-testid="dialog-close"]').trigger('click')
+    await nextTick()
+    expect(dialog().hasAttribute('open')).toBe(false)
+
+    await wrapper.get('[data-testid="welcome-help"]').trigger('click')
+    await nextTick()
+    expect(dialog().hasAttribute('open')).toBe(true)
+  })
+
   describe('on a small screen', () => {
     const tab = (id: string) => `[data-testid="tab-${id}"]`
     const visiblePanels = () =>

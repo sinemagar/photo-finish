@@ -26,6 +26,16 @@ describe('AppHeader', () => {
     expect(wrapper.emitted('toggle')).toHaveLength(1)
   })
 
+  it('emits help from a button that is labelled for assistive technology', async () => {
+    const wrapper = mountHeader()
+    const help = wrapper.get('[data-testid="help-button"]')
+
+    await help.trigger('click')
+
+    expect(help.attributes('aria-label')).toBe('How it works')
+    expect(wrapper.emitted('help')).toHaveLength(1)
+  })
+
   it.each(['Start', 'Pause', 'Resume'] as const)('labels the toggle "%s"', (toggleLabel) => {
     expect(mountHeader({ toggleLabel }).get(toggleButton).text()).toBe(toggleLabel)
   })

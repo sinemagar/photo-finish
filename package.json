@@ -17,7 +17,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "size": "node scripts/check-bundle-size.mjs",
+    "perf:frames": "node scripts/measure-frames.mjs"
   },
   "dependencies": {
     "pinia": "^4.0.3",
