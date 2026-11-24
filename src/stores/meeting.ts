@@ -70,6 +70,11 @@ export const useMeetingStore = defineStore('meeting', () => {
     return 'Start'
   })
 
+  /** True while time should flow: a round is being run or an intermission is counting down. */
+  const isClockRunning = computed(
+    () => status.value === 'running' || status.value === 'intermission',
+  )
+
   const trackRunners = computed<TrackRunner[]>(() => {
     const state = roundState.value
     if (!state) return []
@@ -176,6 +181,7 @@ export const useMeetingStore = defineStore('meeting', () => {
     canGenerate,
     canToggle,
     toggleLabel,
+    isClockRunning,
     trackRunners,
     generateProgramme,
     start,
