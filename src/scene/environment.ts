@@ -256,7 +256,7 @@ function createSkyTexture(): CanvasTexture {
 /** Builds everything that does not move: sky, light, ground, course, rails, stand and trees. */
 export function buildEnvironment(scene: Scene): void {
   scene.background = createSkyTexture()
-  scene.fog = new Fog('#bcd6e6', 220, 820)
+  scene.fog = new Fog('#bcd6e6', 380, 1300)
 
   scene.add(new HemisphereLight('#e8f3ff', '#3a5a2e', 1.6))
   const sun = new DirectionalLight('#fff4e0', 1.8)

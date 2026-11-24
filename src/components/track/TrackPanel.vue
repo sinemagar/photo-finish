@@ -103,7 +103,7 @@ const horsesOfTheDay = computed(() =>
     <template #actions>
       <MeetingStatusBadge :status="meeting.status" />
     </template>
-    <div class="track-panel__stage">
+    <div class="track-panel__stage" :class="{ 'track-panel__stage--3d': renderer === '3d' }">
       <RaceTrack3D
         v-if="renderer === '3d'"
         :runners="meeting.trackRunners"
@@ -161,8 +161,7 @@ const horsesOfTheDay = computed(() =>
       <LiveLeaders v-if="meeting.status === 'running'" :runners="meeting.trackRunners" />
       <p
         v-if="!SPOTLIGHT.includes(meeting.status)"
-        class="track-panel__status"
-        :class="{ 'visually-hidden': meeting.status === 'running' }"
+        class="visually-hidden"
         data-testid="track-status"
       >
         {{ STATUS_MESSAGES[meeting.status] }}
@@ -181,6 +180,17 @@ const horsesOfTheDay = computed(() =>
 
   &__stage {
     position: relative;
+
+    // The 3D track arrives a moment after the page; holding its space avoids a jump.
+    &--3d {
+      aspect-ratio: 16 / 9;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(#bcd6e6, #3f8f4a);
+
+      @media (max-width: 40rem) {
+        aspect-ratio: 4 / 3;
+      }
+    }
   }
 
   // On a phone the header has room for the title and the speed control only; the footer
@@ -222,9 +232,10 @@ const horsesOfTheDay = computed(() =>
 
   &__spotlight {
     padding: var(--space-3) var(--space-6);
-    border: 1px solid rgb(255 255 255 / 12%);
+    border: 1px solid var(--color-overlay-border);
     border-radius: var(--radius);
-    background: rgb(6 14 10 / 86%);
+    background: var(--color-overlay);
+    box-shadow: var(--shadow-overlay);
     font-family: var(--font-display);
     font-size: 1.25rem;
     font-weight: 600;

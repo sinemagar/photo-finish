@@ -10,6 +10,16 @@
     />
     <meta name="theme-color" content="#09120e" />
     <title>Photo Finish</title>
+    <script>
+      // Apply the saved or device theme before the first paint (see src/composables/useTheme.ts).
+      try {
+        const saved = localStorage.getItem('photo-finish:theme')
+        const dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+      } catch {
+        document.documentElement.dataset.theme = 'light'
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>

@@ -340,6 +340,8 @@ test.describe('the race experience', () => {
 
 test('can be played with the keyboard alone', async ({ page }) => {
   await page.keyboard.press('Tab')
+  await expect(page.getByTestId('theme-toggle')).toBeFocused()
+  await page.keyboard.press('Tab')
   await expect(page.getByTestId('help-button')).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(meeting.generateButton).toBeFocused()

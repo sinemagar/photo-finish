@@ -100,7 +100,7 @@ onBeforeUnmount(() => {
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: var(--radius-sm);
-  background: linear-gradient(#a9cde6, #2b5f33);
+  background: linear-gradient(#bcd6e6, #3f8f4a);
 
   @media (max-width: 40rem) {
     aspect-ratio: 4 / 3;

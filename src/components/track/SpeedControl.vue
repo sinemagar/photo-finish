@@ -43,6 +43,7 @@ const groupName = useId()
   display: inline-flex;
   gap: 2px;
   margin: 0;
+  flex: none;
   padding: 3px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -52,14 +53,13 @@ const groupName = useId()
     position: relative;
     display: inline-grid;
     place-items: center;
-    min-width: 2.75rem;
-    min-height: 2.25rem;
+    min-width: 2.25rem;
+    min-height: 2.5rem;
     padding: 0 var(--space-2);
-    border-radius: calc(var(--radius-sm) - 2px);
+    border-radius: calc(var(--radius-sm) - 3px);
     color: var(--color-text-muted);
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: var(--font-size-sm);
+    font-weight: 650;
     font-variant-numeric: tabular-nums;
     cursor: pointer;
 
@@ -68,8 +68,9 @@ const groupName = useId()
     }
 
     &--selected {
-      background: var(--color-accent);
-      color: var(--color-accent-contrast);
+      background: var(--color-selected);
+      color: var(--color-primary);
+      box-shadow: var(--shadow-selected);
     }
 
     &:has(:focus-visible) {

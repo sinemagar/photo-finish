@@ -95,7 +95,7 @@ const replayUrl = computed(() => `?seed=${session.seed}`)
 
   h3 {
     margin-bottom: var(--space-1);
-    color: var(--color-accent);
+    color: var(--color-primary);
     font-family: var(--font-display);
     font-size: 1.125rem;
     letter-spacing: 0.04em;

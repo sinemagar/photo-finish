@@ -138,11 +138,15 @@ export function pulledUpPose(shape: CourseShape = COURSE): CameraPose {
   }
 }
 
-/** The home straight from the grandstand, used while no horse is on the course. */
+/**
+ * The whole course from high above the home straight, used while no horse is out: an
+ * inviting view of the racecourse behind the welcome card.
+ */
 export function standPose(shape: CourseShape = COURSE): CameraPose {
   return {
-    position: at(shape.finishAt - 40, OUTER_EDGE + 46, 18, shape),
-    target: at(shape.finishAt - 70, MIDDLE_OFFSET, 0, shape),
+    // From beyond the back straight, so the grandstand faces the camera across the course.
+    position: { x: 0, y: shape.radius * 1.3, z: -(shape.radius + 170) },
+    target: { x: 0, y: 0, z: shape.radius * 0.2 },
   }
 }
 

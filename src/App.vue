@@ -9,7 +9,7 @@ import StablePanel from '@/components/stable/StablePanel.vue'
 import TrackPanel from '@/components/track/TrackPanel.vue'
 import BaseTabs, { type TabItem } from '@/components/ui/BaseTabs.vue'
 import { useFrameLoop } from '@/composables/useFrameLoop'
-import { useMediaQuery } from '@/composables/useMediaQuery'
+import { useTheme } from '@/composables/useTheme'
 import { useMeetingStore } from '@/stores/meeting'
 
 type SectionId = 'results' | 'programme' | 'stable'
@@ -21,14 +21,13 @@ const meeting = useMeetingStore()
 // The only place where real time enters the game.
 useFrameLoop(meeting.tick, () => meeting.isClockRunning)
 
-/**
- * Below 1024 px the three lists share one area behind tabs, so the track and the controls
- * stay in view. On wider screens all three are shown side by side and the tabs disappear.
- */
-const isCompact = useMediaQuery('(max-width: 63.9375rem)')
-
 const isHelpOpen = ref(false)
+const { theme, toggle: toggleTheme } = useTheme()
 
+/**
+ * The results, programme and stable share one panel behind tabs: next to the track on a
+ * wide screen, below it on a phone. The track always gets most of the room.
+ */
 const activeSection = ref<SectionId>('programme')
 const hasChosenSection = ref(false)
 
@@ -52,63 +51,52 @@ watch(
   },
 )
 
-function sectionAttrs(section: SectionId) {
-  if (!isCompact.value) return {}
-
-  return {
-    id: `${SECTION_PREFIX}-panel-${section}`,
-    role: 'tabpanel',
-    'aria-labelledby': `${SECTION_PREFIX}-tab-${section}`,
-  }
-}
-
-const isShown = (section: SectionId) => !isCompact.value || activeSection.value === section
+const sectionAttrs = (section: SectionId) => ({
+  id: `${SECTION_PREFIX}-panel-${section}`,
+  role: 'tabpanel',
+  'aria-labelledby': `${SECTION_PREFIX}-tab-${section}`,
+})
 </script>
 
 <template>
-  <div class="app" :class="{ 'app--compact': isCompact }">
+  <div class="app">
     <AppHeader
       :can-generate="meeting.canGenerate"
       :can-toggle="meeting.canToggle"
       :toggle-label="meeting.toggleLabel"
+      :theme="theme"
+      @toggle-theme="toggleTheme"
       @generate="meeting.generateProgramme"
       @toggle="meeting.toggle"
       @help="isHelpOpen = true"
     />
     <main class="app__main">
-      <div class="app__slot app__slot--track">
-        <TrackPanel @help="isHelpOpen = true" />
-      </div>
-      <BaseTabs
-        v-if="isCompact"
-        class="app__tabs"
-        :model-value="activeSection"
-        :tabs="tabs"
-        :id-prefix="SECTION_PREFIX"
-        label="Meeting details"
-        @update:model-value="chooseSection"
-      />
-      <div
-        v-show="isShown('stable')"
-        class="app__slot app__slot--stable"
-        v-bind="sectionAttrs('stable')"
-      >
-        <StablePanel />
-      </div>
-      <div
-        v-show="isShown('programme')"
-        class="app__slot app__slot--programme"
-        v-bind="sectionAttrs('programme')"
-      >
-        <ProgrammePanel />
-      </div>
-      <div
-        v-show="isShown('results')"
-        class="app__slot app__slot--results"
-        v-bind="sectionAttrs('results')"
-      >
-        <ResultsPanel />
-      </div>
+      <TrackPanel class="app__track" @help="isHelpOpen = true" />
+      <section class="app__details" aria-label="Meeting details">
+        <BaseTabs
+          class="app__tabs"
+          :model-value="activeSection"
+          :tabs="tabs"
+          :id-prefix="SECTION_PREFIX"
+          label="Meeting details"
+          @update:model-value="chooseSection"
+        />
+        <ResultsPanel
+          v-show="activeSection === 'results'"
+          class="app__section"
+          v-bind="sectionAttrs('results')"
+        />
+        <ProgrammePanel
+          v-show="activeSection === 'programme'"
+          class="app__section"
+          v-bind="sectionAttrs('programme')"
+        />
+        <StablePanel
+          v-show="activeSection === 'stable'"
+          class="app__section"
+          v-bind="sectionAttrs('stable')"
+        />
+      </section>
     </main>
     <HowItWorksDialog v-model:open="isHelpOpen" />
   </div>
@@ -118,83 +106,70 @@ const isShown = (section: SectionId) => !isCompact.value || activeSection.value 
 .app {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 34rem;
+  min-height: 100%;
 
   &__main {
     display: grid;
-    flex: 1;
-    gap: var(--space-4);
-    min-height: 0;
-    padding: var(--space-4);
-    // Laptops: the track keeps most of the width, the stable sits below it.
-    grid-template-columns: minmax(0, 1fr) 15.5rem 19.5rem;
-    grid-template-rows: auto minmax(0, 1fr);
-    grid-template-areas:
-      'track programme results'
-      'stable programme results';
+    gap: var(--space-3);
+    width: 100%;
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: var(--space-3);
   }
 
-  &__slot {
+  &__details {
     display: flex;
     flex-direction: column;
-    min-width: 0;
-    min-height: 0;
-
-    > * {
-      flex: 1;
-    }
-
-    &--track {
-      grid-area: track;
-    }
-
-    &--stable {
-      grid-area: stable;
-    }
-
-    &--programme {
-      grid-area: programme;
-    }
-
-    &--results {
-      grid-area: results;
-    }
-  }
-
-  // Wide screens: four columns side by side.
-  @media (min-width: 90rem) {
-    &__main {
-      grid-template-columns: 21rem minmax(0, 1fr) 15.5rem 19.5rem;
-      grid-template-rows: minmax(0, 1fr);
-      grid-template-areas: 'stable track programme results';
-    }
-  }
-
-  // Phones and tablets: track on top, one list at a time below it, nothing off screen.
-  &--compact &__main {
     gap: var(--space-2);
-    padding: var(--space-2);
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto minmax(0, 1fr);
-    grid-template-areas: 'track' 'tabs' 'section';
+    min-width: 0;
   }
 
-  &--compact &__tabs {
-    grid-area: tabs;
+  // Phones and tablets: the page scrolls as a whole, and the tabs stay in reach at the top.
+  &__tabs {
+    position: sticky;
+    top: 3.75rem;
+    z-index: 5;
+    box-shadow: 0 -0.5rem 0 var(--color-bg);
   }
 
-  &--compact &__slot:not(&__slot--track) {
-    grid-area: section;
+  // The tab already names the list, so a panel's own heading is kept for assistive
+  // technology only.
+  &__section :deep(.base-panel__header) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
 
-    // The tab already names the list, so its own heading is kept for assistive
-    // technology only.
-    :deep(.base-panel__header) {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
+  @media (max-width: 63.9375rem) {
+    &__section :deep(.base-panel__body) {
+      overflow: visible;
+    }
+  }
+
+  // Wide screens: the track on the left, the details next to it, both filling the window.
+  @media (min-width: 64rem) {
+    height: 100vh;
+
+    &__main {
+      flex: 1;
+      grid-template-columns: minmax(0, 1fr) 23rem;
+      min-height: 0;
+      padding: var(--space-4);
+    }
+
+    &__details {
+      min-height: 0;
+    }
+
+    &__tabs {
+      position: static;
+    }
+
+    &__section {
+      flex: 1;
+      min-height: 0;
     }
   }
 }

@@ -64,11 +64,11 @@ async function selectByOffset(offset: number) {
   display: grid;
   grid-auto-columns: 1fr;
   grid-auto-flow: column;
-  gap: var(--space-1);
-  padding: var(--space-1);
+  gap: 2px;
+  padding: 3px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
 
   &__tab {
     display: inline-flex;
@@ -78,19 +78,22 @@ async function selectByOffset(offset: number) {
     min-height: 2.5rem;
     padding: 0 var(--space-2);
     border: 0;
-    border-radius: calc(var(--radius) - var(--space-1));
+    border-radius: calc(var(--radius-sm) - 3px);
     background: none;
     color: var(--color-text-muted);
-    font-family: var(--font-display);
-    font-size: 1.0625rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: 650;
     cursor: pointer;
 
-    &[aria-selected='true'] {
-      background: var(--color-surface-muted);
+    &:hover {
       color: var(--color-text);
+    }
+
+    &[aria-selected='true'] {
+      background: var(--color-selected);
+      color: var(--color-text);
+      box-shadow: var(--shadow-selected);
     }
   }
 
@@ -100,10 +103,10 @@ async function selectByOffset(offset: number) {
     border-radius: 1rem;
     background: var(--color-primary);
     color: var(--color-primary-contrast);
-    font-family: var(--font-body);
     font-size: var(--font-size-xs);
     font-variant-numeric: tabular-nums;
     line-height: 1.25rem;
+    text-align: center;
   }
 }
 </style>

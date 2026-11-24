@@ -78,7 +78,7 @@ function closeOnBackdrop(event: MouseEvent) {
   box-shadow: var(--shadow);
 
   &::backdrop {
-    background: rgb(3 8 6 / 72%);
+    background: rgb(19 32 26 / 45%);
     backdrop-filter: blur(3px);
   }
 

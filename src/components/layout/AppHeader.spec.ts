@@ -36,6 +36,21 @@ describe('AppHeader', () => {
     expect(wrapper.emitted('help')).toHaveLength(1)
   })
 
+  it('offers a theme switch that says what it will do', async () => {
+    const light = mountHeader({ theme: 'light' })
+    const dark = mountHeader({ theme: 'dark' })
+
+    expect(light.get('[data-testid="theme-toggle"]').attributes('aria-label')).toBe(
+      'Switch to dark mode',
+    )
+    expect(dark.get('[data-testid="theme-toggle"]').attributes('aria-label')).toBe(
+      'Switch to light mode',
+    )
+
+    await light.get('[data-testid="theme-toggle"]').trigger('click')
+    expect(light.emitted('toggleTheme')).toHaveLength(1)
+  })
+
   it.each(['Start', 'Pause', 'Resume'] as const)('labels the toggle "%s"', (toggleLabel) => {
     expect(mountHeader({ toggleLabel }).get(toggleButton).text()).toBe(toggleLabel)
   })

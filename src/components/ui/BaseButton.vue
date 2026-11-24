@@ -19,12 +19,11 @@ withDefaults(
   padding: var(--space-2) var(--space-4);
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  font-family: var(--font-display);
-  font-size: 1.0625rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  min-height: 2.5rem;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 650;
   line-height: 1.25;
-  text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
   transition:
@@ -33,21 +32,21 @@ withDefaults(
 
   &--primary {
     min-width: 6.25rem;
-    background: var(--color-accent);
-    color: var(--color-accent-contrast);
+    background: var(--color-primary);
+    color: var(--color-primary-contrast);
 
     &:hover:not(:disabled) {
-      background: var(--color-accent-strong);
+      background: var(--color-primary-strong);
     }
   }
 
   &--secondary {
-    border-color: rgb(255 255 255 / 28%);
-    background: rgb(255 255 255 / 4%);
+    border-color: var(--color-border);
+    background: var(--color-surface);
     color: var(--color-text);
 
     &:hover:not(:disabled) {
-      background: rgb(255 255 255 / 12%);
+      background: var(--color-surface-muted);
     }
   }
 

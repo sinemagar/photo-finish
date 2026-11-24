@@ -11,21 +11,21 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/) and are kept small enough to review one at a time.
 - `main` always builds and is always deployable.
 
-| Phase | Outcome                                  | Status      |
-| ----- | ---------------------------------------- | ----------- |
-| 0     | Project foundation                       | Done        |
-| 1     | Domain core                              | Done        |
-| 2     | State management                         | Done        |
-| 3     | Functional interface                     | Done        |
-| 4     | Race engine and animation                | Done        |
-| 5     | Visual design and polish                 | Done        |
-| 6     | End-to-end and visual tests              | Done        |
-| 7     | Delivery                                 | Done        |
-| 8     | Experience foundation                    | Done        |
-| 9     | Race experience                          | Done        |
-| 10    | Onboarding, performance and final review | Done        |
-| 11    | 3D racecourse                            | Done        |
-| 12    | Simpler, mobile-first interface          | Not started |
+| Phase | Outcome                                  | Status |
+| ----- | ---------------------------------------- | ------ |
+| 0     | Project foundation                       | Done   |
+| 1     | Domain core                              | Done   |
+| 2     | State management                         | Done   |
+| 3     | Functional interface                     | Done   |
+| 4     | Race engine and animation                | Done   |
+| 5     | Visual design and polish                 | Done   |
+| 6     | End-to-end and visual tests              | Done   |
+| 7     | Delivery                                 | Done   |
+| 8     | Experience foundation                    | Done   |
+| 9     | Race experience                          | Done   |
+| 10    | Onboarding, performance and final review | Done   |
+| 11    | 3D racecourse                            | Done   |
+| 12    | Lighter, simpler, mobile-first interface | Done   |
 
 ---
 
@@ -218,14 +218,21 @@ The 2D version is tagged `v1.0-2d`.
 
 **Exit criteria:** a full meeting can be watched in 3D; the flow and its results are identical in 2D and 3D.
 
-## Phase 12 — Simpler, mobile-first interface
+## Phase 12 — Lighter, simpler, mobile-first interface
 
-**Outcome:** the race fills the screen and everything else is one tap away.
+**Outcome:** a light, modern interface where the race gets the room and everything else is one tap away.
 
-- [ ] The track as a full-width stage with a small overlay: round, leaders, camera and speed
-- [ ] One main action button; the status sentences removed
-- [ ] Results, programme and stable in a bottom sheet on phones and a side rail on larger screens
-- [ ] Touch targets of at least 44 px; tests and baselines updated
+- [x] Light theme: white cards, soft shadows, racing green for actions and selections, gold kept for the podium
+- [x] The track takes most of the screen; results, programme and stable share one tabbed panel beside it on wide screens and below it on phones
+- [x] The stable becomes a compact list of horse cards instead of a full-height column
+- [x] One view control (TV, Chase, Aerial, 2D) and one speed control, in a single row on phones
+- [x] On phones the page scrolls as a whole, with the header and the tabs kept in reach; the fixed-height layout that left no room for the lists is gone
+- [x] Less text: the tagline and the status sentences are gone from view (the status is still announced to screen readers)
+- [x] The empty course is shown from high above before a programme exists
+- [x] Dark mode from a switch in the header; follows the device until the player chooses, remembers the choice, and is applied before the first paint
+- [x] Tests and visual baselines updated; phone tests now check scrolling and the absence of sideways scrolling
+
+**Exit criteria:** on a 375 × 667 phone the controls and the track are on the first screen and every list can be scrolled to its end.
 
 ## Later
 

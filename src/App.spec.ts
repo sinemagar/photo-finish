@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import type { VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'
 
@@ -66,20 +66,10 @@ describe('App', () => {
     expect(dialog().hasAttribute('open')).toBe(true)
   })
 
-  describe('on a small screen', () => {
+  describe('the meeting details', () => {
     const tab = (id: string) => `[data-testid="tab-${id}"]`
     const visiblePanels = () =>
       wrapper.findAll('[role="tabpanel"]').filter((panel) => panel.isVisible())
-
-    beforeEach(() => {
-      vi.stubGlobal('matchMedia', () => ({
-        matches: true,
-        addEventListener: () => {},
-        removeEventListener: () => {},
-      }))
-    })
-
-    afterEach(() => vi.unstubAllGlobals())
 
     it('shows one list at a time behind tabs, starting with the programme', () => {
       ;({ wrapper } = mountWithStores(App, {}, { attachTo: document.body }))
@@ -131,12 +121,5 @@ describe('App', () => {
         'section-panel-stable',
       ])
     })
-  })
-
-  it('shows all three lists side by side on a wide screen, without tabs', () => {
-    ;({ wrapper } = mountWithStores(App))
-
-    expect(wrapper.find('[role="tablist"]').exists()).toBe(false)
-    expect(wrapper.findAll('[role="tabpanel"]')).toHaveLength(0)
   })
 })

@@ -28,7 +28,7 @@ defineProps<{
     flex: none;
     width: 0.75rem;
     height: 0.75rem;
-    box-shadow: 0 0 0 1px rgb(255 255 255 / 35%);
+    box-shadow: 0 0 0 1px rgb(19 32 26 / 18%);
     border-radius: 50%;
   }
 }

@@ -7,7 +7,7 @@ import StablePanel from './StablePanel.vue'
 describe('StablePanel', () => {
   it('draws a condition meter in proportion to the score', () => {
     const { wrapper, stable } = mountWithStores(StablePanel)
-    const fills = wrapper.findAll('.stable-table__meter-fill')
+    const fills = wrapper.findAll('.stable-grid__meter-fill')
 
     stable.horses.forEach((horse, index) => {
       expect(fills[index]?.attributes('style')).toBe(`width: ${horse.condition}%;`)
