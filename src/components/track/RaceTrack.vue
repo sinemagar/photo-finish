@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 
 import type { TrackRunner } from '@/stores/meeting'
+import { formatDistance } from '@/utils/format'
 
 import TrackLane from './TrackLane.vue'
 
@@ -15,14 +16,27 @@ const props = withDefaults(
     runners: TrackRunner[]
     /** Number of lanes to draw, including empty ones. */
     lanes: number
+    /** Round distance in metres; labels the distance markers when given. */
+    distance?: number
     /** Whether the race is moving right now; drives the gallop animation. */
     racing?: boolean
   }>(),
-  { racing: false },
+  { distance: undefined, racing: false },
 )
+
+const MARKER_SHARES = [0, 0.25, 0.5, 0.75] as const
 
 const laneNumbers = computed(() => Array.from({ length: props.lanes }, (_, index) => index + 1))
 const runnersByLane = computed(() => new Map(props.runners.map((runner) => [runner.lane, runner])))
+
+/** Start line and quarter markers, placed on the same scale the horses move along. */
+const markers = computed(() =>
+  MARKER_SHARES.map((share) => ({
+    share,
+    // The start is recognisable by its heavier line; the quarters carry their distance.
+    label: share > 0 && props.distance ? formatDistance(Math.round(props.distance * share)) : '',
+  })),
+)
 </script>
 
 <template>
@@ -36,41 +50,101 @@ const runnersByLane = computed(() => new Map(props.runners.map((runner) => [runn
         :racing="racing"
       />
     </ol>
-    <span class="race-track__finish" aria-hidden="true">Finish</span>
+    <div class="race-track__ruler" aria-hidden="true">
+      <span class="race-track__finish-label">Finish</span>
+    </div>
+    <div class="race-track__markers" aria-hidden="true">
+      <span
+        v-for="marker in markers"
+        :key="marker.share"
+        class="race-track__marker"
+        :class="{ 'race-track__marker--start': marker.share === 0 }"
+        :style="{ '--share': marker.share }"
+      >
+        <span class="race-track__marker-label">{{ marker.label }}</span>
+      </span>
+    </div>
+    <span class="race-track__finish" aria-hidden="true" />
   </div>
 </template>
 
 <style scoped lang="scss">
 .race-track {
-  --lane-height: 2.75rem;
-  --color-turf: #2f7d4a;
-  --color-turf-dark: #1f5a34;
+  --lane-height: clamp(2.5rem, 5.4vh, 3.5rem);
+  --sprite-width: calc(var(--lane-height) * 1.25);
+  --gate-width: 8.5rem;
+  --ruler-height: 1.5rem;
   --finish-width: 0.5rem;
 
   position: relative;
   overflow: hidden;
+  border: 3px solid var(--color-rail);
   border-radius: var(--radius);
+  outline: 1px solid var(--color-border);
+  background: var(--color-turf-dark);
 
-  @media (max-width: 30rem) {
+  @media (max-width: 40rem) {
     --lane-height: 2.25rem;
+    --gate-width: 2rem;
   }
 
   &__lanes {
     margin: 0;
     // Room on the right for the finish line, so a finished horse stops right at it.
     padding: 0 var(--finish-width) 0 0;
-    background: var(--color-turf);
     list-style: none;
+  }
+
+  &__ruler {
+    position: relative;
+    height: var(--ruler-height);
+  }
+
+  &__finish-label,
+  &__marker-label {
+    position: absolute;
+    bottom: 0;
+    color: rgb(255 255 255 / 85%);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: var(--ruler-height);
+    white-space: nowrap;
+  }
+
+  &__finish-label {
+    right: calc(var(--finish-width) + var(--space-2));
+  }
+
+  // Spans the course only, so that a share of its width is a share of the distance.
+  &__markers {
+    position: absolute;
+    inset: 0 var(--finish-width) 0 var(--gate-width);
+    pointer-events: none;
+  }
+
+  &__marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    // The same mapping the horses use: their nose starts one sprite into the course.
+    left: calc(var(--sprite-width) + var(--share) * (100% - var(--sprite-width)));
+    border-left: 1px solid rgb(255 255 255 / 22%);
+
+    &--start {
+      border-left: 2px solid rgb(255 255 255 / 70%);
+    }
+  }
+
+  // Labels sit to the left of their line, which keeps the last one clear of "Finish".
+  &__marker-label {
+    right: var(--space-1);
   }
 
   &__finish {
     position: absolute;
-    inset: 0 0 0 auto;
+    inset: 0 0 var(--ruler-height) auto;
     width: var(--finish-width);
-    overflow: hidden;
-    background: repeating-conic-gradient(#1c2420 0% 25%, #ffffff 0% 50%) 0 0 / 0.5rem 0.5rem;
-    color: transparent;
-    font-size: 0;
+    background: repeating-conic-gradient(#16201b 0% 25%, #ffffff 0% 50%) 0 0 / 0.5rem 0.5rem;
   }
 }
 </style>

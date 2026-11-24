@@ -32,6 +32,12 @@ describe('TrackLane', () => {
     expect(wrapper.getComponent(HorseSprite).props('color')).toBe('#84cc16')
   })
 
+  it('puts the lane number on the saddle cloth', () => {
+    const wrapper = mount(TrackLane, { props: { lane: 3, runner: runner() } })
+
+    expect(wrapper.getComponent(HorseSprite).props('number')).toBe(3)
+  })
+
   it.each([
     [0, 'translateX(0.000%)'],
     [0.4567, 'translateX(45.670%)'],

@@ -189,7 +189,7 @@ src/
   domain/         Pure TypeScript. No Vue imports. Horses, programme, simulation, RNG, config.
   stores/         Pinia stores. Hold state, call the domain, expose getters and actions.
   config/         Presentation settings such as playback speed. Game rules stay in domain/.
-  composables/    Vue glue, e.g. the animation-frame loop that drives the simulation.
+  composables/    Vue glue: the animation-frame loop that drives the simulation, panel scrolling.
   components/     Feature folders: stable, programme, track, results, layout.
     ui/           Small presentational building blocks (button, panel).
     shared/       Presentational pieces used by several features (horse badge, round table).

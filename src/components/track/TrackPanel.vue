@@ -6,6 +6,7 @@ import { RUNNERS_PER_ROUND, type MeetingStatus } from '@/domain'
 import { useMeetingStore } from '@/stores/meeting'
 import { formatDistance } from '@/utils/format'
 
+import MeetingStatusBadge from './MeetingStatusBadge.vue'
 import RaceTrack from './RaceTrack.vue'
 
 const STATUS_MESSAGES: Record<MeetingStatus, string> = {
@@ -17,6 +18,12 @@ const STATUS_MESSAGES: Record<MeetingStatus, string> = {
   finished: 'The meeting is over. Generate a new programme to race again.',
 }
 
+/**
+ * States in which the message is shown over the track. The finished state is left out on
+ * purpose: the final positions on the finish line should stay readable.
+ */
+const SPOTLIGHT: readonly MeetingStatus[] = ['idle', 'paused']
+
 const meeting = useMeetingStore()
 
 const title = computed(() => {
@@ -27,20 +34,54 @@ const title = computed(() => {
 
 <template>
   <BasePanel :title="title" data-testid="track-panel">
-    <p class="track-panel__status" data-testid="track-status">
-      {{ STATUS_MESSAGES[meeting.status] }}
-    </p>
-    <RaceTrack
-      :runners="meeting.trackRunners"
-      :lanes="RUNNERS_PER_ROUND"
-      :racing="meeting.status === 'running'"
-    />
+    <template #actions>
+      <MeetingStatusBadge :status="meeting.status" />
+    </template>
+    <div class="track-panel__stage">
+      <RaceTrack
+        :runners="meeting.trackRunners"
+        :lanes="RUNNERS_PER_ROUND"
+        :distance="meeting.currentRound?.distance"
+        :racing="meeting.status === 'running'"
+      />
+      <p
+        class="track-panel__status"
+        :class="{ 'track-panel__status--spotlight': SPOTLIGHT.includes(meeting.status) }"
+        data-testid="track-status"
+      >
+        {{ STATUS_MESSAGES[meeting.status] }}
+      </p>
+    </div>
   </BasePanel>
 </template>
 
 <style scoped lang="scss">
-.track-panel__status {
-  margin-bottom: var(--space-3);
-  color: var(--color-text-muted);
+.track-panel {
+  &__stage {
+    position: relative;
+  }
+
+  &__status {
+    margin-top: var(--space-3);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+
+    &--spotlight {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max-content;
+      max-width: calc(100% - var(--space-6) * 2);
+      margin: 0;
+      padding: var(--space-3) var(--space-6);
+      transform: translate(-50%, -50%);
+      border-radius: var(--radius);
+      background: rgb(12 30 20 / 82%);
+      color: var(--color-primary-contrast);
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+    }
+  }
 }
 </style>

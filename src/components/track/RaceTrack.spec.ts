@@ -50,6 +50,22 @@ describe('RaceTrack', () => {
     expect(racing()).toEqual([true, true])
   })
 
+  it('labels the quarter markers with the distance of the round', () => {
+    const wrapper = mount(RaceTrack, { props: { runners: [], lanes: 10, distance: 2200 } })
+    const labels = wrapper.findAll('.race-track__marker-label').map((label) => label.text())
+
+    expect(labels).toEqual(['', '550 m', '1100 m', '1650 m'])
+  })
+
+  it('places the markers on the scale the horses move along', () => {
+    const wrapper = mount(RaceTrack, { props: { runners: [], lanes: 10 } })
+    const shares = wrapper
+      .findAll('.race-track__marker')
+      .map((marker) => marker.attributes('style'))
+
+    expect(shares).toEqual(['--share: 0;', '--share: 0.25;', '--share: 0.5;', '--share: 0.75;'])
+  })
+
   it('marks the finish line', () => {
     const wrapper = mount(RaceTrack, { props: { runners: [], lanes: 10 } })
 

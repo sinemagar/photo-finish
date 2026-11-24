@@ -56,6 +56,17 @@ describe('ResultsPanel', () => {
     expect(wrapper.get(announcement).text()).toBe(`Round 1 finished. Winner: ${winner?.name}.`)
   })
 
+  it('decorates the podium of every result', async () => {
+    const { wrapper, meeting } = mountWithStores(ResultsPanel)
+
+    meeting.generateProgramme()
+    meeting.start()
+    tickUntilStatusChanges(meeting)
+    await nextTick()
+
+    expect(wrapper.get(round).classes()).toContain('round-table--podium')
+  })
+
   it('shows all six results in round order after the meeting', async () => {
     const { wrapper, meeting } = mountWithStores(ResultsPanel)
 
