@@ -16,7 +16,7 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 | 0     | Project foundation          | Done        |
 | 1     | Domain core                 | Done        |
 | 2     | State management            | Done        |
-| 3     | Functional interface        | Not started |
+| 3     | Functional interface        | Done        |
 | 4     | Race engine and animation   | Not started |
 | 5     | Visual design and polish    | Not started |
 | 6     | End-to-end and visual tests | Not started |
@@ -69,15 +69,19 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 
 ## Phase 3 — Functional interface
 
-**Outcome:** the full flow works in the browser with plain styling; horses do not animate yet, and rounds resolve through the store.
+**Outcome:** the full flow works in the browser with plain styling. The track is a list of progress bars for now; the animated renderer replaces it in Phase 4.
 
-- [ ] `ui/`: button, panel, data table
-- [ ] `AppHeader` with Generate and Start / Pause controls (FR-11, FR-12)
-- [ ] `StablePanel`: name, condition, colour swatch (FR-04)
-- [ ] `ProgrammePanel`: six rounds with distance and runners (FR-08)
-- [ ] `ResultsPanel`: results appended per round, with a polite live region (FR-20, FR-21, FR-23)
-- [ ] Three-column layout that stacks on narrow screens (NFR-03)
-- [ ] Component tests for each panel and for the header's enabled, disabled and label states
+- [x] `ui/`: button and panel
+- [x] `shared/`: horse badge and the round table used by both the programme and the results
+- [x] `AppHeader` with Generate and Start / Pause controls (FR-11, FR-12)
+- [x] `StablePanel`: name, colour, condition (FR-04)
+- [x] `ProgrammePanel`: six rounds with distance and runners, current round highlighted (FR-08)
+- [x] `ResultsPanel`: results appended per round with finish times, with a polite live region (FR-20, FR-21, FR-23)
+- [x] `TrackPanel`: round title, status message and per-lane progress (FR-15)
+- [x] `useFrameLoop` composable: drives `tick` from `requestAnimationFrame`, clamps late frames, stops when the clock is not running (NFR-02). Brought forward from Phase 4 so that the flow can be exercised end to end here
+- [x] `?seed=` and `?speed=` query parameters wired through to the session store
+- [x] Layout that stacks on narrow screens, track first (NFR-03)
+- [x] Component tests for each panel, the header's enabled, disabled and label states, and the frame loop with a hand-stepped scheduler
 
 **Exit criteria:** Generate fills the programme; Start produces six results in order; all controls work from the keyboard.
 
@@ -85,13 +89,11 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 
 **Outcome:** rounds play out visibly on the track in real time. This completes every requirement of the brief.
 
-- [ ] `useRaceLoop` composable: drives `tick` from `requestAnimationFrame`, clamps large gaps, stops when not running (NFR-02)
 - [ ] `RaceTrack` renderer: ten lanes, lane numbers, finish line, round label (FR-15)
 - [ ] `TrackLane` and `HorseSprite`: position from progress using `transform` only, coloured per horse (FR-16, FR-17, NFR-01)
 - [ ] Pause and resume hold and continue positions exactly (FR-12)
 - [ ] Intermission between rounds and the meeting-finished state (FR-14)
-- [ ] `?seed=` and test-only speed multiplier wired through to the stores
-- [ ] Tests for the loop composable with a fake frame source; component tests for the track
+- [ ] Component tests for the track renderer
 
 **Exit criteria:** a full meeting can be watched from start to finish; pausing freezes every horse; the same seed yields the same race.
 
