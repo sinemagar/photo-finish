@@ -18,7 +18,7 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 | 2     | State management            | Done        |
 | 3     | Functional interface        | Done        |
 | 4     | Race engine and animation   | Done        |
-| 5     | Visual design and polish    | Not started |
+| 5     | Visual design and polish    | Done        |
 | 6     | End-to-end and visual tests | Not started |
 | 7     | Delivery                    | Not started |
 | 8     | Stretch: 3D renderer        | Optional    |
@@ -105,16 +105,18 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 
 **Outcome:** the game looks and feels finished.
 
-- [ ] Design tokens: colour, spacing, type scale, radii, motion durations
-- [ ] Horse artwork as an SVG tinted with the horse's colour, with a gallop cycle (FR-18)
-- [ ] Track styling: turf, rails, distance markers, finish post
-- [ ] Empty, ready, intermission and finished states with clear messaging
-- [ ] Podium highlight in results; currently running round highlighted in the programme
-- [ ] Live standings during a round (FR-24, if time allows)
-- [ ] Accessibility pass: focus order, contrast, labels (NFR-04)
-- [ ] Responsive pass at 360, 768 and 1280 px
+- [x] Design tokens: colour, spacing, type scale, radii, shadow, motion duration
+- [x] Horse artwork redrawn as an SVG tinted with the horse's colour, with jointed legs, a gallop cycle and the lane number on the saddle cloth (FR-18)
+- [x] Track styling: striped turf, rails, a gate board with lane number and horse name, start line, quarter markers labelled with the round's distances, finish line
+- [x] Status badge next to the round title; message shown over the track while it is empty or paused
+- [x] Podium highlight in the results and on the finish line; current round highlighted and completed rounds played down in the programme
+- [x] Programme and results scroll to the current round by themselves, without moving the page on small screens
+- [x] Condition meter in the stable list
+- [x] Branded header with the main action in the accent colour
+- [x] Responsive pass at 390, 900 and 1440 px
+- [ ] Live standings during a round (FR-24): left out; the finishing positions on the line cover the need
 
-**Exit criteria:** no layout breakage at the three widths; keyboard-only use is comfortable; an automated accessibility check reports no serious issues.
+**Exit criteria:** no layout breakage at the three widths; keyboard-only use is comfortable. The automated accessibility check is part of the browser tests in Phase 6.
 
 ## Phase 6 — End-to-end and visual tests
 
@@ -123,6 +125,7 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 - [ ] Playwright set-up with a production build as the web server
 - [ ] E2E: happy path through all six rounds
 - [ ] E2E: pause and resume; regenerate clears results; Start disabled before Generate
+- [ ] Accessibility: automated axe check of the main states reports no serious issues (NFR-04)
 - [ ] Visual: initial, programme generated, mid-race (paused at a known time), finished; desktop and mobile
 - [ ] Generate visual baselines in the CI container; upload diffs as artefacts on failure
 - [ ] Add E2E and visual jobs to the workflow
