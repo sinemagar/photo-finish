@@ -7,6 +7,9 @@ import { MeetingPage } from './support/meetingPage'
  * The 3D track. Its pixels depend on the graphics stack, so these tests check that it
  * loads, follows the meeting and can be controlled, rather than comparing screenshots.
  */
+// Machines without a GPU draw every frame in software, which makes these tests slower.
+test.describe.configure({ timeout: 90_000 })
+
 let meeting: MeetingPage
 const pageErrors: string[] = []
 
@@ -44,7 +47,7 @@ test('runs a whole meeting with the same results as ever', async ({ page }) => {
   await expect(page.getByTestId('meeting-summary')).toBeVisible()
 })
 
-test('switches between the TV, chase and overhead cameras', async ({ page }) => {
+test('switches between the TV, chase and aerial cameras', async ({ page }) => {
   await meeting.open(7, { renderer: '3d' })
   await meeting.generate()
 
@@ -53,7 +56,7 @@ test('switches between the TV, chase and overhead cameras', async ({ page }) => 
 
   for (const [id, label] of [
     ['chase', 'Chase'],
-    ['overhead', 'Overhead'],
+    ['aerial', 'Aerial'],
     ['tv', 'TV'],
   ]) {
     await page.getByTestId(`camera-${id}`).click()
@@ -68,13 +71,13 @@ test('switches to the 2D track and back without losing the meeting', async ({ pa
   await meeting.advance(3000)
   await meeting.toggleButton.click()
 
-  await page.getByTestId('renderer-toggle').click()
+  await page.getByTestId('renderer-2d').click()
   await expect(page.locator('[data-testid="race-track"]:not([data-renderer])')).toBeVisible()
   await expect(meeting.runners).toHaveCount(10)
   const offsets = await meeting.runnerOffsets()
   expect(offsets.every((offset) => offset > 0 && offset < 100)).toBe(true)
 
-  await page.getByTestId('renderer-toggle').click()
+  await page.getByTestId('renderer-3d').click()
   await expect(page.locator(track3d)).toBeVisible()
   await expect(meeting.toggleButton).toHaveText('Resume')
 })
