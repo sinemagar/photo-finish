@@ -8,7 +8,7 @@ import type { TrackRendererProps } from '@/renderers/types'
 /**
  * The 3D renderer: the race on an oval racecourse, drawn with three.js. It takes the same
  * runners as the 2D track, plus a camera. three.js and the horse model are downloaded
- * only when this component is first shown; all drawing is done by `scene/RaceScene`.
+ * only when this component is first shown; all drawing is done by `3d/scene/RaceScene.ts`.
  */
 const props = withDefaults(
   defineProps<
@@ -33,6 +33,8 @@ const canvas = useTemplateRef<HTMLCanvasElement>('canvas')
 const isReady = ref(false)
 let scene: RaceScene | null = null
 let resizeObserver: ResizeObserver | null = null
+// The scene is created asynchronously; the component may be gone by the time it is ready.
+let isUnmounted = false
 
 const label = computed(() =>
   props.distance
@@ -51,9 +53,14 @@ function pushField() {
 onMounted(async () => {
   try {
     const { RaceScene } = await import('@/renderers/3d/scene/RaceScene')
-    if (!canvas.value || !host.value) return
+    if (isUnmounted || !canvas.value || !host.value) return
 
-    scene = await RaceScene.create(canvas.value, MODEL_URL)
+    const created = await RaceScene.create(canvas.value, MODEL_URL)
+    if (isUnmounted) {
+      created.dispose()
+      return
+    }
+    scene = created
     scene.setCamera(props.camera)
     pushField()
 
@@ -67,13 +74,14 @@ onMounted(async () => {
   }
 })
 
-watch(() => [props.runners, props.distance, props.paused], pushField)
+watch([() => props.runners, () => props.distance, () => props.paused], pushField)
 watch(
   () => props.camera,
   (mode) => scene?.setCamera(mode),
 )
 
 onBeforeUnmount(() => {
+  isUnmounted = true
   resizeObserver?.disconnect()
   scene?.dispose()
   scene = null
@@ -83,27 +91,23 @@ onBeforeUnmount(() => {
 <template>
   <div
     ref="host"
-    class="race-track-3d"
+    class="track-3d"
     data-testid="race-track"
     data-renderer="3d"
     :data-ready="isReady"
   >
-    <canvas ref="canvas" class="race-track-3d__canvas" role="img" :aria-label="label" />
-    <p v-if="!isReady" class="race-track-3d__loading" aria-live="polite">Loading the course…</p>
+    <canvas ref="canvas" class="track-3d__canvas" role="img" :aria-label="label" />
+    <p v-if="!isReady" class="track-3d__loading" aria-live="polite">Loading the course…</p>
   </div>
 </template>
 
 <style scoped lang="scss">
-.race-track-3d {
-  position: relative;
-  aspect-ratio: 16 / 9;
+.track-3d {
+  // The space is held by the stage around it, so the page does not jump while this loads.
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   border-radius: var(--radius-sm);
-  background: linear-gradient(#bcd6e6, #3f8f4a);
-
-  @media (max-width: 40rem) {
-    aspect-ratio: 4 / 3;
-  }
 
   &__canvas {
     display: block;
