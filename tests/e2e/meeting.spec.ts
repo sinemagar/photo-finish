@@ -356,3 +356,16 @@ test('can be played with the keyboard alone', async ({ page }) => {
   await page.keyboard.press('Space')
   await expect(meeting.statusBadge).toHaveText('Paused')
 })
+
+test('keeps the controls under the track on screen on a short laptop display', async ({ page }) => {
+  await page.setViewportSize({ width: 1180, height: 600 })
+  await meeting.generate()
+
+  for (const testId of ['view-control', 'speed-control', 'round-stepper']) {
+    await expect(page.getByTestId(testId)).toBeInViewport({ ratio: 1 })
+  }
+  const pageScrolls = await page.evaluate(
+    () => document.documentElement.scrollHeight > window.innerHeight,
+  )
+  expect(pageScrolls).toBe(false)
+})
