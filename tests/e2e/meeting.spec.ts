@@ -205,7 +205,7 @@ test.describe('racing', () => {
     await meeting.advance(3000)
 
     await expect(meeting.statusBadge).toHaveText('Racing')
-    await expect(meeting.page.getByTestId('track-panel').locator('h2')).toHaveText(
+    await expect(meeting.page.getByTestId('race-panel').locator('h2')).toHaveText(
       'Round 2 · 1400 m',
     )
   })

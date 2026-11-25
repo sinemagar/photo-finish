@@ -1,26 +1,25 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { TrackRunner } from '@/stores/meeting'
+import type { TrackRendererProps } from '@/renderers/types'
 import { formatDistance } from '@/utils/format'
 
 import TrackLane from './TrackLane.vue'
 
 /**
- * Draws the track. This component is the renderer boundary: it receives the runners and
- * how far each has got, and knows nothing about stores, rules or time. Another renderer
- * that accepts the same props could replace it without touching the rest of the game.
+ * The 2D renderer: the track as lanes of HTML, with horses moved by CSS transforms. Like
+ * every renderer it receives the runners and how far each has got, and knows nothing
+ * about stores, rules or time.
  */
 const props = withDefaults(
-  defineProps<{
-    runners: TrackRunner[]
-    /** Number of lanes to draw, including empty ones. */
-    lanes: number
-    /** Round distance in metres; labels the distance markers when given. */
-    distance?: number
-    /** Whether the race is moving right now; drives the gallop animation. */
-    racing?: boolean
-  }>(),
+  defineProps<
+    TrackRendererProps & {
+      /** Number of lanes to draw, including empty ones. */
+      lanes: number
+      /** Whether the race is moving right now; drives the gallop animation. */
+      racing?: boolean
+    }
+  >(),
   { distance: undefined, racing: false },
 )
 
@@ -40,8 +39,8 @@ const markers = computed(() =>
 </script>
 
 <template>
-  <div class="race-track" data-testid="race-track">
-    <ol class="race-track__lanes">
+  <div class="track-2d" data-testid="race-track">
+    <ol class="track-2d__lanes">
       <TrackLane
         v-for="lane in laneNumbers"
         :key="lane"
@@ -50,26 +49,26 @@ const markers = computed(() =>
         :racing="racing"
       />
     </ol>
-    <div class="race-track__ruler" aria-hidden="true">
-      <span class="race-track__finish-label">Finish</span>
+    <div class="track-2d__ruler" aria-hidden="true">
+      <span class="track-2d__finish-label">Finish</span>
     </div>
-    <div class="race-track__markers" aria-hidden="true">
+    <div class="track-2d__markers" aria-hidden="true">
       <span
         v-for="marker in markers"
         :key="marker.share"
-        class="race-track__marker"
-        :class="{ 'race-track__marker--start': marker.share === 0 }"
+        class="track-2d__marker"
+        :class="{ 'track-2d__marker--start': marker.share === 0 }"
         :style="{ '--share': marker.share }"
       >
-        <span class="race-track__marker-label">{{ marker.label }}</span>
+        <span class="track-2d__marker-label">{{ marker.label }}</span>
       </span>
     </div>
-    <span class="race-track__finish" aria-hidden="true" />
+    <span class="track-2d__finish" aria-hidden="true" />
   </div>
 </template>
 
 <style scoped lang="scss">
-.race-track {
+.track-2d {
   --lane-height: clamp(2.25rem, 5.2vh, 3.5rem);
   --sprite-width: calc(var(--lane-height) * 1.36);
   --gate-width: 10rem;

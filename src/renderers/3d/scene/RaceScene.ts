@@ -1,6 +1,6 @@
 import { PerspectiveCamera, Scene, SRGBColorSpace, Timer, Vector3, WebGLRenderer } from 'three'
 
-import type { TrackRunner } from '@/stores/meeting'
+import type { TrackRunner } from '@/renderers/types'
 
 import {
   cameraPose,
@@ -9,8 +9,8 @@ import {
   type CameraPose,
   type FieldEntry,
   type FieldView,
-} from './cameras'
-import { laneOffset, pointOnCourse, raceArc } from './course'
+} from '../geometry/cameras'
+import { laneOffset, pointOnCourse, raceArc } from '../geometry/course'
 import { buildEnvironment, createShadowTexture } from './environment'
 import {
   createHorseRunner,

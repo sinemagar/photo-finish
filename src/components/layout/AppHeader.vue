@@ -32,7 +32,7 @@ defineEmits<{
     <div class="app-header__actions">
       <button
         type="button"
-        class="app-header__help"
+        class="app-header__icon-button"
         :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
         data-testid="theme-toggle"
         @click="$emit('toggleTheme')"
@@ -54,7 +54,7 @@ defineEmits<{
       </button>
       <button
         type="button"
-        class="app-header__help"
+        class="app-header__icon-button"
         aria-label="How it works"
         data-testid="help-button"
         @click="$emit('help')"
@@ -126,7 +126,7 @@ defineEmits<{
     gap: var(--space-2);
   }
 
-  &__help {
+  &__icon-button {
     display: grid;
     flex: none;
     place-items: center;
@@ -172,7 +172,7 @@ defineEmits<{
       white-space: nowrap;
     }
 
-    &__help {
+    &__icon-button {
       width: 2.25rem;
       height: 2.25rem;
     }

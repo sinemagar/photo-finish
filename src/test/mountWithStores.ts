@@ -3,7 +3,8 @@ import { createPinia, setActivePinia } from 'pinia'
 import type { Component } from 'vue'
 
 import { useMeetingStore } from '@/stores/meeting'
-import { useSessionStore, type SessionOptions } from '@/stores/session'
+import { useSessionStore } from '@/stores/session'
+import type { SessionOptions } from '@/stores/types'
 import { useStableStore } from '@/stores/stable'
 
 /**

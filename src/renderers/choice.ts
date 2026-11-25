@@ -1,4 +1,4 @@
-import type { Renderer } from '@/stores/session'
+import type { Renderer } from './types'
 
 /** Whether this browser can draw the 3D track. */
 export function supportsWebGL(): boolean {

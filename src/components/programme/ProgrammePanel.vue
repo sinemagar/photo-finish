@@ -10,7 +10,7 @@ import { useAutoExpand } from '@/composables/useAutoExpand'
 import { useRevealInScroller } from '@/composables/useRevealInScroller'
 import { useMeetingStore } from '@/stores/meeting'
 import { useStableStore } from '@/stores/stable'
-import { formatDistance } from '@/utils/format'
+import { formatRoundHeading } from '@/utils/format'
 
 const SUMMARIES: Record<RoundCardState, string | undefined> = {
   upcoming: undefined,
@@ -35,7 +35,7 @@ const rounds = computed(() =>
 
     return {
       number: round.number,
-      heading: `Round ${round.number} · ${formatDistance(round.distance)}`,
+      heading: formatRoundHeading(round),
       state,
       summary: SUMMARIES[state],
       rows: round.runners.flatMap((runner): RoundCardRow[] => {

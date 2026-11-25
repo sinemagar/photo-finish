@@ -21,6 +21,31 @@ export default defineConfigWithVueTs(
     files: ['src/**/*.spec.ts'],
   },
 
+  {
+    // Conventions on top of the recommended set, so that every component reads the same way.
+    name: 'app/vue-conventions',
+    files: ['**/*.vue'],
+    rules: {
+      'vue/block-order': ['error', { order: ['script', 'template', 'style'] }],
+      'vue/component-api-style': ['error', ['script-setup']],
+      'vue/component-name-in-template-casing': [
+        'error',
+        'PascalCase',
+        { registeredComponentsOnly: false },
+      ],
+      'vue/define-macros-order': [
+        'error',
+        { order: ['defineProps', 'defineEmits', 'defineModel'] },
+      ],
+      'vue/no-required-prop-with-default': 'error',
+      'vue/no-unused-properties': ['error', { groups: ['props'] }],
+      'vue/no-unused-refs': 'error',
+      'vue/no-useless-v-bind': 'error',
+      'vue/padding-line-between-blocks': 'error',
+      'vue/prefer-true-attribute-shorthand': 'error',
+    },
+  },
+
   ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
 
   skipFormatting,

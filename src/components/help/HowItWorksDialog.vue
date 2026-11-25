@@ -12,9 +12,9 @@ import {
 import { useSessionStore } from '@/stores/session'
 import { formatDistance } from '@/utils/format'
 
-const REPOSITORY_URL = 'https://github.com/sinemagar/photo-finish'
-
 const open = defineModel<boolean>('open', { required: true })
+
+const REPOSITORY_URL = 'https://github.com/sinemagar/photo-finish'
 
 const session = useSessionStore()
 

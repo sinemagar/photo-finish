@@ -4,16 +4,16 @@ import { nextTick } from 'vue'
 import { useSessionStore } from '@/stores/session'
 import { mountWithStores, runWholeMeeting, tickUntilStatusChanges } from '@/test/mountWithStores'
 
-import HorseSprite from './HorseSprite.vue'
-import TrackPanel from './TrackPanel.vue'
+import HorseSprite from '@/renderers/2d/HorseSprite.vue'
+import RacePanel from './RacePanel.vue'
 
 const lane = '[data-testid="track-lane"]'
 const runner = '[data-testid="track-runner"]'
 const status = '[data-testid="track-status"]'
 
-describe('TrackPanel', () => {
+describe('RacePanel', () => {
   it('shows ten empty lanes and asks for a programme first', () => {
-    const { wrapper } = mountWithStores(TrackPanel)
+    const { wrapper } = mountWithStores(RacePanel)
 
     expect(wrapper.get('h2').text()).toBe('Track')
     expect(wrapper.get(status).text()).toContain('Generate a programme')
@@ -22,7 +22,7 @@ describe('TrackPanel', () => {
   })
 
   it('lines the first round up once a programme is ready', async () => {
-    const { wrapper, meeting } = mountWithStores(TrackPanel)
+    const { wrapper, meeting } = mountWithStores(RacePanel)
 
     meeting.generateProgramme()
     await nextTick()
@@ -36,7 +36,7 @@ describe('TrackPanel', () => {
   })
 
   it('moves the horses with the race and stops them on the finish line', async () => {
-    const { wrapper, meeting } = mountWithStores(TrackPanel)
+    const { wrapper, meeting } = mountWithStores(RacePanel)
     const offsets = () =>
       wrapper
         .findAll(runner)
@@ -58,7 +58,7 @@ describe('TrackPanel', () => {
   })
 
   it('shows the status in words next to the title', async () => {
-    const { wrapper, meeting } = mountWithStores(TrackPanel)
+    const { wrapper, meeting } = mountWithStores(RacePanel)
     const badge = () => wrapper.get('[data-testid="status-badge"]').text()
 
     expect(badge()).toBe('No programme')
@@ -70,7 +70,7 @@ describe('TrackPanel', () => {
   })
 
   it('welcomes the player on an empty track and starts from there', async () => {
-    const { wrapper, meeting } = mountWithStores(TrackPanel)
+    const { wrapper, meeting } = mountWithStores(RacePanel)
     const welcome = '[data-testid="welcome-card"]'
 
     expect(wrapper.find(welcome).exists()).toBe(true)
@@ -85,8 +85,8 @@ describe('TrackPanel', () => {
   })
 
   it('puts the message over the track while paused and below it otherwise', async () => {
-    const { wrapper, meeting } = mountWithStores(TrackPanel)
-    const isSpotlit = () => wrapper.get(status).classes('track-panel__spotlight')
+    const { wrapper, meeting } = mountWithStores(RacePanel)
+    const isSpotlit = () => wrapper.get(status).classes('race-overlay__notice')
 
     meeting.generateProgramme()
     meeting.start()
@@ -104,7 +104,7 @@ describe('TrackPanel', () => {
   })
 
   it('shows how far the meeting has got', async () => {
-    const { wrapper, meeting } = mountWithStores(TrackPanel)
+    const { wrapper, meeting } = mountWithStores(RacePanel)
     const steps = () =>
       wrapper.findAll('.round-stepper__step').map((step) => step.classes()[1]?.split('--')[1])
 
@@ -120,7 +120,7 @@ describe('TrackPanel', () => {
   })
 
   it('changes the playback speed from the speed control', async () => {
-    const { wrapper } = mountWithStores(TrackPanel, { speed: 1 })
+    const { wrapper } = mountWithStores(RacePanel, { speed: 1 })
 
     await wrapper.get('[data-testid="speed-4"]').setValue(true)
 
@@ -128,7 +128,7 @@ describe('TrackPanel', () => {
   })
 
   it('gallops while running and stands still while paused', async () => {
-    const { wrapper, meeting } = mountWithStores(TrackPanel)
+    const { wrapper, meeting } = mountWithStores(RacePanel)
     const galloping = () =>
       wrapper.findAllComponents(HorseSprite).map((sprite) => sprite.props('galloping'))
 
@@ -148,7 +148,7 @@ describe('TrackPanel', () => {
 
   describe('between rounds', () => {
     it('shows the podium of the round and counts down to the next one', async () => {
-      const { wrapper, meeting, stable } = mountWithStores(TrackPanel)
+      const { wrapper, meeting, stable } = mountWithStores(RacePanel)
       const banner = '[data-testid="result-banner"]'
 
       meeting.generateProgramme()
@@ -175,7 +175,7 @@ describe('TrackPanel', () => {
 
   describe('during a round', () => {
     it('names the three leading horses', async () => {
-      const { wrapper, meeting } = mountWithStores(TrackPanel)
+      const { wrapper, meeting } = mountWithStores(RacePanel)
 
       meeting.generateProgramme()
       meeting.start()
@@ -198,7 +198,7 @@ describe('TrackPanel', () => {
 
   describe('after the last round', () => {
     it('sums the meeting up and offers a new programme', async () => {
-      const { wrapper, meeting, stable } = mountWithStores(TrackPanel)
+      const { wrapper, meeting, stable } = mountWithStores(RacePanel)
       const summary = '[data-testid="meeting-summary"]'
 
       runWholeMeeting(meeting)

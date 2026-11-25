@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 import HorseBadge from '@/components/shared/HorseBadge.vue'
-import type { TrackRunner } from '@/stores/meeting'
+import type { TrackRunner } from '@/renderers/types'
 
 const props = withDefaults(
   defineProps<{

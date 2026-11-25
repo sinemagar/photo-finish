@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatDistance, formatOrdinal, formatRaceTime } from './format'
+import { formatDistance, formatOrdinal, formatRaceTime, formatRoundHeading } from './format'
 
 describe('formatDistance', () => {
   it('appends the unit', () => {
     expect(formatDistance(1200)).toBe('1200 m')
+  })
+})
+
+describe('formatRoundHeading', () => {
+  it('names the round and its distance', () => {
+    expect(formatRoundHeading({ number: 2, distance: 1400 })).toBe('Round 2 · 1400 m')
   })
 })
 

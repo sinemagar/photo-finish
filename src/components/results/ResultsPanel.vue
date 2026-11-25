@@ -7,7 +7,7 @@ import { useAutoExpand } from '@/composables/useAutoExpand'
 import { useRevealInScroller } from '@/composables/useRevealInScroller'
 import { useMeetingStore } from '@/stores/meeting'
 import { useStableStore } from '@/stores/stable'
-import { formatDistance, formatRaceTime } from '@/utils/format'
+import { formatRaceTime, formatRoundHeading } from '@/utils/format'
 
 const meeting = useMeetingStore()
 const stable = useStableStore()
@@ -22,7 +22,7 @@ const rounds = computed(() =>
 
     return {
       number: result.roundNumber,
-      heading: `Round ${result.roundNumber} · ${formatDistance(result.distance)}`,
+      heading: formatRoundHeading({ number: result.roundNumber, distance: result.distance }),
       winner,
       // Readable while collapsed, so earlier rounds stay useful at a glance.
       summary: winner ? `Won by ${winner.horse.name}` : undefined,

@@ -21,7 +21,7 @@
   <img alt="TypeScript strict" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
   <img alt="Pinia" src="https://img.shields.io/badge/state-Pinia-f7d336" />
   <img alt="three.js" src="https://img.shields.io/badge/3D-three.js-111111?logo=threedotjs&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-365%20passing-0b7a46" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-367%20passing-0b7a46" />
   <img alt="Lighthouse" src="https://img.shields.io/badge/Lighthouse-96%20%C2%B7%20100%20%C2%B7%20100%20%C2%B7%20100-0b7a46?logo=lighthouse&logoColor=white" />
 </p>
 
@@ -75,19 +75,19 @@
 
 Every point of the brief, and where to find it in the code.
 
-| Requirement                                                | Where                                                                                                                                 |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| 20 horses, each with a unique colour and a condition 1–100 | [`domain/stable.ts`](./src/domain/stable.ts)                                                                                          |
-| Generate creates 6 rounds of 10 random horses              | [`domain/programme.ts`](./src/domain/programme.ts)                                                                                    |
-| Rounds of 1200, 1400, 1600, 1800, 2000 and 2200 m          | [`domain/config.ts`](./src/domain/config.ts)                                                                                          |
-| Start runs the rounds one at a time                        | [`stores/meeting.ts`](./src/stores/meeting.ts)                                                                                        |
-| Results appear as each round finishes                      | [`components/results`](./src/components/results)                                                                                      |
-| Horses move during a race                                  | [`components/track3d`](./src/components/track3d) and [`scene`](./src/scene) in 3D, [`components/track`](./src/components/track) in 2D |
-| State management with Pinia                                | [`stores`](./src/stores)                                                                                                              |
-| Component-based design                                     | [`components`](./src/components)                                                                                                      |
-| Bonus: unit tests                                          | 307 tests next to the code they cover (`*.spec.ts`)                                                                                   |
-| Bonus: E2E tests                                           | [`tests/e2e/meeting.spec.ts`](./tests/e2e/meeting.spec.ts)                                                                            |
-| Bonus: visual tests                                        | [`tests/e2e/visual.spec.ts`](./tests/e2e/visual.spec.ts), desktop and mobile                                                          |
+| Requirement                                                | Where                                                                                  |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 20 horses, each with a unique colour and a condition 1–100 | [`domain/stable.ts`](./src/domain/stable.ts)                                           |
+| Generate creates 6 rounds of 10 random horses              | [`domain/programme.ts`](./src/domain/programme.ts)                                     |
+| Rounds of 1200, 1400, 1600, 1800, 2000 and 2200 m          | [`domain/config.ts`](./src/domain/config.ts)                                           |
+| Start runs the rounds one at a time                        | [`stores/meeting.ts`](./src/stores/meeting.ts)                                         |
+| Results appear as each round finishes                      | [`components/results`](./src/components/results)                                       |
+| Horses move during a race                                  | [`renderers/3d`](./src/renderers/3d) in 3D, [`renderers/2d`](./src/renderers/2d) in 2D |
+| State management with Pinia                                | [`stores`](./src/stores)                                                               |
+| Component-based design                                     | [`components`](./src/components)                                                       |
+| Bonus: unit tests                                          | 309 tests next to the code they cover (`*.spec.ts`)                                    |
+| Bonus: E2E tests                                           | [`tests/e2e/meeting.spec.ts`](./tests/e2e/meeting.spec.ts)                             |
+| Bonus: visual tests                                        | [`tests/e2e/visual.spec.ts`](./tests/e2e/visual.spec.ts), desktop and mobile           |
 
 ## Getting started
 
@@ -153,8 +153,8 @@ Dependencies point one way only. Components never contain a game rule, and the r
 ```mermaid
 flowchart TD
     UI["<b>components/</b><br/>What is on screen.<br/>Shows data, forwards clicks."]
-    R2["<b>RaceTrack</b><br/>2D, DOM and CSS"]
-    R3["<b>RaceTrack3D</b> + <b>scene/</b><br/>3D, three.js, loaded on demand"]
+    R2["<b>renderers/2d</b><br/>Track2D: DOM and CSS"]
+    R3["<b>renderers/3d</b><br/>Track3D: three.js, loaded on demand"]
     STATE["<b>stores/</b> and <b>composables/</b><br/>What is true right now<br/>and what happens next."]
     DOMAIN["<b>domain/</b><br/>Pure TypeScript rules:<br/>stable, programme, simulation, ranking."]
     CLOCK(["requestAnimationFrame"])
@@ -192,21 +192,21 @@ Decisions that shape the code:
 - **Time is injected.** The store moves only when `tick(elapsedMs)` is called. One composable, `useFrameLoop`, connects it to the browser; tests call `tick` directly.
 - **Randomness is seeded.** One generator for every random choice makes sessions reproducible and tests stable.
 - **The result does not depend on frame rate.** The simulation advances in fixed steps and carries leftover time over, so a slow machine or a background tab produces the same race. Between two steps, a horse is drawn where it would be by now, so it moves smoothly without changing the result.
-- **The track is a renderer.** Both tracks receive runners and their progress as props and know nothing about stores. The 3D track was added without changing a line of the domain or the stores' rules.
-- **3D maths is plain TypeScript too.** The oval course, the camera poses and the field summary in `src/scene` are pure functions with their own unit tests; only `RaceScene` talks to three.js.
+- **The track is a renderer.** Both tracks implement the props contract in `src/renderers/types.ts`: they receive runners and their progress and know nothing about stores. The 3D track was added without changing a line of the domain or the stores' rules.
+- **3D maths is plain TypeScript too.** The oval course, the camera poses and the field summary in `src/renderers/3d/geometry` are pure functions with their own unit tests; only the files in `src/renderers/3d/scene` talk to three.js.
 
 The full reasoning, including the race model, is in the [product requirements](./docs/PRD.md).
 
 ## Testing
 
-**365 tests**, all running in CI on every pull request.
+**367 tests**, all running in CI on every pull request.
 
 | Layer                      | Tool                   | Count | What it proves                                                                                                                        |
 | -------------------------- | ---------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | Domain                     | Vitest                 | 50    | The rules of the brief, reproducibility from a seed, independence from frame rate, smooth display between steps, the meeting summary  |
 | Stores                     | Vitest                 | 52    | Every state transition, including the illegal ones being ignored; results recorded once per round; live ranks and the break countdown |
 | 3D scene maths             | Vitest                 | 32    | The oval is closed and continuous, rounds start at the right distance, cameras frame the field, the field stays together across a lap |
-| Components and composables | Vitest, Vue Test Utils | 173   | Components render what they are given; controls are enabled and labelled by status; tabs, dialog, theme, frame loop                   |
+| Components and composables | Vitest, Vue Test Utils | 175   | Components render what they are given; controls are enabled and labelled by status; tabs, dialog, theme, frame loop                   |
 | End-to-end                 | Playwright             | 22    | A whole meeting in the browser, pause and resume, reset, speed, onboarding, the help dialog, keyboard-only play                       |
 | 3D track                   | Playwright             | 6     | Loads by default, runs rounds, switches cameras and back to 2D mid-race, falls back under reduced motion, passes axe                  |
 | Phone layout               | Playwright             | 8     | Controls and track on the first screen, lists scroll to their end, no sideways scrolling, tabs                                        |
@@ -288,25 +288,39 @@ I set the direction and the priorities, decided between the options it proposed,
 
 ```
 src/
-  domain/         Game rules: config, rng, stable, programme, simulation, summary, types
-  stores/         Pinia stores: session, stable, meeting
-  scene/          3D: course and camera maths, coats, horses and jockeys, the three.js scene
-  composables/    useFrameLoop, useTheme, useRevealInScroller, useAutoExpand
+  domain/                Game rules as pure TypeScript: config, rng, stable, programme,
+                         simulation, summary, types. No Vue, no three.js.
+  stores/                Pinia: session (seed, speed, renderer), stable, meeting (state machine),
+                         and types.ts for the view models they hand out (TrackRunner)
+  composables/           useFrameLoop (the game clock), useTheme, useAutoExpand, useRevealInScroller
   components/
-    ui/           BaseButton, BasePanel, BaseTabs, BaseDialog
-    shared/       HorseBadge, RoundCard
-    layout/       AppHeader
-    track/        2D track, view and speed controls, banners and summary
-    track3d/      The 3D track component, loaded on demand
-    stable/  programme/  results/  help/
-  config/         Playback settings
-  utils/          Formatting, URL options, renderer choice
-  styles/         Design tokens for the light and dark themes
-public/models/    The horse model and its credits
-tests/e2e/        Playwright specs, page object and visual baselines
-scripts/          Bundle size budgets and frame-timing measurement
-docs/             Product requirements, roadmap and recordings
+    ui/                  Generic building blocks: BaseButton, BasePanel, BaseTabs, BaseDialog
+    shared/              Game-aware building blocks: HorseBadge, RoundCard
+    layout/              AppHeader
+    race/                RacePanel, RaceStage (picks the renderer)
+      controls/          ViewControl (TV, Chase, Aerial, 2D), SpeedControl
+      overlays/          RaceOverlay and the cards it shows: WelcomeCard, RoundResultBanner, MeetingSummary
+      status/            MeetingStatusBadge, RoundStepper, LiveLeaders
+    details/             MeetingDetails: results, programme and stable behind tabs
+    results/  programme/  stable/  help/
+  renderers/             How the race is drawn. Both renderers take the same props.
+    types.ts             The contract: TrackRendererProps, the props both renderers take
+    choice.ts            Which renderer to start with (WebGL, reduced motion, ?renderer=)
+    2d/                  Track2D, TrackLane, HorseSprite: HTML and CSS
+    3d/                  Track3D, the Vue component, loaded on demand
+      geometry/          Pure maths, unit-tested: the oval course, camera poses
+      scene/             three.js only: RaceScene, environment, horses and jockeys, coats
+  config/                Playback settings
+  utils/                 Formatting, URL options
+  styles/                Design tokens for the light and dark themes
+  test/                  Helpers shared by component tests
+public/models/           The horse model and its credits
+tests/e2e/               Playwright specs, page object and visual baselines
+scripts/                 Bundle size budgets and frame-timing measurement
+docs/                    Product requirements, roadmap and recordings
 ```
+
+Unit and component tests sit next to the file they test (`simulation.ts` and `simulation.spec.ts`).
 
 ## Credits
 

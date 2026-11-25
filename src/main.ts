@@ -4,7 +4,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import { useSessionStore } from './stores/session'
 import { useStableStore } from './stores/stable'
-import { chooseRenderer, supportsWebGL } from './utils/renderer'
+import { chooseRenderer, supportsWebGL } from './renderers/choice'
 import { readSessionOptions } from './utils/sessionOptions'
 import './styles/main.scss'
 
