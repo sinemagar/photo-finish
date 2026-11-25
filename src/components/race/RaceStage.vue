@@ -66,5 +66,19 @@ const Track3D = defineAsyncComponent({
       aspect-ratio: 4 / 3;
     }
   }
+
+  // Wide screens: fill the height the panel has left, never pushing the controls away.
+  @media (min-width: 64rem) {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    // Lets the 2D track size its lanes to the height that is left.
+    container: race-stage / size;
+
+    &--3d {
+      aspect-ratio: auto;
+      overflow: hidden;
+    }
+  }
 }
 </style>
