@@ -21,7 +21,7 @@
   <img alt="TypeScript strict" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" />
   <img alt="Pinia" src="https://img.shields.io/badge/state-Pinia-f7d336" />
   <img alt="three.js" src="https://img.shields.io/badge/3D-three.js-111111?logo=threedotjs&logoColor=white" />
-  <img alt="Tests" src="https://img.shields.io/badge/tests-365%20passing-0b7a46" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-367%20passing-0b7a46" />
   <img alt="Lighthouse" src="https://img.shields.io/badge/Lighthouse-96%20%C2%B7%20100%20%C2%B7%20100%20%C2%B7%20100-0b7a46?logo=lighthouse&logoColor=white" />
 </p>
 
@@ -85,7 +85,7 @@ Every point of the brief, and where to find it in the code.
 | Horses move during a race                                  | [`renderers/3d`](./src/renderers/3d) in 3D, [`renderers/2d`](./src/renderers/2d) in 2D |
 | State management with Pinia                                | [`stores`](./src/stores)                                                               |
 | Component-based design                                     | [`components`](./src/components)                                                       |
-| Bonus: unit tests                                          | 307 tests next to the code they cover (`*.spec.ts`)                                    |
+| Bonus: unit tests                                          | 309 tests next to the code they cover (`*.spec.ts`)                                    |
 | Bonus: E2E tests                                           | [`tests/e2e/meeting.spec.ts`](./tests/e2e/meeting.spec.ts)                             |
 | Bonus: visual tests                                        | [`tests/e2e/visual.spec.ts`](./tests/e2e/visual.spec.ts), desktop and mobile           |
 
@@ -199,14 +199,14 @@ The full reasoning, including the race model, is in the [product requirements](.
 
 ## Testing
 
-**365 tests**, all running in CI on every pull request.
+**367 tests**, all running in CI on every pull request.
 
 | Layer                      | Tool                   | Count | What it proves                                                                                                                        |
 | -------------------------- | ---------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | Domain                     | Vitest                 | 50    | The rules of the brief, reproducibility from a seed, independence from frame rate, smooth display between steps, the meeting summary  |
 | Stores                     | Vitest                 | 52    | Every state transition, including the illegal ones being ignored; results recorded once per round; live ranks and the break countdown |
 | 3D scene maths             | Vitest                 | 32    | The oval is closed and continuous, rounds start at the right distance, cameras frame the field, the field stays together across a lap |
-| Components and composables | Vitest, Vue Test Utils | 173   | Components render what they are given; controls are enabled and labelled by status; tabs, dialog, theme, frame loop                   |
+| Components and composables | Vitest, Vue Test Utils | 175   | Components render what they are given; controls are enabled and labelled by status; tabs, dialog, theme, frame loop                   |
 | End-to-end                 | Playwright             | 22    | A whole meeting in the browser, pause and resume, reset, speed, onboarding, the help dialog, keyboard-only play                       |
 | 3D track                   | Playwright             | 6     | Loads by default, runs rounds, switches cameras and back to 2D mid-race, falls back under reduced motion, passes axe                  |
 | Phone layout               | Playwright             | 8     | Controls and track on the first screen, lists scroll to their end, no sideways scrolling, tabs                                        |
@@ -290,7 +290,8 @@ I set the direction and the priorities, decided between the options it proposed,
 src/
   domain/                Game rules as pure TypeScript: config, rng, stable, programme,
                          simulation, summary, types. No Vue, no three.js.
-  stores/                Pinia: session (seed, speed, renderer), stable, meeting (state machine)
+  stores/                Pinia: session (seed, speed, renderer), stable, meeting (state machine),
+                         and types.ts for the view models they hand out (TrackRunner)
   composables/           useFrameLoop (the game clock), useTheme, useAutoExpand, useRevealInScroller
   components/
     ui/                  Generic building blocks: BaseButton, BasePanel, BaseTabs, BaseDialog
@@ -303,7 +304,7 @@ src/
     details/             MeetingDetails: results, programme and stable behind tabs
     results/  programme/  stable/  help/
   renderers/             How the race is drawn. Both renderers take the same props.
-    types.ts             The contract: TrackRunner and TrackRendererProps
+    types.ts             The contract: TrackRendererProps, the props both renderers take
     choice.ts            Which renderer to start with (WebGL, reduced motion, ?renderer=)
     2d/                  Track2D, TrackLane, HorseSprite: HTML and CSS
     3d/                  Track3D, the Vue component, loaded on demand
