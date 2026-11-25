@@ -26,6 +26,7 @@ Phased task breakdown derived from the [PRD](./PRD.md). Requirement IDs (FR-xx, 
 | 10    | Onboarding, performance and final review | Done   |
 | 11    | 3D racecourse                            | Done   |
 | 12    | Lighter, simpler, mobile-first interface | Done   |
+| 13    | Final review                             | Done   |
 
 ---
 
@@ -233,6 +234,17 @@ The 2D version is tagged `v1.0-2d`.
 - [x] Tests and visual baselines updated; phone tests now check scrolling and the absence of sideways scrolling
 
 **Exit criteria:** on a 375 × 667 phone the controls and the track are on the first screen and every list can be scrolled to its end.
+
+## Phase 13 — Final review
+
+**Outcome:** the codebase reads as one well-organised Vue project.
+
+- [x] `src/renderers/` brings everything about drawing the race together: the props contract (`types.ts`), the renderer choice, `2d/`, and `3d/` with its pure `geometry/` and three.js-only `scene/`
+- [x] Both renderers type their props with the shared `TrackRendererProps`; the `TrackRunner` view model lives with the contract instead of inside a store
+- [x] `RacePanel` split into `RaceStage` (which renderer) and `RaceOverlay` (which card), with `controls/`, `overlays/` and `status/` folders
+- [x] `App.vue` reduced to the page shell; the tabbed details moved to `MeetingDetails`, with their tests
+- [x] Stricter Vue lint rules: script-setup only, block and macro order, PascalCase components, no unused props or refs
+- [x] Docs and README brought in line with the new structure
 
 ## Later
 

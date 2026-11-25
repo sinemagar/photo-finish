@@ -189,14 +189,17 @@ Dependencies point in one direction only: components → stores and composables 
 src/
   domain/         Pure TypeScript. No Vue imports. Horses, programme, simulation, RNG, config.
   stores/         Pinia stores. Hold state, call the domain, expose getters and actions.
+  composables/    Vue glue, e.g. the animation-frame loop that drives the simulation.
+  components/     Feature folders: race (with controls, overlays, status), details,
+                  results, programme, stable, help, layout.
+    ui/           Small generic building blocks (button, panel, tabs, dialog).
+    shared/       Presentational pieces used by several features (horse badge, round card).
+  renderers/      How the race is drawn, behind one props contract (types.ts).
+    2d/           HTML and CSS.
+    3d/           three.js: geometry/ is pure maths, scene/ talks to three.js.
   config/         Presentation settings such as playback speed. Game rules stay in domain/.
-  composables/    Vue glue: the animation-frame loop that drives the simulation, panel scrolling.
-  components/     Feature folders: stable, programme, track, results, layout.
-    ui/           Small presentational building blocks (button, panel).
-    shared/       Presentational pieces used by several features (horse badge, round table).
   utils/          Framework-free helpers: formatting, reading URL options.
-  test/           Helpers shared by component tests.
-  styles/         Tokens, reset, mixins.
+  styles/         Tokens, reset.
   App.vue
 tests/
   e2e/            Playwright specs and visual snapshots.
@@ -209,7 +212,7 @@ Unit tests sit next to the file they test (`simulation.ts`, `simulation.spec.ts`
 1. **The domain is framework-free.** Rules can be read, tested and changed without knowing Vue.
 2. **Stores orchestrate, they do not compute.** A store action calls a domain function and stores the result.
 3. **Components are either containers or presentational.** Containers read from stores; presentational components receive props and emit events, which keeps them trivially testable.
-4. **The track is a renderer.** It receives runners and their progress (0 to 1) and draws them. A second renderer (FR-25) can replace it without touching anything else.
+4. **The track is a renderer.** It receives runners and their progress (0 to 1) and draws them. The 3D racecourse (FR-25) was added this way, beside the 2D track, without touching anything else.
 5. **Time is injected.** The simulation receives elapsed time as an argument; only one composable knows about `requestAnimationFrame`.
 
 ### 6.3 Stores
