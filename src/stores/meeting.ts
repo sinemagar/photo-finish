@@ -17,10 +17,9 @@ import {
   type RoundState,
 } from '@/domain'
 
-import type { TrackRunner } from '@/renderers/types'
-
 import { useSessionStore } from './session'
 import { useStableStore } from './stable'
+import type { TrackRunner } from './types'
 
 export type ToggleLabel = 'Start' | 'Pause' | 'Resume'
 

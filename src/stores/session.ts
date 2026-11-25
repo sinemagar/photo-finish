@@ -2,18 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 import { createRng, type Rng } from '@/domain'
-import type { Renderer } from '@/renderers/types'
-
-export type { Renderer }
-
-export interface SessionOptions {
-  /** Fixes every random decision of the session. Defaults to a clock-based seed. */
-  seed?: number
-  /** Playback speed multiplier; values above 1 make the meeting run faster. */
-  speed?: number
-  /** How the track is drawn. Defaults to the 2D track. */
-  renderer?: Renderer
-}
+import type { Renderer, SessionOptions } from './types'
 
 const clockSeed = () => Date.now() >>> 0
 

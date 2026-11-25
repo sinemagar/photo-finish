@@ -1,4 +1,4 @@
-import type { Renderer, SessionOptions } from '@/stores/session'
+import type { Renderer, SessionOptions } from '@/stores/types'
 
 const positiveNumber = (value: string | null): number | undefined => {
   if (value === null || value.trim() === '') return undefined
