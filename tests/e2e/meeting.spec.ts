@@ -54,9 +54,16 @@ test.describe('getting started', () => {
     await expect(page.getByTestId('session-seed')).toHaveText('7')
     await expect(page.getByTestId('replay-link')).toHaveAttribute('href', '?seed=7')
 
-    // While the dialog is open the page behind it cannot be reached.
-    for (let presses = 0; presses < 8; presses++) await page.keyboard.press('Tab')
-    expect(await dialog.evaluate((element) => element.contains(document.activeElement))).toBe(true)
+    // While the dialog is open the page behind it cannot be reached. Focus may pass to
+    // the browser's own controls, as a native modal dialog allows, but never to the page.
+    for (let presses = 0; presses < 8; presses++) {
+      await page.keyboard.press('Tab')
+      const focusStaysOffThePage = await dialog.evaluate((element) => {
+        const active = document.activeElement
+        return !active || active === document.body || element.contains(active)
+      })
+      expect(focusStaysOffThePage).toBe(true)
+    }
 
     await page.keyboard.press('Escape')
 
