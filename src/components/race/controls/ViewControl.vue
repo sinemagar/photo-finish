@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { CameraMode } from '@/scene/cameras'
-import type { Renderer } from '@/stores/session'
+import type { CameraMode } from '@/renderers/3d/geometry/cameras'
+import type { Renderer } from '@/renderers/types'
 
 type View = CameraMode | '2d'
+
+const camera = defineModel<CameraMode>('camera', { required: true })
+const renderer = defineModel<Renderer>('renderer', { required: true })
 
 /** The three 3D cameras and the flat 2D track, offered as one choice of view. */
 const VIEWS: { id: View; label: string; icon: string }[] = [
@@ -14,9 +17,6 @@ const VIEWS: { id: View; label: string; icon: string }[] = [
   { id: 'aerial', label: 'Aerial', icon: 'M10 3v4 M4 7h12 M6 7l-2 9h12l-2-9' },
   { id: '2d', label: '2D', icon: 'M3 6h14 M3 10h14 M3 14h14' },
 ]
-
-const camera = defineModel<CameraMode>('camera', { required: true })
-const renderer = defineModel<Renderer>('renderer', { required: true })
 
 const current = computed<View>(() => (renderer.value === '2d' ? '2d' : camera.value))
 

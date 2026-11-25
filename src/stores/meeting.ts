@@ -11,27 +11,16 @@ import {
   runnerProgress,
   summariseMeeting,
   type HorseRecord,
-  type Horse,
   type MeetingStatus,
   type Round,
   type RoundResult,
   type RoundState,
 } from '@/domain'
 
+import type { TrackRunner } from '@/renderers/types'
+
 import { useSessionStore } from './session'
 import { useStableStore } from './stable'
-
-/** A runner as the track needs it: who it is, where it is and how it finished. */
-export interface TrackRunner {
-  lane: number
-  horse: Horse
-  /** Share of the distance covered, from 0 to 1. */
-  progress: number
-  /** Finishing position, or null while the runner is still on its way. */
-  position: number | null
-  /** Current place in the field once the round is under way: live, then final. */
-  rank: number | null
-}
 
 export type ToggleLabel = 'Start' | 'Pause' | 'Resume'
 

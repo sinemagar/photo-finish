@@ -24,7 +24,7 @@ import {
   type Scene,
 } from 'three'
 
-import { COURSE, courseLength, laneOffset, pointOnCourse } from './course'
+import { COURSE, courseLength, laneOffset, pointOnCourse } from '../geometry/course'
 
 const LANES = 10
 const INNER_EDGE = 0

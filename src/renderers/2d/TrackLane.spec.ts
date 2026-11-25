@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 
-import type { TrackRunner } from '@/stores/meeting'
+import type { TrackRunner } from '@/renderers/types'
 
 import HorseSprite from './HorseSprite.vue'
 import TrackLane from './TrackLane.vue'

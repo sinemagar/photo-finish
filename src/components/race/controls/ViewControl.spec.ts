@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 
-import type { CameraMode } from '@/scene/cameras'
+import type { CameraMode } from '@/renderers/3d/geometry/cameras'
 
-import TrackViewControl from './TrackViewControl.vue'
+import ViewControl from './ViewControl.vue'
 
 const mountControl = (renderer: '2d' | '3d', camera: CameraMode = 'tv') =>
-  mount(TrackViewControl, { props: { renderer, camera } })
+  mount(ViewControl, { props: { renderer, camera } })
 
 const pressed = (wrapper: ReturnType<typeof mountControl>) =>
   wrapper
@@ -14,7 +14,7 @@ const pressed = (wrapper: ReturnType<typeof mountControl>) =>
     .filter((button) => button.attributes('aria-pressed') === 'true')
     .map((button) => button.text())
 
-describe('TrackViewControl', () => {
+describe('ViewControl', () => {
   it('offers the three cameras and the 2D track as one labelled choice', () => {
     const wrapper = mountControl('3d')
 

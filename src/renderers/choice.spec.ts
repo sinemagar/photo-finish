@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { chooseRenderer, supportsWebGL } from './renderer'
+import { chooseRenderer, supportsWebGL } from './choice'
 
 describe('chooseRenderer', () => {
   it('starts in 3D when the browser can draw it', () => {

@@ -1,26 +1,25 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { TrackRunner } from '@/stores/meeting'
+import type { TrackRendererProps } from '@/renderers/types'
 import { formatDistance } from '@/utils/format'
 
 import TrackLane from './TrackLane.vue'
 
 /**
- * Draws the track. This component is the renderer boundary: it receives the runners and
- * how far each has got, and knows nothing about stores, rules or time. Another renderer
- * that accepts the same props could replace it without touching the rest of the game.
+ * The 2D renderer: the track as lanes of HTML, with horses moved by CSS transforms. Like
+ * every renderer it receives the runners and how far each has got, and knows nothing
+ * about stores, rules or time.
  */
 const props = withDefaults(
-  defineProps<{
-    runners: TrackRunner[]
-    /** Number of lanes to draw, including empty ones. */
-    lanes: number
-    /** Round distance in metres; labels the distance markers when given. */
-    distance?: number
-    /** Whether the race is moving right now; drives the gallop animation. */
-    racing?: boolean
-  }>(),
+  defineProps<
+    TrackRendererProps & {
+      /** Number of lanes to draw, including empty ones. */
+      lanes: number
+      /** Whether the race is moving right now; drives the gallop animation. */
+      racing?: boolean
+    }
+  >(),
   { distance: undefined, racing: false },
 )
 

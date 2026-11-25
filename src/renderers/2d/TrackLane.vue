@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { TrackRunner } from '@/stores/meeting'
+import type { TrackRunner } from '@/renderers/types'
 import { formatOrdinal } from '@/utils/format'
 
 import HorseSprite from './HorseSprite.vue'

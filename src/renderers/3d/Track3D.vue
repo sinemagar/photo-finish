@@ -1,24 +1,23 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 
-import type { CameraMode } from '@/scene/cameras'
-import type { RaceScene } from '@/scene/RaceScene'
-import type { TrackRunner } from '@/stores/meeting'
+import type { CameraMode } from '@/renderers/3d/geometry/cameras'
+import type { RaceScene } from '@/renderers/3d/scene/RaceScene'
+import type { TrackRendererProps } from '@/renderers/types'
 
 /**
- * The 3D renderer. It takes the same props as the 2D `RaceTrack`, plus a camera, and
- * draws them with three.js. three.js and the horse model are only downloaded when this
- * component is first shown.
+ * The 3D renderer: the race on an oval racecourse, drawn with three.js. It takes the same
+ * runners as the 2D track, plus a camera. three.js and the horse model are downloaded
+ * only when this component is first shown; all drawing is done by `scene/RaceScene`.
  */
 const props = withDefaults(
-  defineProps<{
-    runners: TrackRunner[]
-    lanes: number
-    distance?: number
-    /** Freezes every horse where it stands. */
-    paused?: boolean
-    camera?: CameraMode
-  }>(),
+  defineProps<
+    TrackRendererProps & {
+      /** Freezes every horse where it stands. */
+      paused?: boolean
+      camera?: CameraMode
+    }
+  >(),
   { distance: undefined, paused: false, camera: 'tv' },
 )
 
@@ -51,7 +50,7 @@ function pushField() {
 
 onMounted(async () => {
   try {
-    const { RaceScene } = await import('@/scene/RaceScene')
+    const { RaceScene } = await import('@/renderers/3d/scene/RaceScene')
     if (!canvas.value || !host.value) return
 
     scene = await RaceScene.create(canvas.value, MODEL_URL)

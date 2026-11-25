@@ -2,6 +2,9 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 import { createRng, type Rng } from '@/domain'
+import type { Renderer } from '@/renderers/types'
+
+export type { Renderer }
 
 export interface SessionOptions {
   /** Fixes every random decision of the session. Defaults to a clock-based seed. */
@@ -11,9 +14,6 @@ export interface SessionOptions {
   /** How the track is drawn. Defaults to the 2D track. */
   renderer?: Renderer
 }
-
-/** The two ways of drawing the track. */
-export type Renderer = '2d' | '3d'
 
 const clockSeed = () => Date.now() >>> 0
 
