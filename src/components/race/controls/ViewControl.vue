@@ -31,26 +31,26 @@ function choose(view: View) {
 </script>
 
 <template>
-  <div class="track-view" role="group" aria-label="View" data-testid="track-view">
+  <div class="view-control" role="group" aria-label="View" data-testid="view-control">
     <button
       v-for="view in VIEWS"
       :key="view.id"
       type="button"
-      class="track-view__option"
+      class="view-control__option"
       :aria-pressed="current === view.id"
       :data-testid="view.id === '2d' ? 'renderer-2d' : `camera-${view.id}`"
       @click="choose(view.id)"
     >
-      <svg class="track-view__icon" viewBox="0 0 20 20" aria-hidden="true">
+      <svg class="view-control__icon" viewBox="0 0 20 20" aria-hidden="true">
         <path :d="view.icon" />
       </svg>
-      <span class="track-view__label">{{ view.label }}</span>
+      <span class="view-control__label">{{ view.label }}</span>
     </button>
   </div>
 </template>
 
 <style scoped lang="scss">
-.track-view {
+.view-control {
   display: inline-flex;
   flex: none;
   gap: 2px;

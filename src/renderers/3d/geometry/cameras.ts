@@ -3,8 +3,6 @@ import { COURSE, laneOffset, pointOnCourse, type CourseShape } from './course'
 /** The camera views the player can choose between. */
 export type CameraMode = 'tv' | 'chase' | 'aerial'
 
-export const CAMERA_MODES: readonly CameraMode[] = ['tv', 'chase', 'aerial']
-
 export interface Vec3 {
   x: number
   y: number

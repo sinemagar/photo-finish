@@ -39,8 +39,8 @@ const markers = computed(() =>
 </script>
 
 <template>
-  <div class="race-track" data-testid="race-track">
-    <ol class="race-track__lanes">
+  <div class="track-2d" data-testid="race-track">
+    <ol class="track-2d__lanes">
       <TrackLane
         v-for="lane in laneNumbers"
         :key="lane"
@@ -49,26 +49,26 @@ const markers = computed(() =>
         :racing="racing"
       />
     </ol>
-    <div class="race-track__ruler" aria-hidden="true">
-      <span class="race-track__finish-label">Finish</span>
+    <div class="track-2d__ruler" aria-hidden="true">
+      <span class="track-2d__finish-label">Finish</span>
     </div>
-    <div class="race-track__markers" aria-hidden="true">
+    <div class="track-2d__markers" aria-hidden="true">
       <span
         v-for="marker in markers"
         :key="marker.share"
-        class="race-track__marker"
-        :class="{ 'race-track__marker--start': marker.share === 0 }"
+        class="track-2d__marker"
+        :class="{ 'track-2d__marker--start': marker.share === 0 }"
         :style="{ '--share': marker.share }"
       >
-        <span class="race-track__marker-label">{{ marker.label }}</span>
+        <span class="track-2d__marker-label">{{ marker.label }}</span>
       </span>
     </div>
-    <span class="race-track__finish" aria-hidden="true" />
+    <span class="track-2d__finish" aria-hidden="true" />
   </div>
 </template>
 
 <style scoped lang="scss">
-.race-track {
+.track-2d {
   --lane-height: clamp(2.25rem, 5.2vh, 3.5rem);
   --sprite-width: calc(var(--lane-height) * 1.36);
   --gate-width: 10rem;
