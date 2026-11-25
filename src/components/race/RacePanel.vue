@@ -54,7 +54,7 @@ const roundOnTrack = computed(() =>
 </script>
 
 <template>
-  <BasePanel :title="title" data-testid="race-panel">
+  <BasePanel class="race-panel" :title="title" data-testid="race-panel">
     <template #actions>
       <MeetingStatusBadge :status="meeting.status" />
     </template>
@@ -86,7 +86,18 @@ const roundOnTrack = computed(() =>
 
 <style scoped lang="scss">
 .race-panel {
+  // Wide screens: the track takes whatever height is left, so the controls and the round
+  // stepper below it are always on screen without scrolling.
+  @media (min-width: 64rem) {
+    :deep(.base-panel__body) {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+  }
+
   &__toolbar {
+    flex: none;
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
@@ -97,6 +108,7 @@ const roundOnTrack = computed(() =>
   }
 
   &__footer {
+    flex: none;
     display: flex;
     flex-wrap: wrap;
     align-items: center;

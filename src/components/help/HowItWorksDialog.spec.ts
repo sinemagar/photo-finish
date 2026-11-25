@@ -22,6 +22,26 @@ describe('HowItWorksDialog', () => {
     wrapper.unmount()
   })
 
+  it('explains the views, the speed control, the tabs and the theme switch', () => {
+    const { wrapper } = mountDialog()
+    const text = wrapper.text().replace(/\s+/g, ' ')
+
+    for (const term of [
+      'TV',
+      'Chase',
+      'Aerial',
+      '2D',
+      '1×, 2× or 4×',
+      'Results',
+      'Stable',
+      'dark',
+    ]) {
+      expect(text).toContain(term)
+    }
+
+    wrapper.unmount()
+  })
+
   it('shows the seed of the session and a link that replays it', () => {
     const { wrapper } = mountDialog(42)
 

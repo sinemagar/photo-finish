@@ -54,9 +54,16 @@ test.describe('getting started', () => {
     await expect(page.getByTestId('session-seed')).toHaveText('7')
     await expect(page.getByTestId('replay-link')).toHaveAttribute('href', '?seed=7')
 
-    // While the dialog is open the page behind it cannot be reached.
-    for (let presses = 0; presses < 8; presses++) await page.keyboard.press('Tab')
-    expect(await dialog.evaluate((element) => element.contains(document.activeElement))).toBe(true)
+    // While the dialog is open the page behind it cannot be reached. Focus may pass to
+    // the browser's own controls, as a native modal dialog allows, but never to the page.
+    for (let presses = 0; presses < 8; presses++) {
+      await page.keyboard.press('Tab')
+      const focusStaysOffThePage = await dialog.evaluate((element) => {
+        const active = document.activeElement
+        return !active || active === document.body || element.contains(active)
+      })
+      expect(focusStaysOffThePage).toBe(true)
+    }
 
     await page.keyboard.press('Escape')
 
@@ -355,4 +362,17 @@ test('can be played with the keyboard alone', async ({ page }) => {
 
   await page.keyboard.press('Space')
   await expect(meeting.statusBadge).toHaveText('Paused')
+})
+
+test('keeps the controls under the track on screen on a short laptop display', async ({ page }) => {
+  await page.setViewportSize({ width: 1180, height: 600 })
+  await meeting.generate()
+
+  for (const testId of ['view-control', 'speed-control', 'round-stepper']) {
+    await expect(page.getByTestId(testId)).toBeInViewport({ ratio: 1 })
+  }
+  const pageScrolls = await page.evaluate(
+    () => document.documentElement.scrollHeight > window.innerHeight,
+  )
+  expect(pageScrolls).toBe(false)
 })

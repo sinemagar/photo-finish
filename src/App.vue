@@ -62,6 +62,7 @@ const { theme, toggle: toggleTheme } = useTheme()
     &__main {
       flex: 1;
       grid-template-columns: minmax(0, 1fr) 23rem;
+      grid-template-rows: minmax(0, 1fr);
       min-height: 0;
       padding: var(--space-4);
     }

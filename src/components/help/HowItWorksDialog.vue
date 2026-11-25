@@ -50,6 +50,23 @@ const replayUrl = computed(() => `?seed=${session.seed}`)
       </section>
 
       <section>
+        <h3>Watching</h3>
+        <ul>
+          <li>
+            <strong>View</strong>, under the track: <strong>TV</strong> follows the leaders and cuts
+            to the finish line for the last metres, <strong>Chase</strong> rides behind the field,
+            <strong>Aerial</strong> looks down on it, and <strong>2D</strong> shows the lanes flat.
+          </li>
+          <li><strong>Speed</strong> plays the meeting at 1×, 2× or 4×.</li>
+          <li>
+            <strong>Results</strong>, <strong>Programme</strong> and <strong>Stable</strong> sit in
+            tabs beside the track; the tab follows the meeting until you pick one.
+          </li>
+          <li>The moon or sun button in the header switches between light and dark.</li>
+        </ul>
+      </section>
+
+      <section>
         <h3>What decides a race</h3>
         <ul>
           <li>

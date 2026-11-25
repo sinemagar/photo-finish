@@ -159,4 +159,12 @@ const markers = computed(() =>
     background: repeating-conic-gradient(#16201b 0% 25%, #ffffff 0% 50%) 0 0 / 0.5rem 0.5rem;
   }
 }
+
+// Inside a stage of fixed height (wide screens), the ten lanes share the height that is
+// left, so the whole track is always visible.
+@container race-stage (min-height: 0) {
+  .track-2d {
+    --lane-height: clamp(1.5rem, calc((100cqh - var(--ruler-height) - 0.5rem) / 10), 3.5rem);
+  }
+}
 </style>
