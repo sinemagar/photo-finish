@@ -3,6 +3,11 @@ export function formatDistance(metres: number): string {
   return `${metres} m`
 }
 
+/** Names a round with its distance, e.g. `Round 2 · 1400 m`. */
+export function formatRoundHeading(round: { number: number; distance: number }): string {
+  return `Round ${round.number} · ${formatDistance(round.distance)}`
+}
+
 /** Formats race seconds as minutes, seconds and hundredths, e.g. `1:15.32`. */
 export function formatRaceTime(seconds: number): string {
   const hundredths = Math.round(seconds * 100)

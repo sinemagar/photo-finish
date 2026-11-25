@@ -6,7 +6,7 @@ import { ROUND_DISTANCES } from '@/domain'
 import type { CameraMode } from '@/renderers/3d/geometry/cameras'
 import { useMeetingStore } from '@/stores/meeting'
 import { useSessionStore } from '@/stores/session'
-import { formatDistance } from '@/utils/format'
+import { formatRoundHeading } from '@/utils/format'
 
 import SpeedControl from './controls/SpeedControl.vue'
 import ViewControl from './controls/ViewControl.vue'
@@ -31,7 +31,7 @@ const session = useSessionStore()
 
 const title = computed(() => {
   const round = meeting.currentRound
-  return round ? `Round ${round.number} · ${formatDistance(round.distance)}` : 'Track'
+  return round ? formatRoundHeading(round) : 'Track'
 })
 
 const speed = computed({
@@ -54,7 +54,7 @@ const roundOnTrack = computed(() =>
 </script>
 
 <template>
-  <BasePanel :title="title" data-testid="track-panel">
+  <BasePanel :title="title" data-testid="race-panel">
     <template #actions>
       <MeetingStatusBadge :status="meeting.status" />
     </template>

@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 import { useMeetingStore } from '@/stores/meeting'
 import { useStableStore } from '@/stores/stable'
-import { formatDistance, formatRaceTime } from '@/utils/format'
+import { formatRaceTime, formatRoundHeading } from '@/utils/format'
 
 import { STATUS_MESSAGES } from '../statusMessages'
 import MeetingSummary, { type SummaryEntry } from './MeetingSummary.vue'
@@ -35,7 +35,7 @@ const podium = computed(() =>
 
 const nextHeading = computed(() => {
   const round = meeting.nextRound
-  return round ? `Round ${round.number} · ${formatDistance(round.distance)}` : undefined
+  return round ? formatRoundHeading(round) : undefined
 })
 
 const horsesOfTheDay = computed(() =>
