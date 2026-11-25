@@ -8,8 +8,9 @@ import BaseTabs, { type TabItem } from '@/components/ui/BaseTabs.vue'
 import { useMeetingStore } from '@/stores/meeting'
 
 /**
- * The results, programme and stable, sharing one panel behind tabs. The first result
- * brings the Results tab forward, unless the player has already picked a tab.
+ * The results, programme and stable, sharing one panel behind tabs. The tab follows the
+ * meeting until the player picks one: the stable before anything is planned, the
+ * programme once it is generated, the results from the first finished round.
  */
 type SectionId = 'results' | 'programme' | 'stable'
 
@@ -17,7 +18,7 @@ const SECTION_PREFIX = 'section'
 
 const meeting = useMeetingStore()
 
-const activeSection = ref<SectionId>('programme')
+const activeSection = ref<SectionId>('stable')
 const hasChosenSection = ref(false)
 
 const tabs = computed<TabItem<SectionId>[]>(() => [
@@ -31,10 +32,21 @@ function chooseSection(section: SectionId) {
   activeSection.value = section
 }
 
+function follow(section: SectionId) {
+  if (!hasChosenSection.value) activeSection.value = section
+}
+
+watch(
+  () => meeting.status,
+  (status) => {
+    if (status === 'ready') follow('programme')
+  },
+)
+
 watch(
   () => meeting.results.length,
   (count, previous) => {
-    if (count === 1 && previous === 0 && !hasChosenSection.value) activeSection.value = 'results'
+    if (count === 1 && previous === 0) follow('results')
   },
 )
 

@@ -15,14 +15,24 @@ describe('MeetingDetails', () => {
   const visiblePanels = () =>
     wrapper.findAll('[role="tabpanel"]').filter((panel) => panel.isVisible())
 
-  it('shows one list at a time behind tabs, starting with the programme', () => {
+  it('shows one list at a time behind tabs, starting with the stable', () => {
     ;({ wrapper } = mountWithStores(MeetingDetails, {}, { attachTo: document.body }))
 
     expect(wrapper.find('[role="tablist"]').exists()).toBe(true)
+    expect(visiblePanels().map((panel) => panel.attributes('id'))).toEqual(['section-panel-stable'])
+    expect(visiblePanels()[0]?.attributes('aria-labelledby')).toBe('section-tab-stable')
+  })
+
+  it('turns to the programme once one is generated', async () => {
+    const mounted = mountWithStores(MeetingDetails, {}, { attachTo: document.body })
+    wrapper = mounted.wrapper
+
+    mounted.meeting.generateProgramme()
+    await nextTick()
+
     expect(visiblePanels().map((panel) => panel.attributes('id'))).toEqual([
       'section-panel-programme',
     ])
-    expect(visiblePanels()[0]?.attributes('aria-labelledby')).toBe('section-tab-programme')
   })
 
   it('switches list when a tab is chosen', async () => {
@@ -53,8 +63,9 @@ describe('MeetingDetails', () => {
     const mounted = mountWithStores(MeetingDetails, {}, { attachTo: document.body })
     wrapper = mounted.wrapper
 
-    await wrapper.get(tab('stable')).trigger('click')
     mounted.meeting.generateProgramme()
+    await nextTick()
+    await wrapper.get(tab('stable')).trigger('click')
     mounted.meeting.start()
     tickUntilStatusChanges(mounted.meeting)
     await nextTick()
